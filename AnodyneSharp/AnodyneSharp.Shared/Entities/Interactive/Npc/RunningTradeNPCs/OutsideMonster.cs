@@ -29,7 +29,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
             player = p;
             b = new(preset.Position - Vector2.UnitY * 20, preset, p);
             immovable = true;
-            if (GlobalState.events.SpookedMonster)
+            if (GlobalState.Events.SpookedMonster)
             {
                 exists = false;
             }
@@ -50,7 +50,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
         {
             if(player.follower != null)
             {
-                GlobalState.events.SpookedMonster = true;
+                GlobalState.Events.SpookedMonster = true;
                 GlobalState.StartCutscene = CutSceneState();
             }
             else
@@ -118,7 +118,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            if (GlobalState.events.SpookedMonster)
+            if (GlobalState.Events.SpookedMonster)
             {
                 Play("open");
                 Sounds.SoundManager.PlaySoundEffect("broom_hit");
@@ -135,7 +135,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
         {
             yield return new DialogueEvent(DialogueManager.GetDialogue("goldman", "etc", 2));
 
-            GlobalState.inventory.tradeState = InventoryManager.TradeState.BOX;
+            GlobalState.Inventory.tradeState = InventoryManager.TradeState.BOX;
             exists = false;
             icky.exists = true;
             preset.Alive = false;
@@ -178,7 +178,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
         public IEnumerator<CutsceneEvent> CutSceneState()
         {
-            GlobalState.events.IncEvent("icky.rescued");
+            GlobalState.Events.IncEvent("icky.rescued");
 
             velocity = Vector2.UnitX * 20;
             Play("walk_r");

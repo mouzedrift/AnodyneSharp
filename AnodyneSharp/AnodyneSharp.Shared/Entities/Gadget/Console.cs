@@ -23,7 +23,7 @@ namespace AnodyneSharp.Entities
             if(preset.Activated)
             {
                 Play("green");
-                GlobalState.PUZZLES_SOLVED++;
+                GlobalState.PuzzlesSolvedRoom++;
             }
             else
             {
@@ -42,7 +42,7 @@ namespace AnodyneSharp.Entities
             {
                 _preset.Activated = true;
                 Play("green");
-                GlobalState.PUZZLES_SOLVED++;
+                GlobalState.PuzzlesSolvedRoom++;
                 SoundManager.PlaySoundEffect("get_small_health");
                 return true;
             }

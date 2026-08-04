@@ -34,7 +34,7 @@ namespace AnodyneSharp.Entities.Gadget
                     return;
                 }
             }
-            GlobalState.PUZZLES_SOLVED++;
+            GlobalState.PuzzlesSolvedRoom++;
             _preset.Alive = exists = false;
         }
     }

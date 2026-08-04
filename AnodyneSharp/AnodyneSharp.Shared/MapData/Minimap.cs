@@ -13,7 +13,7 @@ namespace AnodyneSharp.MapData
         List<int> interest;
         public readonly TileMap tiles;
 
-        private int CurrentLoc => GlobalState.CURRENT_GRID_X + GlobalState.CURRENT_GRID_Y * tiles.Width;
+        private int CurrentLoc => GlobalState.CurrentGridX + GlobalState.CurrentGridY * tiles.Width;
 
         private const int PlayerIndicator = 27;
         private const int ChestIndicator = 18;
@@ -26,8 +26,8 @@ namespace AnodyneSharp.MapData
 
         public void Update()
         {
-            int x = GlobalState.CURRENT_GRID_X;
-            int y = GlobalState.CURRENT_GRID_Y;
+            int x = GlobalState.CurrentGridX;
+            int y = GlobalState.CurrentGridY;
             if (x >= 0 && x < tiles.Width && y >= 0 && y < tiles.Height)
             {
                 interest[CurrentLoc] = 1;
@@ -79,7 +79,7 @@ namespace AnodyneSharp.MapData
 
                 }
 
-            Vector2 PlayerPos = new Vector2(GlobalState.CURRENT_GRID_X, GlobalState.CURRENT_GRID_Y);
+            Vector2 PlayerPos = new Vector2(GlobalState.CurrentGridX, GlobalState.CurrentGridY);
             if (b.Contains(PlayerPos) && DrawPlayerIndicator)
             {
                 SpriteDrawer.DrawSprite(sprites.Tex, topleft + PlayerPos * new Vector2(sprites.Width), sprites.GetRect(PlayerIndicator), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP_PLAYER));

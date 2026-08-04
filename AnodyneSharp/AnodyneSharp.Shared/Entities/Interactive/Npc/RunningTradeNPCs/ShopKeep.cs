@@ -27,7 +27,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
             {
                 new(itemBasePos, 54),
                 new(itemBasePos + Vector2.UnitX * 34, 55),
-                new(itemBasePos + Vector2.UnitX * 34 * 2, (_preset.Activated || GlobalState.inventory.CanJump) ? 57 : 56)
+                new(itemBasePos + Vector2.UnitX * 34 * 2, (_preset.Activated || GlobalState.Inventory.CanJump) ? 57 : 56)
             };
         }
 
@@ -46,26 +46,26 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
         {
             static string getDiag(int i) => Dialogue.DialogueManager.GetDialogue("misc", "any", "tradenpc", i);
 
-            if (GlobalState.events.GetEvent("shopkeep.init") == 0)
+            if (GlobalState.Events.GetEvent("shopkeep.init") == 0)
             {
                 GlobalState.Dialogue = getDiag(0);
-                GlobalState.events.IncEvent("shopkeep.init");
+                GlobalState.Events.IncEvent("shopkeep.init");
             }
             else if(_preset.Activated)
             {
                 GlobalState.Dialogue = getDiag(1);
             }
-            else if(GlobalState.inventory.tradeState == InventoryManager.TradeState.BOX)
+            else if(GlobalState.Inventory.tradeState == InventoryManager.TradeState.BOX)
             {
                 _preset.Activated = true;
-                if(GlobalState.inventory.CanJump)
+                if(GlobalState.Inventory.CanJump)
                 {
                     //Young can already jump, so shopkeep exchanges something else for the box
-                    GlobalState.inventory.tradeState = InventoryManager.TradeState.NONE;
-                    if(GlobalState.inventory.CardStatus[43])
+                    GlobalState.Inventory.tradeState = InventoryManager.TradeState.NONE;
+                    if(GlobalState.Inventory.CardStatus[43])
                     {
                         GlobalState.Dialogue = getDiag(2) + " " + getDiag(11) + " " + getDiag(3);
-                        GlobalState.CUR_HEALTH = GlobalState.MAX_HEALTH;
+                        GlobalState.CurrentHealth = GlobalState.MaxHealth;
                     }
                     else
                     {
@@ -78,7 +78,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
                 else
                 {
                     GlobalState.Dialogue = getDiag(2) + " " + getDiag(4);
-                    GlobalState.inventory.tradeState = InventoryManager.TradeState.SHOES;
+                    GlobalState.Inventory.tradeState = InventoryManager.TradeState.SHOES;
                     _items[2].ActivateAnim();
                 }
             }

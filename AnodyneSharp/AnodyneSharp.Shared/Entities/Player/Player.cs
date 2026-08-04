@@ -233,7 +233,7 @@ namespace AnodyneSharp.Entities
                 invincibility_time -= GameTimes.DeltaTime;
                 if (invincibility_time <= 0) invincible = false;
             }
-            if (GlobalState.FUCK_IT_MODE_ON)
+            if (GlobalState.FuckItModeOn)
             {
                 Solid = false;
                 walkSpeed = 200;
@@ -312,7 +312,7 @@ namespace AnodyneSharp.Entities
 
         public override void Fall(Vector2 fallPoint)
         {
-            if (state != PlayerState.AIR && !isSlipping && !hasFallen && !GlobalState.FUCK_IT_MODE_ON)
+            if (state != PlayerState.AIR && !isSlipping && !hasFallen && !GlobalState.FuckItModeOn)
             {
                 isSlipping = true;
                 fallTimer = JustLanded ? -1 : FALL_TIMER_DEFAULT;
@@ -392,7 +392,7 @@ namespace AnodyneSharp.Entities
                     _ => Vector2.Zero
                 };
 
-                if (raft == null && !GlobalState.FUCK_IT_MODE_ON)
+                if (raft == null && !GlobalState.FuckItModeOn)
                 {
                     slowMul = 0.5f;
                     IS_SINKING = true;
@@ -521,7 +521,7 @@ namespace AnodyneSharp.Entities
                         ANIM_STATE = PlayerAnimState.as_slumped;
                         angularVelocity = 0;
                         rotation = 0;
-                        GlobalState.screenShake.Shake(0.05f, 0.4f);
+                        GlobalState.ScreenShake.Shake(0.05f, 0.4f);
                         SoundManager.PlaySoundEffect("hit_ground_1");
                         fall_smack = false;
                     }
@@ -671,11 +671,11 @@ namespace AnodyneSharp.Entities
             {
                 if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept) && action_latency <= 0 && !skipBroom)
                 {
-                    if (GlobalState.inventory.EquippedBroom == BroomType.Transformer)
+                    if (GlobalState.Inventory.EquippedBroom == BroomType.Transformer)
                     {
                         transformer.OnAction();
                     }
-                    else if (GlobalState.inventory.EquippedBroom != BroomType.NONE && !broom.exists)
+                    else if (GlobalState.Inventory.EquippedBroom != BroomType.NONE && !broom.exists)
                     {
                         broom.Attack();
                         action_latency = action_latency_max;
@@ -687,7 +687,7 @@ namespace AnodyneSharp.Entities
                 skipBroom = false;
 
 
-                if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel) && !IS_SINKING && GlobalState.inventory.CanJump)
+                if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel) && !IS_SINKING && GlobalState.Inventory.CanJump)
                 {
                     state = PlayerState.AIR;
                     jump_anim = JumpAnim(jump_period);
@@ -1009,10 +1009,10 @@ namespace AnodyneSharp.Entities
 
         internal void ReceiveDamage(int amount, string damageDealer, bool knockback = true, bool playSound = true)
         {
-            if (!invincible && !hasFallen && !GlobalState.FUCK_IT_MODE_ON)
+            if (!invincible && !hasFallen && !GlobalState.FuckItModeOn)
             {
                 if(!GlobalState.settings.invincible) //Setting only disables health change
-                    GlobalState.CUR_HEALTH -= amount;
+                    GlobalState.CurrentHealth -= amount;
 
                 if (playSound)
                 {
@@ -1021,7 +1021,7 @@ namespace AnodyneSharp.Entities
 
                 GlobalState.DamageDealer = damageDealer;
 
-                if (GlobalState.CUR_HEALTH > 0)
+                if (GlobalState.CurrentHealth > 0)
                 {
                     invincible = true;
                     invincibility_time = INVINCIBLE_MAX;

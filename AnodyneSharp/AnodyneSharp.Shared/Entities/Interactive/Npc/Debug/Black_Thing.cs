@@ -41,7 +41,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
                     scale1.maxScale = 10;
                     scale2.maxScale = 12;
                     thing3.maxScale = 9;
-                    GlobalState.PUZZLES_SOLVED++;
+                    GlobalState.PuzzlesSolvedRoom++;
                 }
             }
         }

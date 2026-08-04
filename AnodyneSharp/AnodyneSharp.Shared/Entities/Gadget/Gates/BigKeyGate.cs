@@ -67,7 +67,7 @@ namespace AnodyneSharp.Entities.Gadget
 
         public override bool TryUnlock()
         {
-            if (GlobalState.inventory.BigKeyStatus[keyhole.Frame])
+            if (GlobalState.Inventory.BigKeyStatus[keyhole.Frame])
             {
                 GlobalState.StartCutscene = keyAnim();
                 return true;

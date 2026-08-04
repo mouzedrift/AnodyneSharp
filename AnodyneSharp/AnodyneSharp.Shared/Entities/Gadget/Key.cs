@@ -28,7 +28,7 @@ namespace AnodyneSharp.Entities.Gadget
 
                 visible = false;
 
-                if (GlobalState.ENEMIES_KILLED > 1)
+                if (GlobalState.EnemiesKilledRoom > 1)
                 {
                     visible = true;
                 }
@@ -39,7 +39,7 @@ namespace AnodyneSharp.Entities.Gadget
         {
             base.Update();
             
-            if (visible == false && bossRush && GlobalState.ENEMIES_KILLED > 0)
+            if (visible == false && bossRush && GlobalState.EnemiesKilledRoom > 0)
             {
                 visible = true;
             }
@@ -50,7 +50,7 @@ namespace AnodyneSharp.Entities.Gadget
             if (visible)
             {
                 visible = false;
-                GlobalState.inventory.AddCurrentMapKey();
+                GlobalState.Inventory.AddCurrentMapKey();
                 SoundManager.PlaySoundEffect("keyget");
 
                 if (_preset != null)

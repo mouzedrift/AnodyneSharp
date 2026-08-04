@@ -135,7 +135,7 @@ namespace AnodyneSharp.Entities
                     sprite.Draw(SpriteDrawer._spriteBatch, Position - offset * scale, scale, (int)y_push, rotation, opacity, _flip);
                 }
                 shadow?.Draw();
-                if (GlobalState.draw_hitboxes && HasVisibleHitbox)
+                if (GlobalState.DrawHitboxes && HasVisibleHitbox)
                 {
                     SpriteDrawer.DrawSprite(ResourceManager.GetTexture("hitbox"), Hitbox, color: Color.Red, Z: DrawingUtilities.GetDrawingZ(DrawOrder.HITBOX, 0));
                 }

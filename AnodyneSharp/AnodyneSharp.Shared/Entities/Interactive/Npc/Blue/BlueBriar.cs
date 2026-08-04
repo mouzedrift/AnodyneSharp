@@ -113,7 +113,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Blue
                 yield return null;
 
             exists = preset.Alive = false;
-            GlobalState.events.IncEvent("BlueDone");
+            GlobalState.Events.IncEvent("BlueDone");
 
         }
 
@@ -188,7 +188,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Blue
                     yield return null;
                 }
 
-                GlobalState.PUZZLES_SOLVED += 3;
+                GlobalState.PuzzlesSolvedRoom += 3;
 
                 velocity.X = 0;
 

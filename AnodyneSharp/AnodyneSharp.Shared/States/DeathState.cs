@@ -75,7 +75,7 @@ namespace AnodyneSharp.States
 
             _player.dontMove = true;
             _player.exists = false;
-            GlobalState.disable_menu = true;
+            GlobalState.DisableMenu = true;
         }
 
         public override void Update()
@@ -98,11 +98,11 @@ namespace AnodyneSharp.States
 
             if (state == CurrentState.FadeOut)
             {
-                GlobalState.black_overlay.ChangeAlpha(0.6f);
+                GlobalState.BlackOverlay.ChangeAlpha(0.6f);
 
-                if (GlobalState.black_overlay.alpha == 1)
+                if (GlobalState.BlackOverlay.alpha == 1)
                 {
-                    GlobalState.WARP = true;
+                    GlobalState.Warping = true;
                     Exit = true;
                 }
             }
@@ -124,27 +124,27 @@ namespace AnodyneSharp.States
                 {
                     SoundManager.PlaySoundEffect("menu_select");
 
-                    GlobalState.CUR_HEALTH = GlobalState.MAX_HEALTH;
+                    GlobalState.CurrentHealth = GlobalState.MaxHealth;
 
                     state = CurrentState.FadeOut;
 
                     if (yesSelected)
                     {
-                        (GlobalState.NEXT_MAP_NAME, GlobalState.PLAYER_WARP_TARGET) = (GlobalState.checkpoint.map,GlobalState.checkpoint.Position);
+                        (GlobalState.NextMapName, GlobalState.PlayerWarpTarget) = (GlobalState.checkpoint.map,GlobalState.checkpoint.Position);
 
                         _player.dontMove = false;
                         _player.exists = true;
-                        GlobalState.disable_menu = false;
+                        GlobalState.DisableMenu = false;
                     }
                     else
                     {
-                        GlobalState.NEXT_MAP_NAME = "DRAWER";
-                        GlobalState.PLAYER_WARP_TARGET = new Vector2(368, 224);
+                        GlobalState.NextMapName = "DRAWER";
+                        GlobalState.PlayerWarpTarget = new Vector2(368, 224);
 
 
                         _player.ANIM_STATE = PlayerAnimState.as_slumped;
 
-                        GlobalState.inventory.EquippedBroom =  BroomType.NONE;
+                        GlobalState.Inventory.EquippedBroom =  BroomType.NONE;
 
                         GlobalState.InDeathRoom = true;
                     }

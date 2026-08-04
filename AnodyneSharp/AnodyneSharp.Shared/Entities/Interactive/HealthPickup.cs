@@ -59,7 +59,7 @@ namespace AnodyneSharp.Entities.Interactive
             if (_latency <= 0)
             {
                 SoundManager.PlaySoundEffect("get_small_health");
-                GlobalState.CUR_HEALTH += healingFactor;
+                GlobalState.CurrentHealth += healingFactor;
                 exists = false;
             }
         }

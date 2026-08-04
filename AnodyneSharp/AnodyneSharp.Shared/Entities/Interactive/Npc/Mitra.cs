@@ -145,7 +145,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc
         public MitraCliff(EntityPreset preset, Player p) : base(preset, p, true)
         {
             visible = false;
-            if (GlobalState.inventory.CanJump)
+            if (GlobalState.Inventory.CanJump)
             {
                 _preset.Alive = exists = false;
             }
@@ -191,17 +191,17 @@ namespace AnodyneSharp.Entities.Interactive.Npc
             bike.Position = Position - Vector2.One;
             bike.exists = true;
 
-            if (GlobalState.inventory.tradeState == InventoryManager.TradeState.SHOES)
+            if (GlobalState.Inventory.tradeState == InventoryManager.TradeState.SHOES)
             {
                 yield return new DialogueEvent(DialogueManager.GetDialogue("misc", "any", "mitra", 1));
-                GlobalState.inventory.tradeState = InventoryManager.TradeState.NONE;
+                GlobalState.Inventory.tradeState = InventoryManager.TradeState.NONE;
             }
             else
             {
                 yield return new DialogueEvent(DialogueManager.GetDialogue("misc", "any", "mitra", 2));
             }
 
-            GlobalState.inventory.CanJump = true;
+            GlobalState.Inventory.CanJump = true;
 
             yield break;
         }
@@ -292,9 +292,9 @@ namespace AnodyneSharp.Entities.Interactive.Npc
 
         protected override string GetInteractionText()
         {
-            if (GlobalState.events.GetEvent("mitra.wares") == 0)
+            if (GlobalState.Events.GetEvent("mitra.wares") == 0)
             {
-                GlobalState.events.IncEvent("mitra.wares");
+                GlobalState.Events.IncEvent("mitra.wares");
                 return DialogueManager.GetDialogue("mitra", "initial_overworld");
             }
             else
@@ -341,15 +341,15 @@ namespace AnodyneSharp.Entities.Interactive.Npc
             velocity = Vector2.Zero;
             immovable = true;
 
-            GlobalState.screenShake.Shake(0.02f, 0.3f);
+            GlobalState.ScreenShake.Shake(0.02f, 0.3f);
             SoundManager.PlaySoundEffect("sun_guy_death_short");
             OffBike();
             bike.exists = true;
             bike.Position = Position - Vector2.UnitX * 4;
 
-            GlobalState.flash.Flash(1, Color.White);
+            GlobalState.Flash.Flash(1, Color.White);
 
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
                 yield return null;
 
             velocity.X = -20;
@@ -427,39 +427,39 @@ namespace AnodyneSharp.Entities.Interactive.Npc
         {
             if (initial)
             {
-                GlobalState.events.IncEvent("mitra.fieldinit");
+                GlobalState.Events.IncEvent("mitra.fieldinit");
                 if (DialogueManager.IsSceneDirty("mitra", "init"))
                 {
                     return DialogueManager.GetDialogue("mitra", "init");
                 }
-                int talked_about_wares = GlobalState.events.GetEvent("mitra.wares");
+                int talked_about_wares = GlobalState.Events.GetEvent("mitra.wares");
                 string dialog = DialogueManager.GetDialogue("mitra", "init", 1 - talked_about_wares);
                 DialogueManager.SetSceneProgress("mitra", "init", 2);
                 return dialog;
             }
 
-            if (GlobalState.inventory.tradeState == InventoryManager.TradeState.SHOES)
+            if (GlobalState.Inventory.tradeState == InventoryManager.TradeState.SHOES)
             {
-                GlobalState.inventory.tradeState = InventoryManager.TradeState.NONE;
-                GlobalState.inventory.CanJump = true;
+                GlobalState.Inventory.tradeState = InventoryManager.TradeState.NONE;
+                GlobalState.Inventory.CanJump = true;
                 return DialogueManager.GetDialogue("misc", "any", "mitra", 1);
             }
 
             bool all_bosses_dead = new List<string>(6) { "REDCAVE", "BEDROOM", "CROWD", "CIRCUS", "APARTMENT", "HOTEL" }
-                .All(s => GlobalState.events.BossDefeated.Contains(s));
+                .All(s => GlobalState.Events.BossDefeated.Contains(s));
 
-            if (GlobalState.inventory.CardCount < 36 && all_bosses_dead)
+            if (GlobalState.Inventory.CardCount < 36 && all_bosses_dead)
             {
-                if (!given_quest_hint && GlobalState.events.GetEvent("GoQuestProgress") == 0)
+                if (!given_quest_hint && GlobalState.Events.GetEvent("GoQuestProgress") == 0)
                 {
                     given_quest_hint = true;
                     return DialogueManager.GetDialogue("mitra", "quest_event");
                 }
-                if (GlobalState.inventory.CardCount == 0)
+                if (GlobalState.Inventory.CardCount == 0)
                 {
                     return DialogueManager.GetDialogue("mitra", "card_hints", 36);
                 }
-                List<int> missing_cards = GlobalState.inventory.CardStatus.Select((s, i) => !s && i < 36 ? i : -1).Where(i => i >= 0).ToList();
+                List<int> missing_cards = GlobalState.Inventory.CardStatus.Select((s, i) => !s && i < 36 ? i : -1).Where(i => i >= 0).ToList();
                 return DialogueManager.GetDialogue("mitra", "card_hints", missing_cards[GlobalState.RNG.Next(missing_cards.Count)]);
             }
 
@@ -469,10 +469,10 @@ namespace AnodyneSharp.Entities.Interactive.Npc
 
                 int hint = 0;
 
-                if (GlobalState.events.GetEvent("WindmillOpened") == 0)
+                if (GlobalState.Events.GetEvent("WindmillOpened") == 0)
                 {
-                    bool redcave = GlobalState.events.BossDefeated.Contains("REDCAVE");
-                    bool crowd = GlobalState.events.BossDefeated.Contains("CROWD");
+                    bool redcave = GlobalState.Events.BossDefeated.Contains("REDCAVE");
+                    bool crowd = GlobalState.Events.BossDefeated.Contains("CROWD");
                     if (!redcave && !crowd)
                     {
                         hint = GlobalState.RNG.Next(1, 3);
@@ -496,7 +496,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc
                     {
                         hint = 4;
                     }
-                    else if (!GlobalState.inventory.HasBroomType(BroomType.Transformer))
+                    else if (!GlobalState.Inventory.HasBroomType(BroomType.Transformer))
                     {
                         hint = 5;
                     }
@@ -508,7 +508,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc
                 return DialogueManager.GetDialogue("mitra", "game_hints", hint);
             }
 
-            if (!given_quest_hint && GlobalState.events.GetEvent("GoQuestProgress") == 0)
+            if (!given_quest_hint && GlobalState.Events.GetEvent("GoQuestProgress") == 0)
             {
                 given_quest_hint = true;
                 return DialogueManager.GetDialogue("mitra", "quest_event");

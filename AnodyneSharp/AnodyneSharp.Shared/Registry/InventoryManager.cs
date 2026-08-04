@@ -115,7 +115,7 @@ namespace AnodyneSharp.Registry
 
         public int GetCurrentMapKeys()
         {
-            return GetMapKeys(GlobalState.CURRENT_MAP_NAME);
+            return GetMapKeys(GlobalState.CurrentMapName);
         }
 
         public int GetMapKeys(string mapName)
@@ -141,12 +141,12 @@ namespace AnodyneSharp.Registry
 
         public int AddCurrentMapKey()
         {
-            return AddMapKey(GlobalState.CURRENT_MAP_NAME, 1);
+            return AddMapKey(GlobalState.CurrentMapName, 1);
         }
 
         public int RemoveCurrentMapKey()
         {
-            return AddMapKey(GlobalState.CURRENT_MAP_NAME, -1);
+            return AddMapKey(GlobalState.CurrentMapName, -1);
         }
 
         public int AddMapKey(string mapName, int addition)

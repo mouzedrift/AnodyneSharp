@@ -189,18 +189,18 @@ namespace AnodyneSharp.MapData
             ignore_music = false;
             string darkness = MapSettings.Get(s => s.Darkness, priorities, "");
             float target = GlobalState.InDeathRoom ? 0.8f : MapSettings.Get(s => s.DarknessAlpha, priorities, darkness == "" ? 0f : 1f);
-            GlobalState.darkness.SetTex(darkness);
+            GlobalState.Darkness.SetTex(darkness);
             if(!screen_transition)
             {
-                GlobalState.darkness.ForceAlpha(target);
+                GlobalState.Darkness.ForceAlpha(target);
             }
             else
             {
-                GlobalState.darkness.TargetAlpha(target);
+                GlobalState.Darkness.TargetAlpha(target);
             }
             GlobalState.fgBlend.SetTex(MapSettings.Get(s => s.FG_Blend, priorities, ""));
             GlobalState.extraBlend.SetTex(MapSettings.Get(s => s.ExtraBlend, priorities, ""));
-            GlobalState.staticEffect.active = MapSettings.Get(s => s.Static, priorities, false);
+            GlobalState.StaticEffect.active = MapSettings.Get(s => s.Static, priorities, false);
             GlobalState.glitch.active = player_pos.X < 0 || player_pos.Y < 0 || player_pos.X >= WidthInTiles * 16 || player_pos.Y >= HeightInTiles * 16;
             if(!graphics_only)
                 replacements = new(MapSettings.Get(s => s.ReplaceTiles, priorities, ""));

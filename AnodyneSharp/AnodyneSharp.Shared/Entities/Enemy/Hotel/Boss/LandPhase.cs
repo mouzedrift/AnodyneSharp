@@ -49,10 +49,10 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
         {
             //Water phase is needed to start the boss song, which means it at least spawned this time through the map, and it sets its Alive back to true until that phase is done
             bool water_phase_dead = !EntityManager.GetLinkGroup(preset.LinkID).Where(e => e != preset).First().Alive;
-            if ((SoundManager.CurrentSongName != "hotel-boss" || !water_phase_dead || GlobalState.events.GetEvent("BossRushLandDefeated") == 1) && !TEST_LAND)
+            if ((SoundManager.CurrentSongName != "hotel-boss" || !water_phase_dead || GlobalState.Events.GetEvent("BossRushLandDefeated") == 1) && !TEST_LAND)
             {
                 //Death marker being set to exists false does not increment this value here for some reason. Explicitly setting it makes the key spawn
-                GlobalState.ENEMIES_KILLED = 1;
+                GlobalState.EnemiesKilledRoom = 1;
                 death_marker.exists = false;
                 exists = false;
                 return;
@@ -136,7 +136,7 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
             }
             shadow.visible = false;
 
-            GlobalState.screenShake.Shake(0.03f, 0.5f);
+            GlobalState.ScreenShake.Shake(0.03f, 0.5f);
 
             preset.Activated = true; //Make sure that if player returns from quick phase 1 revisit boss is already on land
             state = LandLogic(preset, p, tl);
@@ -182,7 +182,7 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
                 while (!MathUtilities.MoveTo(ref Position.X, tl.X + 16 * 8 - width, 1.7f * 60) | !MathUtilities.MoveTo(ref Position.Y, tl.Y + 57, 60))
                     yield return null;
 
-                GlobalState.screenShake.Shake(0.05f, 0.3f);
+                GlobalState.ScreenShake.Shake(0.05f, 0.3f);
                 SoundManager.PlaySoundEffect("hit_ground_1");
                 ShootBullet(3);
 
@@ -234,7 +234,7 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
 
             SoundManager.StopSong();
             SoundManager.PlaySoundEffect("sun_guy_death_long");
-            GlobalState.flash.Flash(1, Color.White);
+            GlobalState.Flash.Flash(1, Color.White);
             velocity = Vector2.Zero;
 
             if (!bossRush)
@@ -255,7 +255,7 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
                 yield return null;
             }
 
-            GlobalState.flash.Flash(2, Color.White, () => visible = false);
+            GlobalState.Flash.Flash(2, Color.White, () => visible = false);
             SoundManager.PlaySoundEffect("sun_guy_death_long");
 
             shadow.exists = false;
@@ -266,12 +266,12 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
             {
                 exists = false;
                 SoundManager.PlaySong("bedroom");
-                GlobalState.events.SetEvent("BossRushLandDefeated", 1);
+                GlobalState.Events.SetEvent("BossRushLandDefeated", 1);
             }
             else
             {
                 preset.Alive = exists = false;
-                GlobalState.events.BossDefeated.Add(GlobalState.CURRENT_MAP_NAME);
+                GlobalState.Events.BossDefeated.Add(GlobalState.CurrentMapName);
                 SoundManager.PlaySong("hotel");
             }
 

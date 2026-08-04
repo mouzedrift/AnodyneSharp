@@ -111,9 +111,9 @@ namespace AnodyneSharp.Entities.Enemy.Crowd
             SoundManager.StopSong();
             SoundManager.PlaySoundEffect("sun_guy_death_short");
 
-            GlobalState.flash.Flash(3f, Color.White);
+            GlobalState.Flash.Flash(3f, Color.White);
 
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
             {
                 yield return null;
             }
@@ -133,7 +133,7 @@ namespace AnodyneSharp.Entities.Enemy.Crowd
             while (!MathUtilities.MoveTo(ref face.opacity, 0f, 0.18f))
             {
                 wall.opacity = rhand.opacity = lhand.opacity = face.opacity;
-                GlobalState.screenShake.Shake(0.02f, 0.1f);
+                GlobalState.ScreenShake.Shake(0.02f, 0.1f);
                 explosion_timer += GameTimes.DeltaTime;
                 if (explosion_timer > 0.15f)
                 {
@@ -153,7 +153,7 @@ namespace AnodyneSharp.Entities.Enemy.Crowd
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add("CROWD");
+                GlobalState.Events.BossDefeated.Add("CROWD");
                 SoundManager.PlaySong("crowd");
             }
             else
@@ -670,13 +670,13 @@ namespace AnodyneSharp.Entities.Enemy.Crowd
                 {
                     yield return null;
                 }
-                GlobalState.screenShake.Shake(0.01f, 0.2f);
+                GlobalState.ScreenShake.Shake(0.01f, 0.2f);
                 SpawnExplosion();
                 SoundManager.PlaySoundEffect("wb_hit_ground");
 
                 if (phase != 0 && ground_state != GroundPhase.Full)
                 {
-                    GlobalState.screenShake.Shake(0.02f, 0.5f);
+                    GlobalState.ScreenShake.Shake(0.02f, 0.5f);
                     SoundManager.PlaySoundEffect("floor_crack");
 
                     int next_tile = ground_state == GroundPhase.None ? crackedTile : holeTile;

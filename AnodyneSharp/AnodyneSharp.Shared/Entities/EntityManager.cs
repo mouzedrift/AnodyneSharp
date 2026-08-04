@@ -112,12 +112,12 @@ namespace AnodyneSharp.Entities
         {
             try
             {
-                var t = GetMapEntities(GlobalState.CURRENT_MAP_NAME).Where(p => p.Type == typeof(NexusPad)).Single();
+                var t = GetMapEntities(GlobalState.CurrentMapName).Where(p => p.Type == typeof(NexusPad)).Single();
                 return GetLinkedDoor(t);
             }
             catch (Exception)
             {
-                if (GlobalState.events.VisitedMaps.Contains("NEXUS"))
+                if (GlobalState.Events.VisitedMaps.Contains("NEXUS"))
                 {
                     var t = GetMapEntities("NEXUS").Where(p => p.Type == typeof(DungeonEntrance)).Single();
                     return new DoorMapPair(t, "NEXUS");

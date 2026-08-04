@@ -11,7 +11,7 @@ namespace AnodyneSharp.Drawing.Effects
 
         public bool Active()
         {
-            return GlobalState.staticEffect.Active();
+            return GlobalState.StaticEffect.Active();
         }
 
         public void Load(ContentManager content, GraphicsDevice graphicsDevice)

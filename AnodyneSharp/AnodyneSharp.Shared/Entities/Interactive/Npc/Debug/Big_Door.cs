@@ -77,7 +77,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
             LockSquare[] squares = Enumerable.Range(0, 36).Select(i => new LockSquare(i)).ToArray();
 
             //Centered text gets "centered" by adding the screenwidth/2 to it
-            UILabel score_1 = new(new(-100,30), true, $"{GlobalState.inventory.CardCount}\n---",forceEnglish:true,centerText:true);
+            UILabel score_1 = new(new(-100,30), true, $"{GlobalState.Inventory.CardCount}\n---",forceEnglish:true,centerText:true);
             UILabel score_2 = new(new(100,50), true, "20", forceEnglish: true, centerText: true);
 
             yield return new EntityEvent(squares.Select(e => new DrawAsUI(e)).Concat(new List<Entity> { new UILabelEntity(score_1), new UILabelEntity(score_2)}));
@@ -105,7 +105,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
             }
 
             bool cont = false;
-            GlobalState.flash.Flash(0.33f, Color.White, ()=>cont=true);
+            GlobalState.Flash.Flash(0.33f, Color.White, ()=>cont=true);
 
             while (!cont) yield return null;
 
@@ -143,7 +143,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
             public IEnumerator state;
 
             public LockSquare(int i) : base(new(10 + 24 * (i % 6), 20 + 24 * (i / 6)),
-                    new SolidColorRenderer(i < GlobalState.inventory.CardCount ? Color.Black : Color.Yellow, 20, 20),
+                    new SolidColorRenderer(i < GlobalState.Inventory.CardCount ? Color.Black : Color.Yellow, 20, 20),
                     DrawOrder.UI_OBJECTS)
             {
                 scale = 2;
@@ -198,7 +198,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
             while (!MathUtilities.MoveTo(ref RotatingOpenSquare.rotation_radius, 0, 84)) yield return null;
 
             bool cont = false;
-            GlobalState.flash.Flash(1.6f, Color.White, () => cont = true);
+            GlobalState.Flash.Flash(1.6f, Color.White, () => cont = true);
 
             while (!cont) yield return null;
 
@@ -210,7 +210,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Debug
             RandomOpenSquare[] rand_squares = Enumerable.Range(0, 36).Select(i => new RandomOpenSquare(screen_pos)).ToArray();
             yield return new EntityEvent(rand_squares.Select(e => new DrawAsUI(e)));
 
-            while (GlobalState.flash.Active()) yield return null;
+            while (GlobalState.Flash.Active()) yield return null;
 
             RandomOpenSquare.go = true;
 

@@ -73,8 +73,8 @@ namespace AnodyneSharp.Entities.Interactive
                 yield return null;
             }
 
-            GlobalState.flash.Flash(2f, Color.White);
-            GlobalState.screenShake.Shake(0.02f, 0.4f);
+            GlobalState.Flash.Flash(2f, Color.White);
+            GlobalState.ScreenShake.Shake(0.02f, 0.4f);
             SoundManager.PlaySoundEffect("sun_guy_death_long");
             exists = false;
 
@@ -103,7 +103,7 @@ namespace AnodyneSharp.Entities.Interactive
             _preset.Alive = false;
             Solid = false;
 
-            GlobalState.inventory.BigKeyStatus[Frame / 2] = true;
+            GlobalState.Inventory.BigKeyStatus[Frame / 2] = true;
             GlobalState.StartCutscene = States();
 
             return true;

@@ -19,7 +19,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Happy
         public HappyEventTrigger(EntityPreset preset, Player p) : base(preset.Position)
         {
             visible = false;
-            if(GlobalState.events.GetEvent("HappyStarted") != 0)
+            if(GlobalState.Events.GetEvent("HappyStarted") != 0)
             {
                 exists = false;
             }
@@ -46,16 +46,16 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Happy
             GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("happy_npc", "briar");
             while(!GlobalState.LastDialogueFinished || sound.State == Microsoft.Xna.Framework.Audio.SoundState.Playing)
             {
-                GlobalState.screenShake.Shake(0.02f, 0.1f);
+                GlobalState.ScreenShake.Shake(0.02f, 0.1f);
                 _p.dontMove = true;
                 yield return "Dialogue";
             }
             _p.dontMove = false;
-            GlobalState.events.IncEvent("HappyStarted");
+            GlobalState.Events.IncEvent("HappyStarted");
 
-            GlobalState.flash.Flash(1f, Color.Red, () => {
+            GlobalState.Flash.Flash(1f, Color.Red, () => {
                 ((Map)GlobalState.Map).ReloadSettings(_p.Position);
-                GlobalState.darkness.ForceAlpha(1);
+                GlobalState.Darkness.ForceAlpha(1);
             });
 
             yield break;

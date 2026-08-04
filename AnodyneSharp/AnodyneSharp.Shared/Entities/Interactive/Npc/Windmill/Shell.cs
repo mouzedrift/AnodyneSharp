@@ -60,7 +60,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
 
                 visible = false;
 
-                if (GlobalState.events.GetEvent("WindmillOpened") != 0)
+                if (GlobalState.Events.GetEvent("WindmillOpened") != 0)
                 {
                     Play("rotate");
                 }

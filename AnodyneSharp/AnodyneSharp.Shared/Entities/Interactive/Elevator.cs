@@ -83,9 +83,9 @@ namespace AnodyneSharp.Entities.Interactive
 
         void Warp(EntityPreset next)
         {
-            GlobalState.PLAYER_WARP_TARGET = next.Position + new Vector2(8, 30);
-            GlobalState.NEXT_MAP_NAME = GlobalState.CURRENT_MAP_NAME;
-            GlobalState.WARP = true;
+            GlobalState.PlayerWarpTarget = next.Position + new Vector2(8, 30);
+            GlobalState.NextMapName = GlobalState.CurrentMapName;
+            GlobalState.Warping = true;
         }
 
         public override void Update()

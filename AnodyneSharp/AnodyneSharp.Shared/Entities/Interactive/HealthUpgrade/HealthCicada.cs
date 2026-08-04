@@ -95,7 +95,7 @@ namespace AnodyneSharp.Entities.Interactive
         protected IEnumerator<string> StateLogic()
         {
             //s_invisible ctr -1
-            while (GlobalState.IsDungeon && !GlobalState.events.BossDefeated.Contains(GlobalState.CURRENT_MAP_NAME))
+            while (GlobalState.IsDungeon && !GlobalState.Events.BossDefeated.Contains(GlobalState.CurrentMapName))
             {
                 yield return "WaitForBoss";
             }
@@ -149,7 +149,7 @@ namespace AnodyneSharp.Entities.Interactive
             Play("fly");
 
             //s_animating ctr 0
-            while (GlobalState.CUR_HEALTH < GlobalState.MAX_HEALTH)
+            while (GlobalState.CurrentHealth < GlobalState.MaxHealth)
             {
                 timer += GameTimes.DeltaTime;
 
@@ -158,13 +158,13 @@ namespace AnodyneSharp.Entities.Interactive
                     timer = 0;
                     SoundManager.PlaySoundEffect("get_small_health");
 
-                    GlobalState.CUR_HEALTH++;
+                    GlobalState.CurrentHealth++;
                 }
 
                 yield return "HealPlayer";
             }
 
-            targetPos = HealthBar.GetHealthPiecePos(GlobalState.MAX_HEALTH);
+            targetPos = HealthBar.GetHealthPiecePos(GlobalState.MaxHealth);
             _chirp = false;
 
             //s_animating ctr 1
@@ -197,8 +197,8 @@ namespace AnodyneSharp.Entities.Interactive
                 yield return "Gnaw";
             }
 
-            GlobalState.MAX_HEALTH++;
-            GlobalState.CUR_HEALTH++;
+            GlobalState.MaxHealth++;
+            GlobalState.CurrentHealth++;
 
             Play("fly");
             velocity.Y = -40;

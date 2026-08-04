@@ -49,15 +49,15 @@ namespace AnodyneSharp.Dialogue
             return a.GetScene(scene);
         }
 
-        public static bool IsSceneDirty(string npc, string scene) => IsSceneDirty(npc, GlobalState.CURRENT_MAP_NAME, scene);
+        public static bool IsSceneDirty(string npc, string scene) => IsSceneDirty(npc, GlobalState.CurrentMapName, scene);
         public static bool IsSceneDirty(string npc, string area, string scene) => GetScene(npc, area, scene).state.dirty;
 
-        public static bool IsSceneFinished(string npc, string scene) => IsSceneFinished(npc, GlobalState.CURRENT_MAP_NAME, scene);
+        public static bool IsSceneFinished(string npc, string scene) => IsSceneFinished(npc, GlobalState.CurrentMapName, scene);
         public static bool IsSceneFinished(string npc, string area, string scene) => GetScene(npc, area, scene).state.finished;
 
-        public static void SetSceneProgress(string npc, string scene, int id) => GetScene(npc, GlobalState.CURRENT_MAP_NAME, scene).state.line = id;
+        public static void SetSceneProgress(string npc, string scene, int id) => GetScene(npc, GlobalState.CurrentMapName, scene).state.line = id;
 
-        public static string GetDialogue(string npc, string scene, int id = -1) => GetDialogue(npc, GlobalState.CURRENT_MAP_NAME, scene, id);
+        public static string GetDialogue(string npc, string scene, int id = -1) => GetDialogue(npc, GlobalState.CurrentMapName, scene, id);
 
         public static string GetDialogue(string npc, string area, string scene, int id = -1)
         {
@@ -73,7 +73,7 @@ namespace AnodyneSharp.Dialogue
             return ReplaceKeys(s.GetDialogue(id));
         }
 
-        public static string RandomDialogue(string npc, string scene) => RandomDialogue(npc, GlobalState.CURRENT_MAP_NAME, scene);
+        public static string RandomDialogue(string npc, string scene) => RandomDialogue(npc, GlobalState.CurrentMapName, scene);
 
         public static string RandomDialogue(string npc, string area, string scene)
         {

@@ -183,20 +183,20 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
 
             GlobalState.wave.active = true;
 
-            GlobalState.gameScreenFade.fadeColor = Color.White;
-            while(GlobalState.gameScreenFade.alpha < 1)
+            GlobalState.GameScreenFade.fadeColor = Color.White;
+            while(GlobalState.GameScreenFade.alpha < 1)
             {
-                GlobalState.gameScreenFade.ChangeAlpha(0.12f);
+                GlobalState.GameScreenFade.ChangeAlpha(0.12f);
                 yield return null;
             }
 
             Play("walk_r");
             velocity = Vector2.UnitX * 12;
             
-            GlobalState.black_overlay.fadeColor = Color.Black;
-            while (GlobalState.black_overlay.alpha < 1)
+            GlobalState.BlackOverlay.fadeColor = Color.Black;
+            while (GlobalState.BlackOverlay.alpha < 1)
             {
-                GlobalState.black_overlay.ChangeAlpha(0.3f);
+                GlobalState.BlackOverlay.ChangeAlpha(0.3f);
                 yield return null;
             }
 

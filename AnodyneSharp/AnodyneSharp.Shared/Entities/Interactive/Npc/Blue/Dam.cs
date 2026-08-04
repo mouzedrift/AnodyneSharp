@@ -18,7 +18,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Blue
             );
 
         public Dam(EntityPreset preset, Player p)
-            : base(preset.Position, GetSprite(GlobalState.CURRENT_MAP_NAME == "BLUE" ? 0 : 8), Drawing.DrawOrder.ENTITIES)
+            : base(preset.Position, GetSprite(GlobalState.CurrentMapName == "BLUE" ? 0 : 8), Drawing.DrawOrder.ENTITIES)
         {
             immovable = true;
 
@@ -34,9 +34,9 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Blue
                 return;
             }
 
-            if (GlobalState.CURRENT_MAP_NAME == "BLUE")
+            if (GlobalState.CurrentMapName == "BLUE")
             {
-                if (GlobalState.PUZZLES_SOLVED >= 3)
+                if (GlobalState.PuzzlesSolvedRoom >= 3)
                 {
                     Play("fall");
                     _preset.Alive = false;
@@ -44,7 +44,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Blue
             }
             else
             {
-                if (GlobalState.PUZZLES_SOLVED >= 1)
+                if (GlobalState.PuzzlesSolvedRoom >= 1)
                 {
                     Play("fall");
                     _preset.Alive = false;

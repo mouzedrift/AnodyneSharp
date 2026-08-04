@@ -34,7 +34,7 @@ namespace AnodyneSharp.States.MenuSubstates
             page = 0;
             selectedID = 0;
 
-            cardsLabel = new UILabel(new Vector2(70, 146 - GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)), true, $"{GlobalState.inventory.CardCount} {DialogueManager.GetDialogue("misc", "any", "cards", 1)}");
+            cardsLabel = new UILabel(new Vector2(70, 146 - GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)), true, $"{GlobalState.Inventory.CardCount} {DialogueManager.GetDialogue("misc", "any", "cards", 1)}");
 
             _pageSetter = new TextSelector(new Vector2(91, 156), 32, 0, true, "1/4", "2/4", "3/4", "4/4")
             {
@@ -150,7 +150,7 @@ namespace AnodyneSharp.States.MenuSubstates
             else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
             {
                 int cardID = page * 12 + selectedID;
-                if (GlobalState.inventory.CardStatus[cardID])
+                if (GlobalState.Inventory.CardStatus[cardID])
                 {
                     SetDialogue(DialogueManager.GetDialogue("card", "ETC", "one", cardID));
                 }
@@ -224,7 +224,7 @@ namespace AnodyneSharp.States.MenuSubstates
             for (int i = 0; i < 12; i++)
             {
                 int cardnum = page * 12 + i;
-                int frame = GlobalState.inventory.CardStatus[cardnum] ? cardnum : 49;
+                int frame = GlobalState.Inventory.CardStatus[cardnum] ? cardnum : 49;
                 cards[i] = new UIEntity(startPos + new Vector2(i % 3, i / 3) * cardSize, "card_sheet", frame, 24, 24, DrawOrder.EQUIPMENT_ICON);
             }
 

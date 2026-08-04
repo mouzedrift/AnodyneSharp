@@ -30,11 +30,11 @@ namespace AnodyneSharp.Entities.Interactive.Npc
             GlobalState.Dialogue = DialogueManager.GetDialogue("sadbro", "initial_forced");
             if(preset.Activated)
             {
-                if(GlobalState.events.BossDefeated.Contains("BEDROOM"))
+                if(GlobalState.Events.BossDefeated.Contains("BEDROOM"))
                 {
                     GlobalState.Dialogue = DialogueManager.GetDialogue("sadbro", "bedroom_done");
                 }
-                else if(GlobalState.events.VisitedMaps.Contains("BEDROOM"))
+                else if(GlobalState.Events.VisitedMaps.Contains("BEDROOM"))
                 {
                     GlobalState.Dialogue = DialogueManager.GetDialogue("sadbro", "bedroom_not_done");
                 }

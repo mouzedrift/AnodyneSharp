@@ -52,8 +52,8 @@ namespace AnodyneSharp.Entities.Enemy.Go
             {
                 Play("hit");
                 Health--;
-                GlobalState.screenShake.Shake(0.03f, 0.4f);
-                GlobalState.flash.Flash(0.6f, new Color(255, 17, 17));
+                GlobalState.ScreenShake.Shake(0.03f, 0.4f);
+                GlobalState.Flash.Flash(0.6f, new Color(255, 17, 17));
                 SoundManager.PlaySoundEffect("wb_hit_ground");
             }
         }

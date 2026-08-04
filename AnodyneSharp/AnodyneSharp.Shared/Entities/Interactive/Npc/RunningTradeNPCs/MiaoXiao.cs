@@ -54,7 +54,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            if(GlobalState.events.SpookedMonster && !DialogueManager.IsSceneFinished("miao", "philosophy"))
+            if(GlobalState.Events.SpookedMonster && !DialogueManager.IsSceneFinished("miao", "philosophy"))
             {
                 GlobalState.Dialogue = DialogueManager.GetDialogue("miao", "philosophy");
             }
@@ -95,7 +95,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
         bool on_conveyor_this_frame = false;
 
         Rectangle boundaries;
-        Point ScreenOffset => new(GlobalState.CURRENT_GRID_X - boundaries.X, GlobalState.CURRENT_GRID_Y - boundaries.Y);
+        Point ScreenOffset => new(GlobalState.CurrentGridX - boundaries.X, GlobalState.CurrentGridY - boundaries.Y);
 
         public MiaoXiaoFollower(Vector2 pos, Player p) : base(pos)
         {
@@ -106,7 +106,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
             exists = false;
 
-            boundaries = new Rectangle(GlobalState.CURRENT_GRID_X, GlobalState.CURRENT_GRID_Y-1, 4, 3);
+            boundaries = new Rectangle(GlobalState.CurrentGridX, GlobalState.CurrentGridY-1, 4, 3);
         }
         
         public void Activate()
@@ -141,7 +141,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
             dust.Position = Position - new Vector2(2, 0);
             on_conveyor_this_frame = false;
 
-            if(wait_on_event != null && GlobalState.events.GetEvent(wait_on_event) != 0)
+            if(wait_on_event != null && GlobalState.Events.GetEvent(wait_on_event) != 0)
             {
                 currentDiag = DialogueScreens[ScreenOffset];
                 timer = dialogue_screen_timeout;
@@ -154,14 +154,14 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
                 int id = currentDiag.diagId;
                 if(currentDiag.name != null)
                 {
-                    GlobalState.events.IncEvent($"miao.{currentDiag.name}");
+                    GlobalState.Events.IncEvent($"miao.{currentDiag.name}");
                 }
-                else if(!GlobalState.events.SpookedMonster)
+                else if(!GlobalState.Events.SpookedMonster)
                 {
                     //Ask where Icky is
                     id = 3;
                 }
-                else if(DialogueScreens.Values.All((s) => GlobalState.events.GetEvent($"miao.{s.name}") != 0))
+                else if(DialogueScreens.Values.All((s) => GlobalState.Events.GetEvent($"miao.{s.name}") != 0))
                 {
                     //Random talk when all other dialogues have happened
                     id = GlobalState.RNG.Next(5,8);
@@ -179,7 +179,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
         public override void OnEvent(GameEvent e)
         {
-            if(e is StartWarp || (e is EndScreenTransition && !boundaries.Contains(GlobalState.CURRENT_GRID_X,GlobalState.CURRENT_GRID_Y)))
+            if(e is StartWarp || (e is EndScreenTransition && !boundaries.Contains(GlobalState.CurrentGridX,GlobalState.CurrentGridY)))
             {
                 GlobalState.Dialogue = DialogueManager.GetDialogue("miao", "randoms", 4);
                 exists = false;
@@ -189,11 +189,11 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
             else if(e is EndScreenTransition)
             {
                 if(DialogueScreens.TryGetValue(ScreenOffset,out (string name, string eventCheck, int diagId) screen)) {
-                    if(GlobalState.events.GetEvent(screen.eventCheck) == 0)
+                    if(GlobalState.Events.GetEvent(screen.eventCheck) == 0)
                     {
                         wait_on_event = screen.eventCheck;
                     }
-                    if((screen.eventCheck == null || GlobalState.events.GetEvent(screen.eventCheck) != 0) && GlobalState.events.GetEvent($"miao.{screen.name}") == 0)
+                    if((screen.eventCheck == null || GlobalState.Events.GetEvent(screen.eventCheck) != 0) && GlobalState.Events.GetEvent($"miao.{screen.name}") == 0)
                     {
                         timer = dialogue_screen_timeout;
                         currentDiag = screen;

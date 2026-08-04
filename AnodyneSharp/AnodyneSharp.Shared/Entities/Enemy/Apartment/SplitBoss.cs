@@ -250,7 +250,7 @@ namespace AnodyneSharp.Entities.Enemy.Apartment
 
             float tm = 0;
             float tm_max = 5;
-            GlobalState.gameScreenFade.fadeColor = Color.White;
+            GlobalState.GameScreenFade.fadeColor = Color.White;
 
             Play("die");
             Flicker(tm_max);
@@ -259,7 +259,7 @@ namespace AnodyneSharp.Entities.Enemy.Apartment
             {
                 tm += GameTimes.DeltaTime;
                 SoundManager.SetSongVolume(SoundManager.GetVolume() - GameTimes.DeltaTime * 0.3f);
-                GlobalState.gameScreenFade.ForceAlpha(tm / tm_max);
+                GlobalState.GameScreenFade.ForceAlpha(tm / tm_max);
                 int r = (int)(65 * tm / tm_max);
                 Position = tl + 40 * Vector2.One + new Vector2(GlobalState.RNG.Next(-r, r), GlobalState.RNG.Next(-r, r));
                 foreach (Entity e in bullets.Entities.Concat(copies))
@@ -273,7 +273,7 @@ namespace AnodyneSharp.Entities.Enemy.Apartment
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add(GlobalState.CURRENT_MAP_NAME);
+                GlobalState.Events.BossDefeated.Add(GlobalState.CurrentMapName);
                 SoundManager.PlaySong("apartment");
             }
             else
@@ -571,13 +571,13 @@ namespace AnodyneSharp.Entities.Enemy.Apartment
             public override void Update()
             {
                 base.Update();
-                GlobalState.gameScreenFade.ChangeAlpha(-3);
+                GlobalState.GameScreenFade.ChangeAlpha(-3);
             }
 
             public override void OnEvent(GameEvent e)
             {
                 base.OnEvent(e);
-                GlobalState.gameScreenFade.Deactivate();
+                GlobalState.GameScreenFade.Deactivate();
             }
         }
 

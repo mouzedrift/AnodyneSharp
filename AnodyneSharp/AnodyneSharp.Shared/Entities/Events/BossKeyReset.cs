@@ -11,7 +11,7 @@ namespace AnodyneSharp.Entities.Events
         public BossRushKeyReset(EntityPreset preset, Player p) 
             : base(Microsoft.Xna.Framework.Vector2.Zero)
         {
-            GlobalState.inventory.SetMapKeys("BOSSRUSH", 0);
+            GlobalState.Inventory.SetMapKeys("BOSSRUSH", 0);
 
             exists = false;
         }

@@ -49,7 +49,7 @@ namespace AnodyneSharp.States
         {
             get
             {
-                return GlobalState.CURRENT_MAP_NAME == "BLANK" ? 1.568f : 0.785f;
+                return GlobalState.CurrentMapName == "BLANK" ? 1.568f : 0.785f;
             }
         }
         private const float transition_in = 0.8f;
@@ -129,7 +129,7 @@ namespace AnodyneSharp.States
             SoundManager.PlaySoundEffect("menu_select");
 
             GlobalState.serialized_quicksave = new GlobalState.Save().ToString();
-            GlobalState.quicksave_checkpoint = new(GlobalState.CURRENT_MAP_NAME, _player.Position);
+            GlobalState.quicksave_checkpoint = new(GlobalState.CurrentMapName, _player.Position);
         }
 
         private void QuickLoad()
@@ -144,8 +144,8 @@ namespace AnodyneSharp.States
             GlobalState.Save s = GlobalState.Save.FromString(GlobalState.serialized_quicksave);
             GlobalState.ResetValues();
             GlobalState.LoadSave(s);
-            GlobalState.PLAYER_WARP_TARGET = GlobalState.quicksave_checkpoint.Position;
-            GlobalState.NEXT_MAP_NAME = GlobalState.quicksave_checkpoint.map;
+            GlobalState.PlayerWarpTarget = GlobalState.quicksave_checkpoint.Position;
+            GlobalState.NextMapName = GlobalState.quicksave_checkpoint.map;
             GlobalState.GameState.SetState<PlayState>();
         }
 
@@ -169,12 +169,12 @@ namespace AnodyneSharp.States
 
             _miniminimap = new Spritesheet(ResourceManager.GetTexHandle("mini_minimap_tiles",true), 5, 5);
 
-            GlobalState.WARP = true;
+            GlobalState.Warping = true;
             Warp();
 
             _state = PlayStateState.S_MAP_ENTER;
             GlobalState.pixelation.SetPixelation(10);
-            GlobalState.black_overlay.ForceAlpha(1);
+            GlobalState.BlackOverlay.ForceAlpha(1);
         }
 
         public override void Draw()
@@ -210,7 +210,7 @@ namespace AnodyneSharp.States
             SpriteDrawer.DrawSprite(_header, Vector2.Zero, Z: DrawingUtilities.GetDrawingZ(DrawOrder.HEADER));
 
 
-            if (GlobalState.inventory.EquippedBroom != BroomType.NONE && _equippedBroomIcon != null)
+            if (GlobalState.Inventory.EquippedBroom != BroomType.NONE && _equippedBroomIcon != null)
             {
                 SpriteDrawer.DrawSprite(_equippedBroomIcon, _iconPos, Z: DrawingUtilities.GetDrawingZ(DrawOrder.UI_OBJECTS));
             }
@@ -232,8 +232,8 @@ namespace AnodyneSharp.States
             Minimap mm = GlobalState.CurrentMinimap;
             if (mm.tiles.Width > 0)
             {
-                int x = Math.Clamp(GlobalState.CURRENT_GRID_X - 2, 0, mm.tiles.Width - 5);
-                int y = Math.Clamp(GlobalState.CURRENT_GRID_Y - 1, 0, mm.tiles.Height - 4);
+                int x = Math.Clamp(GlobalState.CurrentGridX - 2, 0, mm.tiles.Width - 5);
+                int y = Math.Clamp(GlobalState.CurrentGridY - 1, 0, mm.tiles.Height - 4);
 
                 mm.Draw(_miniminimap, new Vector2(55, 0) - new Vector2(x, y) * _miniminimap.Width, new Rectangle(x, y, 5, 4));
             }
@@ -315,12 +315,12 @@ namespace AnodyneSharp.States
                         _player.dontMove = true;
                         _player.actions_disabled = true;
                         GlobalState.pixelation.AddPixelation(pixelation_per_second);
-                        GlobalState.black_overlay.ChangeAlpha(1 / transition_out);
-                        if (GlobalState.CURRENT_MAP_NAME != GlobalState.NEXT_MAP_NAME)
+                        GlobalState.BlackOverlay.ChangeAlpha(1 / transition_out);
+                        if (GlobalState.CurrentMapName != GlobalState.NextMapName)
                         {
-                            SoundManager.SetMasterVolume(MathF.Min(1, 10 * (1 - GlobalState.black_overlay.alpha)));
+                            SoundManager.SetMasterVolume(MathF.Min(1, 10 * (1 - GlobalState.BlackOverlay.alpha)));
                         }
-                        if (GlobalState.black_overlay.alpha == 1 || GlobalState.FUCK_IT_MODE_ON)
+                        if (GlobalState.BlackOverlay.alpha == 1 || GlobalState.FuckItModeOn)
                         {
                             Warp();
 
@@ -334,23 +334,23 @@ namespace AnodyneSharp.States
                         }
                         break;
                     case PlayStateState.S_MAP_ENTER:
-                        if (GlobalState.FUCK_IT_MODE_ON)
+                        if (GlobalState.FuckItModeOn)
                         {
                             GlobalState.pixelation.SetPixelation(1f);
                         }
                         GlobalState.pixelation.AddPixelation(-pixelation_per_second);
-                        GlobalState.black_overlay.ChangeAlpha(-1 / transition_in);
-                        if (GlobalState.black_overlay.alpha == 0)
+                        GlobalState.BlackOverlay.ChangeAlpha(-1 / transition_in);
+                        if (GlobalState.BlackOverlay.alpha == 0)
                         {
                             _state = PlayStateState.S_NORMAL;
                             _player.dontMove = false;
                             _player.invincible = false;
                             _player.actions_disabled = false;
-                            GlobalState.WARP = false;
+                            GlobalState.Warping = false;
                         }
                         if (SoundManager.GetMasterVolume() != 1f)
                         {
-                            SoundManager.SetMasterVolume(MathF.Min(10 * (1 - GlobalState.black_overlay.alpha), 1));
+                            SoundManager.SetMasterVolume(MathF.Min(10 * (1 - GlobalState.BlackOverlay.alpha), 1));
                         }
                         break;
                     default:
@@ -397,13 +397,13 @@ namespace AnodyneSharp.States
 
         private void Refreshes()
         {
-            if (GlobalState.inventory.EquippedBroomChanged)
+            if (GlobalState.Inventory.EquippedBroomChanged)
             {
-                GlobalState.inventory.EquippedBroomChanged = false;
+                GlobalState.Inventory.EquippedBroomChanged = false;
                 UpdateBroomIcon();
                 _player.broom.UpdateBroomType();
 
-                if (GlobalState.inventory.EquippedBroom != BroomType.Transformer)
+                if (GlobalState.Inventory.EquippedBroom != BroomType.Transformer)
                 {
                     _player.transformer.Reset();
                 }
@@ -418,7 +418,7 @@ namespace AnodyneSharp.States
             if (GlobalState.RefreshMaxHealth)
             {
                 GlobalState.RefreshMaxHealth = false;
-                _healthBar.CreateHealthBoxes(GlobalState.MAX_HEALTH);
+                _healthBar.CreateHealthBoxes(GlobalState.MaxHealth);
             }
 
             UpdateHealth();
@@ -427,7 +427,7 @@ namespace AnodyneSharp.States
             if (GlobalState.RefreshKeyCount)
             {
                 GlobalState.RefreshKeyCount = false;
-                _keyValueLabel.SetText($"x{GlobalState.inventory.GetCurrentMapKeys()}");
+                _keyValueLabel.SetText($"x{GlobalState.Inventory.GetCurrentMapKeys()}");
             }
 
             if (GlobalState.GameMode == GameMode.EXTREME_CHAOS)
@@ -447,7 +447,7 @@ namespace AnodyneSharp.States
                 ResourceManager.ReloadRandomizableTextures();
             }
 
-            GlobalState.ENEMIES_KILLED = _groups.KilledEnemies();
+            GlobalState.EnemiesKilledRoom = _groups.KilledEnemies();
         }
 
         private void EntityUpdate()
@@ -500,18 +500,18 @@ namespace AnodyneSharp.States
                 GlobalState.ToTitle = false;
                 GlobalState.GameState.SetState<TitleState>();
 
-                GlobalState.CURRENT_MAP_NAME = "";
+                GlobalState.CurrentMapName = "";
                 return;
             }
 
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Pause) && !GlobalState.disable_menu)
+            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Pause) && !GlobalState.DisableMenu)
             {
                 GlobalState.SetSubstate(new PauseState());
                 SoundManager.PlaySoundEffect("pause_sound");
                 return;
             }
 
-            if (GlobalState.WARP)
+            if (GlobalState.Warping)
             {
                 _state = PlayStateState.S_MAP_EXIT;
                 _eventRegistry.FireEvent(new StartWarp());
@@ -563,7 +563,7 @@ namespace AnodyneSharp.States
         private void CheckForTransition()
         {
             _state = PlayStateState.S_TRANSITION;
-            Point grid = new(GlobalState.CURRENT_GRID_X, GlobalState.CURRENT_GRID_Y);
+            Point grid = new(GlobalState.CurrentGridX, GlobalState.CurrentGridY);
             if (_player.Position.X < _gridBorders.X)
             {
                 grid.X--;
@@ -597,8 +597,8 @@ namespace AnodyneSharp.States
             {
                 GlobalState.ScreenTransition = true;
                 OnGridExit();
-                GlobalState.CURRENT_GRID_X = grid.X;
-                GlobalState.CURRENT_GRID_Y = grid.Y;
+                GlobalState.CurrentGridX = grid.X;
+                GlobalState.CurrentGridY = grid.Y;
                 _eventRegistry.FireEvent(new StartScreenTransition());
                 _map.OnTransitionStart();
                 _map.ReloadSettings(_player.Position);
@@ -648,9 +648,9 @@ namespace AnodyneSharp.States
 
         private void UpdateScreenBorders()
         {
-            _gridBorders.X = GlobalState.CURRENT_GRID_X * SCREEN_WIDTH_IN_PIXELS;
+            _gridBorders.X = GlobalState.CurrentGridX * SCREEN_WIDTH_IN_PIXELS;
             _gridBorders.Width = SCREEN_WIDTH_IN_PIXELS;
-            _gridBorders.Y = GlobalState.CURRENT_GRID_Y * SCREEN_HEIGHT_IN_PIXELS;
+            _gridBorders.Y = GlobalState.CurrentGridY * SCREEN_HEIGHT_IN_PIXELS;
             _gridBorders.Height = SCREEN_HEIGHT_IN_PIXELS;
 
             GlobalState.CurrentMinimap.Update();
@@ -658,7 +658,7 @@ namespace AnodyneSharp.States
 
         private bool UpdateCamera()
         {
-            if (GlobalState.FUCK_IT_MODE_ON)
+            if (GlobalState.FuckItModeOn)
             {
                 SpriteDrawer.Camera.GoTo(_gridBorders.X, _gridBorders.Y);
                 return false;
@@ -686,35 +686,35 @@ namespace AnodyneSharp.States
 
             if (KeyInput.JustPressedKey(Keys.NumPad5))
             {
-                GlobalState.draw_hitboxes = !GlobalState.draw_hitboxes;
+                GlobalState.DrawHitboxes = !GlobalState.DrawHitboxes;
             }
 
             if (KeyInput.JustPressedKey(Keys.M))
             {
-                int newIndex = MapUtilities.GetMapID(GlobalState.CURRENT_MAP_NAME) + 1;
+                int newIndex = MapUtilities.GetMapID(GlobalState.CurrentMapName) + 1;
 
                 if (newIndex > (int)MapOrder.DEBUG)
                 {
                     newIndex = 0;
                 }
 
-                GlobalState.NEXT_MAP_NAME = Enum.GetName(typeof(MapOrder), (MapOrder)newIndex);
-                GlobalState.PLAYER_WARP_TARGET = Vector2.Zero;
-                GlobalState.WARP = true;
+                GlobalState.NextMapName = Enum.GetName(typeof(MapOrder), (MapOrder)newIndex);
+                GlobalState.PlayerWarpTarget = Vector2.Zero;
+                GlobalState.Warping = true;
 
             }
             else if (KeyInput.JustPressedKey(Keys.N))
             {
-                int newIndex = MapUtilities.GetMapID(GlobalState.CURRENT_MAP_NAME) - 1;
+                int newIndex = MapUtilities.GetMapID(GlobalState.CurrentMapName) - 1;
 
                 if (newIndex < (int)MapOrder.STREET)
                 {
                     newIndex = (int)MapOrder.DEBUG;
                 }
 
-                GlobalState.NEXT_MAP_NAME = Enum.GetName(typeof(MapOrder), (MapOrder)newIndex);
-                GlobalState.PLAYER_WARP_TARGET = Vector2.Zero;
-                GlobalState.WARP = true;
+                GlobalState.NextMapName = Enum.GetName(typeof(MapOrder), (MapOrder)newIndex);
+                GlobalState.PlayerWarpTarget = Vector2.Zero;
+                GlobalState.Warping = true;
             }
 
             if (KeyInput.JustPressedKey(Keys.D5))
@@ -766,12 +766,12 @@ namespace AnodyneSharp.States
 #endif
         private void SwitchBroom(bool nextBroom)
         {
-            if (!GlobalState.inventory.HasAnyBroom)
+            if (!GlobalState.Inventory.HasAnyBroom)
             {
                 return;
             }
 
-            BroomType broomType = GlobalState.inventory.EquippedBroom;
+            BroomType broomType = GlobalState.Inventory.EquippedBroom;
 
             if (!GlobalState.CanChangeBroom)
             {
@@ -788,7 +788,7 @@ namespace AnodyneSharp.States
             {
                 current += nextBroom ? 1 : -1;
                 current = (current + types.Length) % types.Length; //Loop around both len+1 and -1 properly, this just ends up skipping over None anyway with HasBroomType returning false for None
-            } while (!GlobalState.inventory.HasBroomType(types[current]));
+            } while (!GlobalState.Inventory.HasBroomType(types[current]));
             broomType = types[current];
             
 
@@ -798,8 +798,8 @@ namespace AnodyneSharp.States
 
         private void SetBroom(BroomType broom)
         {
-            GlobalState.inventory.EquippedBroom = broom;
-            if (GlobalState.inventory.EquippedBroomChanged)
+            GlobalState.Inventory.EquippedBroom = broom;
+            if (GlobalState.Inventory.EquippedBroomChanged)
             {
                 SoundManager.PlaySoundEffect("menu_move");
             }
@@ -809,7 +809,7 @@ namespace AnodyneSharp.States
         {
             _healthBar.UpdateHealth();
 
-            if (_childStates.Count == 0 && GlobalState.CUR_HEALTH == 0)
+            if (_childStates.Count == 0 && GlobalState.CurrentHealth == 0)
             {
                 SoundManager.StopSong();
 
@@ -819,19 +819,19 @@ namespace AnodyneSharp.States
 
         private void UpdateBroomIcon()
         {
-            if (GlobalState.inventory.EquippedBroom == BroomType.NONE)
+            if (GlobalState.Inventory.EquippedBroom == BroomType.NONE)
             {
                 return;
             }
 
             string tex = "";
 
-            BroomType broom = GlobalState.inventory.EquippedBroom;
+            BroomType broom = GlobalState.Inventory.EquippedBroom;
 
             switch (broom)
             {
                 case BroomType.Normal:
-                    tex = GlobalState.IsCell ? "Cell" : GlobalState.IsKnife && GlobalState.events.GetEvent("Stabbed") != 0 ? "Knife" : "Normal";
+                    tex = GlobalState.IsCell ? "Cell" : GlobalState.IsKnife && GlobalState.Events.GetEvent("Stabbed") != 0 ? "Knife" : "Normal";
                     break;
                 case BroomType.Wide:
                     tex = "Wide";
@@ -850,19 +850,19 @@ namespace AnodyneSharp.States
 
         private void Warp()
         {
-            if (GlobalState.CURRENT_MAP_NAME != GlobalState.NEXT_MAP_NAME)
+            if (GlobalState.CurrentMapName != GlobalState.NextMapName)
             {
-                GlobalState.events.SetEvent("BossRushLandDefeated", 0);
+                GlobalState.Events.SetEvent("BossRushLandDefeated", 0);
 
-                GlobalState.events.VisitedMaps.Add(GlobalState.NEXT_MAP_NAME);
-                if (GlobalState.events.BossDefeated.Contains(GlobalState.CURRENT_MAP_NAME))
+                GlobalState.Events.VisitedMaps.Add(GlobalState.NextMapName);
+                if (GlobalState.Events.BossDefeated.Contains(GlobalState.CurrentMapName))
                 {
-                    GlobalState.events.LeftAfterBoss.Add(GlobalState.CURRENT_MAP_NAME);
+                    GlobalState.Events.LeftAfterBoss.Add(GlobalState.CurrentMapName);
                 }
 
                 if (_state != PlayStateState.S_LOAD)
                 {
-                    foreach (EntityPreset p in EntityManager.GetMapEntities(GlobalState.CURRENT_MAP_NAME).Where(p => p.Permanence != Permanence.GLOBAL))
+                    foreach (EntityPreset p in EntityManager.GetMapEntities(GlobalState.CurrentMapName).Where(p => p.Permanence != Permanence.GLOBAL))
                     {
                         p.Alive = true;
                     }
@@ -870,18 +870,18 @@ namespace AnodyneSharp.States
                     GlobalState.PillarSwitchOn = 0;
                 }
 
-                GlobalState.CURRENT_MAP_NAME = GlobalState.NEXT_MAP_NAME;
+                GlobalState.CurrentMapName = GlobalState.NextMapName;
 
-                if (GlobalState.ReturnTarget == null || GlobalState.ReturnTarget.map != GlobalState.CURRENT_MAP_NAME || GlobalState.CURRENT_MAP_NAME == "NEXUS")
+                if (GlobalState.ReturnTarget == null || GlobalState.ReturnTarget.map != GlobalState.CurrentMapName || GlobalState.CurrentMapName == "NEXUS")
                 {
                     var gate = EntityManager.GetNexusGateForCurrentMap();
                     GlobalState.ReturnTarget = (gate != null) ? new(gate) : null;
                 }
 
-                GlobalState.Map = _map = new(GlobalState.CURRENT_MAP_NAME);
+                GlobalState.Map = _map = new(GlobalState.CurrentMapName);
 
-                GlobalState.MAP_GRID_WIDTH = _map.WidthInTiles / 10;
-                GlobalState.MAP_GRID_HEIGHT = _map.HeightInTiles / 10;
+                GlobalState.MapGridWidth = _map.WidthInTiles / 10;
+                GlobalState.MapGridHeight = _map.HeightInTiles / 10;
 
 
                 UpdateBroomIcon();
@@ -889,7 +889,7 @@ namespace AnodyneSharp.States
                 GlobalState.RefreshKeyCount = true;
             }
 
-            _player.Position = _player.grid_entrance = GlobalState.PLAYER_WARP_TARGET;
+            _player.Position = _player.grid_entrance = GlobalState.PlayerWarpTarget;
             _player.facing = GlobalState.NewMapFacing ?? _player.facing;
 
             _map.ReloadSettings(_player);
@@ -899,8 +899,8 @@ namespace AnodyneSharp.States
             Point gridPos = MapUtilities.GetRoomCoordinate(_player.Position);
             Vector2 roomPos = MapUtilities.GetRoomUpperLeftPos(gridPos);
 
-            GlobalState.CURRENT_GRID_X = gridPos.X;
-            GlobalState.CURRENT_GRID_Y = gridPos.Y;
+            GlobalState.CurrentGridX = gridPos.X;
+            GlobalState.CurrentGridY = gridPos.Y;
 
             _player.Reset();
 
@@ -919,7 +919,7 @@ namespace AnodyneSharp.States
 
         private void SetBackground()
         {
-            _background = GlobalState.CURRENT_MAP_NAME switch
+            _background = GlobalState.CurrentMapName switch
             {
                 "BLANK" => new ScrollingTex("BLANK_BG", new Vector2(-20, 0), DrawOrder.BACKGROUND),
                 "SPACE" => new ScrollingTex("SPACE_BG", new Vector2(-15, 0), DrawOrder.BACKGROUND),
@@ -932,7 +932,7 @@ namespace AnodyneSharp.States
 
         private void SetDecOver()
         {
-            _dec_over = GlobalState.CURRENT_MAP_NAME switch
+            _dec_over = GlobalState.CurrentMapName switch
             {
                 "WINDMILL" => new ScrollingTex("windmill_rain", new Vector2(-10, 160), DrawOrder.DEC_OVER),
                 _ => null,
@@ -941,15 +941,15 @@ namespace AnodyneSharp.States
 
         private void SetMapUpdate()
         {
-            _map_specific_update = GlobalState.CURRENT_MAP_NAME switch
+            _map_specific_update = GlobalState.CurrentMapName switch
             {
                 "BLANK" => () =>
                 {
-                    if (GlobalState.RNG.NextDouble() < 0.05) GlobalState.screenShake.Shake(0.007f, 0.1f);
+                    if (GlobalState.RNG.NextDouble() < 0.05) GlobalState.ScreenShake.Shake(0.007f, 0.1f);
                     if (GlobalState.RNG.NextDouble() < 0.005)
                     {
-                        GlobalState.darkness.ForceAlpha(0.1f);
-                        GlobalState.darkness.TargetAlpha(0f);
+                        GlobalState.Darkness.ForceAlpha(0.1f);
+                        GlobalState.Darkness.TargetAlpha(0f);
                     }
                 }
                 ,
@@ -964,7 +964,7 @@ namespace AnodyneSharp.States
 
         private void OnGridExit()
         {
-            foreach (EntityPreset preset in EntityManager.GetGridEntities(GlobalState.CURRENT_MAP_NAME, new Point(GlobalState.CURRENT_GRID_X, GlobalState.CURRENT_GRID_Y)))
+            foreach (EntityPreset preset in EntityManager.GetGridEntities(GlobalState.CurrentMapName, new Point(GlobalState.CurrentGridX, GlobalState.CurrentGridY)))
             {
                 if (preset.Permanence == Permanence.GRID_LOCAL)
                 {
@@ -977,7 +977,7 @@ namespace AnodyneSharp.States
         {
             _oldEntities = _gridEntities;
 
-            List<EntityPreset> gridPresets = EntityManager.GetGridEntities(GlobalState.CURRENT_MAP_NAME, new Point(GlobalState.CURRENT_GRID_X, GlobalState.CURRENT_GRID_Y));
+            List<EntityPreset> gridPresets = EntityManager.GetGridEntities(GlobalState.CurrentMapName, new Point(GlobalState.CurrentGridX, GlobalState.CurrentGridY));
             if (_state != PlayStateState.S_LOAD)
             {
                 foreach (EntityPreset preset in gridPresets.Where(e => e.Permanence == Permanence.GRID_LOCAL))
@@ -986,10 +986,10 @@ namespace AnodyneSharp.States
                 }
             }
 
-            GlobalState.ENEMIES_KILLED = gridPresets.Where(preset => !preset.Alive && preset.Type.IsDefined(typeof(EnemyAttribute), false)).Count();
-            GlobalState.PUZZLES_SOLVED = 0;
+            GlobalState.EnemiesKilledRoom = gridPresets.Where(preset => !preset.Alive && preset.Type.IsDefined(typeof(EnemyAttribute), false)).Count();
+            GlobalState.PuzzlesSolvedRoom = 0;
 
-            _groups = new CollisionGroups(GlobalState.ENEMIES_KILLED);
+            _groups = new CollisionGroups(GlobalState.EnemiesKilledRoom);
             _eventRegistry = new();
 
             IEnumerable<Entity> player_subentities = _player.SubEntities(); //Cache first since some entities add themselves to the player on creation

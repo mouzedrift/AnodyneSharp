@@ -130,7 +130,7 @@ namespace AnodyneSharp.Entities
     {
         public SageNexus(EntityPreset preset, Player p) : base(preset, p, 64, 20, "enter_nexus")
         {
-            if (GlobalState.events.GetEvent("SageDied") > 0)
+            if (GlobalState.Events.GetEvent("SageDied") > 0)
             {
                 preset.Alive = exists = false;
             }
@@ -148,19 +148,19 @@ namespace AnodyneSharp.Entities
             {
                 return "all_card_first";
             }
-            if(GlobalState.events.GetEvent("WindmillOpened") != 0)
+            if(GlobalState.Events.GetEvent("WindmillOpened") != 0)
             {
                 return "after_windmill";
             }
-            if(GlobalState.events.BossDefeated.Contains("REDCAVE") && GlobalState.events.BossDefeated.Contains("CROWD"))
+            if(GlobalState.Events.BossDefeated.Contains("REDCAVE") && GlobalState.Events.BossDefeated.Contains("CROWD"))
             {
                 return "before_windmill";
             }
-            if(GlobalState.events.BossDefeated.Contains("BEDROOM"))
+            if(GlobalState.Events.BossDefeated.Contains("BEDROOM"))
             {
                 return "after_bed";
             }
-            if(GlobalState.events.VisitedMaps.Contains("STREET"))
+            if(GlobalState.Events.VisitedMaps.Contains("STREET"))
             {
                 return "after_ent_str";
             }
@@ -173,7 +173,7 @@ namespace AnodyneSharp.Entities
     {
         public SageOverworld(EntityPreset preset, Player p) : base(preset, p, 56, 28, "bedroom_entrance")
         {
-            if (GlobalState.events.BossDefeated.Contains("BEDROOM"))
+            if (GlobalState.Events.BossDefeated.Contains("BEDROOM"))
             {
                 preset.Alive = exists = false;
             }
@@ -213,7 +213,7 @@ namespace AnodyneSharp.Entities
 
         public SageTerminal(EntityPreset preset, Player p) : base(preset.Position,p)
         {
-            if(GlobalState.events.GetEvent("SageDied") > 0)
+            if(GlobalState.Events.GetEvent("SageDied") > 0)
             {
                 preset.Alive = exists = false;
             }
@@ -239,7 +239,7 @@ namespace AnodyneSharp.Entities
                     yield return null;
             }
 
-            if (GlobalState.inventory.CardCount < 36) yield break;
+            if (GlobalState.Inventory.CardCount < 36) yield break;
 
             GlobalState.Dialogue = DialogueManager.GetDialogue("sage", "etc", 0);
             while (!GlobalState.LastDialogueFinished)
@@ -258,7 +258,7 @@ namespace AnodyneSharp.Entities
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            string dialog = GlobalState.inventory.CardCount switch
+            string dialog = GlobalState.Inventory.CardCount switch
             {
                 < 18 => DialogueManager.GetDialogue("sage", "entrance", 1),
                 < 36 => DialogueManager.GetDialogue("sage", "entrance", 2),
@@ -274,7 +274,7 @@ namespace AnodyneSharp.Entities
         public DungeonSage(EntityPreset preset, Player p, int initDistance, int stopDistance, string scene)
             : base(preset,p,initDistance,stopDistance,scene)
         {
-            if (GlobalState.events.LeftAfterBoss.Contains(GlobalState.CURRENT_MAP_NAME))
+            if (GlobalState.Events.LeftAfterBoss.Contains(GlobalState.CurrentMapName))
             {
                 preset.Alive = exists = false;
             }

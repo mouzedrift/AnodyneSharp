@@ -50,35 +50,35 @@ namespace AnodyneSharp.States.MenuSubstates
             float x = 65;
             float y = 25;
 
-            _broom = new Equipment(new Vector2(x, y), "none_icon", GlobalState.inventory.HasBroom ? DialogueManager.GetDialogue("misc", "any", "items", 1) : "-");
-            _broomExtend = new Equipment(new Vector2(x, y + 24), "long_icon", GlobalState.inventory.HasLengthen ? DialogueManager.GetDialogue("misc", "any", "items", 3) : "-");
-            _broomWiden = new Equipment(new Vector2(x, y + 24 * 2), "wide_icon", GlobalState.inventory.HasWiden ? DialogueManager.GetDialogue("misc", "any", "items", 4) : "-");
-            _transformer = new Equipment(new Vector2(x, y + 24 * 3), "transformer_icon", GlobalState.inventory.HasTransformer ? DialogueManager.GetDialogue("misc", "any", "items", 2) : "-");
+            _broom = new Equipment(new Vector2(x, y), "none_icon", GlobalState.Inventory.HasBroom ? DialogueManager.GetDialogue("misc", "any", "items", 1) : "-");
+            _broomExtend = new Equipment(new Vector2(x, y + 24), "long_icon", GlobalState.Inventory.HasLengthen ? DialogueManager.GetDialogue("misc", "any", "items", 3) : "-");
+            _broomWiden = new Equipment(new Vector2(x, y + 24 * 2), "wide_icon", GlobalState.Inventory.HasWiden ? DialogueManager.GetDialogue("misc", "any", "items", 4) : "-");
+            _transformer = new Equipment(new Vector2(x, y + 24 * 3), "transformer_icon", GlobalState.Inventory.HasTransformer ? DialogueManager.GetDialogue("misc", "any", "items", 2) : "-");
 
             _jump = new UIEntity(new Vector2(62, 130), "item_jump_shoes", 0, 16, 16, Drawing.DrawOrder.EQUIPMENT_ICON) { visible = false };
             _item = new UIEntity(new Vector2(78, 130), "fields_npcs", 16, 16, Drawing.DrawOrder.EQUIPMENT_ICON) { visible = false };
 
-            if (GlobalState.inventory.tradeState != InventoryManager.TradeState.NONE)
+            if (GlobalState.Inventory.tradeState != InventoryManager.TradeState.NONE)
             {
                 bottom_row_enabled.Insert(0, EquipState.Item);
-                _item.SetFrame(GlobalState.inventory.tradeState == InventoryManager.TradeState.BOX ? 31 : 56);
+                _item.SetFrame(GlobalState.Inventory.tradeState == InventoryManager.TradeState.BOX ? 31 : 56);
                 _item.visible = true;
             }
 
-            if (GlobalState.inventory.CanJump)
+            if (GlobalState.Inventory.CanJump)
             {
                 bottom_row_enabled.Insert(0, EquipState.Shoes);
                 _jump.visible = true;
             }
 
-            _keys = Enumerable.Range(0, 3).Select(i => new UIEntity(new Vector2(95 + 16 * i, 130), "key_green", GlobalState.inventory.BigKeyStatus[i] ? i * 2 : i * 2 + 1, 16, 16, Drawing.DrawOrder.EQUIPMENT_ICON)).ToArray();
+            _keys = Enumerable.Range(0, 3).Select(i => new UIEntity(new Vector2(95 + 16 * i, 130), "key_green", GlobalState.Inventory.BigKeyStatus[i] ? i * 2 : i * 2 + 1, 16, 16, Drawing.DrawOrder.EQUIPMENT_ICON)).ToArray();
 
             SetEquipped();
         }
 
         public override void GetControl()
         {
-            if (!GlobalState.inventory.HasAnyBroom)
+            if (!GlobalState.Inventory.HasAnyBroom)
             {
                 Exit = true;
                 return;
@@ -200,22 +200,22 @@ namespace AnodyneSharp.States.MenuSubstates
                     SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", 5));
                     break;
                 case EquipState.Item:
-                    SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", GlobalState.inventory.tradeState == InventoryManager.TradeState.SHOES ? 6 : 7));
+                    SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", GlobalState.Inventory.tradeState == InventoryManager.TradeState.SHOES ? 6 : 7));
                     break;
                 case EquipState.Key1:
-                    if(GlobalState.inventory.BigKeyStatus[0])
+                    if(GlobalState.Inventory.BigKeyStatus[0])
                     {
                         SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", 8));
                     }
                     break;
                 case EquipState.Key2:
-                    if (GlobalState.inventory.BigKeyStatus[1])
+                    if (GlobalState.Inventory.BigKeyStatus[1])
                     {
                         SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", 9));
                     }
                     break;
                 case EquipState.Key3:
-                    if (GlobalState.inventory.BigKeyStatus[2])
+                    if (GlobalState.Inventory.BigKeyStatus[2])
                     {
                         SetDialogue(DialogueManager.GetDialogue("misc", "any", "items", 10));
                     }
@@ -225,7 +225,7 @@ namespace AnodyneSharp.States.MenuSubstates
 
         private void EquipBroom(BroomType broomType)
         {
-            GlobalState.inventory.EquippedBroom = broomType;
+            GlobalState.Inventory.EquippedBroom = broomType;
             SetEquipped();
             ExitSubState();
         }
@@ -284,7 +284,7 @@ namespace AnodyneSharp.States.MenuSubstates
             _broomWiden.equipped = false;
             _transformer.equipped = false;
 
-            switch (GlobalState.inventory.EquippedBroom)
+            switch (GlobalState.Inventory.EquippedBroom)
             {
                 case BroomType.Normal:
                     _broom.equipped = true;

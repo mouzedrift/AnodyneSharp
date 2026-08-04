@@ -66,7 +66,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
 
             bossRush = preset.TypeValue == "boss_rush";
 
-            if (!bossRush && (GlobalState.events.GetEvent("HappyDone") == 0 || GlobalState.events.GetEvent("BlueDone") == 0))
+            if (!bossRush && (GlobalState.Events.GetEvent("HappyDone") == 0 || GlobalState.Events.GetEvent("BlueDone") == 0))
             {
                 exists = false;
                 volume.exists = false;
@@ -119,7 +119,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
             var water_anim = CoroutineUtils.OnceEvery(DoWaterAnim(!bossRush ? 194 : 267), 0.2f);
             while (water_anim.MoveNext())
             {
-                GlobalState.screenShake.Shake(0.01f, 0.1f);
+                GlobalState.ScreenShake.Shake(0.01f, 0.1f);
                 yield return null;
             }
 
@@ -139,7 +139,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
             }
 
             bool flash_active = false;
-            GlobalState.flash.Flash(1, Color.White, () => flash_active = true);
+            GlobalState.Flash.Flash(1, Color.White, () => flash_active = true);
             while (!flash_active) yield return null;
 
             SoundManager.PlaySong("briar-fight");
@@ -176,7 +176,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add(GlobalState.CURRENT_MAP_NAME);
+                GlobalState.Events.BossDefeated.Add(GlobalState.CurrentMapName);
                 SoundManager.PlaySong("go");
             }
             else

@@ -103,7 +103,7 @@ namespace AnodyneSharp.States.MenuSubstates.ConfigSubstates
                 (fpsLabel, fpsSelect),
                 (brightnessLabel, brightnessSelect),
                 (easingLabel, easingSelect),
-                (testLabel, new ActionOption(() => GlobalState.flash.Flash(1.0f, Color.White))),
+                (testLabel, new ActionOption(() => GlobalState.Flash.Flash(1.0f, Color.White))),
                 (shakeLabel, shakeSetting)
             };
         }

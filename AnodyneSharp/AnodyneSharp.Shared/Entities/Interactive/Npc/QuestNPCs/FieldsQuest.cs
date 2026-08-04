@@ -38,12 +38,12 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            int quest_progress = GlobalState.events.GetEvent("GoQuestProgress");
+            int quest_progress = GlobalState.Events.GetEvent("GoQuestProgress");
             if ((quest_progress == 3 || quest_progress == 4) && !_played_quest)
             {
                 _played_quest = true;
                 GlobalState.Dialogue = DialogueManager.GetDialogue("generic_npc", "quest_event");
-                if (quest_progress == 3) GlobalState.events.IncEvent("GoQuestProgress");
+                if (quest_progress == 3) GlobalState.Events.IncEvent("GoQuestProgress");
             }
             else
             {

@@ -27,7 +27,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
             Position = tl + new Vector2(6 * 16 + 2, 8 * 16);
             bike.Position = tl + new Vector2(6 * 16 + 2, 7 * 16);
             sage = new(preset, p);
-            if(GlobalState.events.GetEvent("BlueDone") == 0)
+            if(GlobalState.Events.GetEvent("BlueDone") == 0)
             {
                 exists = false;
                 return;
@@ -169,7 +169,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
                 if(hitPlayer || (_player.broom.visible && bullet.Hitbox.Intersects(_player.broom.Hitbox)))
                 {
                     bool flashReady = false;
-                    GlobalState.flash.Flash(1, hitPlayer ? Color.Red : Color.White, () => flashReady = true);
+                    GlobalState.Flash.Flash(1, hitPlayer ? Color.Red : Color.White, () => flashReady = true);
                     while (!flashReady) yield return null;
 
                     bullet.visible = false;
@@ -190,7 +190,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
                 if(bullet.Position.X > bike.Position.X)
                 {
                     bool flashReady = false;
-                    GlobalState.flash.Flash(1, Color.Red, () => flashReady = true);
+                    GlobalState.Flash.Flash(1, Color.Red, () => flashReady = true);
                     while (!flashReady) yield return null;
 
                     bullet.visible = false;
@@ -238,7 +238,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
         {
             if(_facePlayer)
             {
-                if (GlobalState.events.GetEvent("HappyDone") > 0)
+                if (GlobalState.Events.GetEvent("HappyDone") > 0)
                     return DialogueManager.GetDialogue("sage", "posthappy_mitra");
                 return DialogueManager.GetDialogue("sage", "hit", 7);
             }
@@ -272,7 +272,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Go
         {
             if(_facePlayer)
             {
-                if (GlobalState.events.GetEvent("HappyDone") > 0)
+                if (GlobalState.Events.GetEvent("HappyDone") > 0)
                     GlobalState.Dialogue = DialogueManager.GetDialogue("sage", "posthappy_sage");
                 else
                     GlobalState.Dialogue = DialogueManager.GetDialogue("sage", "hit", 6);

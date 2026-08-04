@@ -39,22 +39,22 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
             switch (_type)
             {
                 case BroomType.Normal:
-                    GlobalState.inventory.HasBroom = true;
-                    GlobalState.inventory.EquippedBroom = BroomType.Normal;
+                    GlobalState.Inventory.HasBroom = true;
+                    GlobalState.Inventory.EquippedBroom = BroomType.Normal;
                     break;
                 case BroomType.Wide:
-                    GlobalState.inventory.HasWiden = true;
+                    GlobalState.Inventory.HasWiden = true;
                     break;
                 case BroomType.Long:
-                    GlobalState.inventory.HasLengthen = true;
+                    GlobalState.Inventory.HasLengthen = true;
                     break;
                 case BroomType.Transformer:
-                    GlobalState.inventory.HasTransformer = true;
+                    GlobalState.Inventory.HasTransformer = true;
                     break;
             }
-            if (GlobalState.inventory.EquippedBroom == BroomType.NONE)
+            if (GlobalState.Inventory.EquippedBroom == BroomType.NONE)
             {
-                GlobalState.inventory.EquippedBroom = _type;
+                GlobalState.Inventory.EquippedBroom = _type;
             }
         }
     }

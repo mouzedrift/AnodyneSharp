@@ -94,7 +94,7 @@ namespace AnodyneSharp.States
             {
                 if (KeyInput.IsRebindableKeyPressed(KeyFunctions.Accept))
                 {
-                    if (GlobalState.FUCK_IT_MODE_ON)
+                    if (GlobalState.FuckItModeOn)
                     {
                         GameTimes.TimeScale = 80;
                     }
@@ -547,7 +547,7 @@ namespace AnodyneSharp.States
                 {
                     if (_selector.Position == _pos1)
                     {
-                        GlobalState.events.SetEvent("SeenCredits", 1);
+                        GlobalState.Events.SetEvent("SeenCredits", 1);
                         GlobalState.SaveGame();
                     }
 

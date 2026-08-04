@@ -136,9 +136,9 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Circus
             SoundManager.PlaySoundEffect("dustpoof");
             Play("stunned");
 
-            GlobalState.PUZZLES_SOLVED++;
+            GlobalState.PuzzlesSolvedRoom++;
 
-            GlobalState.screenShake.Shake(0.01f, 0.2f);
+            GlobalState.ScreenShake.Shake(0.01f, 0.2f);
             shadow.visible = false;
 
             while (_waitTimer < WaitTimerMax)

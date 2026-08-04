@@ -20,9 +20,9 @@ namespace AnodyneSharp.Entities
 
         public void Warp(Vector2 offset)
         {
-            GlobalState.NEXT_MAP_NAME = Map;
-            GlobalState.PLAYER_WARP_TARGET = Door.Position + offset;
-            GlobalState.WARP = true;
+            GlobalState.NextMapName = Map;
+            GlobalState.PlayerWarpTarget = Door.Position + offset;
+            GlobalState.Warping = true;
         }
     }
 

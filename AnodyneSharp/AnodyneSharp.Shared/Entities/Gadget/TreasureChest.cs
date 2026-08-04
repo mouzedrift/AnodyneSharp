@@ -195,7 +195,7 @@ namespace AnodyneSharp.Entities.Gadget
 
         public override bool PlayerInteraction(Facing player_direction)
         {
-            if(GlobalState.events.GetEvent("WindmillOpened") == 0)
+            if(GlobalState.Events.GetEvent("WindmillOpened") == 0)
             {
                 GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("misc", "any", "treasure", 0);
                 return true;

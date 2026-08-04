@@ -56,7 +56,7 @@ namespace AnodyneSharp.Entities
             if (check == MapData.SwapperControl.State.DisallowSilently)
                 return;
 
-            if(GlobalState.events.GetEvent("SeenCredits") == 0)
+            if(GlobalState.Events.GetEvent("SeenCredits") == 0)
             {
                 if(check != MapData.SwapperControl.State.Allow)
                 {
@@ -66,7 +66,7 @@ namespace AnodyneSharp.Entities
             }
             else if(check == MapData.SwapperControl.State.Disallow)
             {
-                GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("misc", "any", "swap", (GlobalState.CURRENT_MAP_NAME == "DEBUG") ? 0 : 1);
+                GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("misc", "any", "swap", (GlobalState.CurrentMapName == "DEBUG") ? 0 : 1);
                 return;
             }
 

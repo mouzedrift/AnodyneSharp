@@ -22,7 +22,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
         {
             base.GetTreasure();
 
-            GlobalState.inventory.SecretStatus[_secretID] = true;
+            GlobalState.Inventory.SecretStatus[_secretID] = true;
 
             DebugLogger.AddInfo($"Got secret {_secretID}");
         }

@@ -43,13 +43,13 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Hotel
 
             opacity = 0;
 
-            if (GlobalState.events.BossDefeated.Contains("HOTEL") || (GlobalState.events.GetEvent("EyebossPreviewPlayed")> 0 && GlobalState.RNG.NextDouble() > 0.3))
+            if (GlobalState.Events.BossDefeated.Contains("HOTEL") || (GlobalState.Events.GetEvent("EyebossPreviewPlayed")> 0 && GlobalState.RNG.NextDouble() > 0.3))
             {
                 exists = false;
             }
             else
             {
-                GlobalState.events.IncEvent("EyebossPreviewPlayed");
+                GlobalState.Events.IncEvent("EyebossPreviewPlayed");
             }
 
             _stateLogic = StateLogic();

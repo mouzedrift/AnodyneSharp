@@ -124,7 +124,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Suburb
                 Play("die");
                 SoundManager.PlaySoundEffect("broom_hit");
                 SoundManager.PlaySoundEffect("fall_in_hole");
-                GlobalState.events.IncEvent("SuburbKilled");
+                GlobalState.Events.IncEvent("SuburbKilled");
             }
         }
 

@@ -27,7 +27,7 @@ namespace AnodyneSharp.Entities
 
         public void OnMapChange()
         {
-            if (!SetTexture($"overlay_{GlobalState.CURRENT_MAP_NAME}_water", 24, 24,allowFailure:true))
+            if (!SetTexture($"overlay_{GlobalState.CurrentMapName}_water", 24, 24,allowFailure:true))
             {
                 SetTexture("overlay_water", 24, 24);
                 offset.Y = 0;
@@ -40,7 +40,7 @@ namespace AnodyneSharp.Entities
         {
             base.Update();
             HasVisibleHitbox = false;
-            if (GlobalState.CURRENT_MAP_NAME == "WINDMILL") //only map that doesn't have the foot overlay flicker
+            if (GlobalState.CurrentMapName == "WINDMILL") //only map that doesn't have the foot overlay flicker
             {
                 visible = true;
             }
@@ -50,7 +50,7 @@ namespace AnodyneSharp.Entities
         {
             if (CurAnimName == "water")
             {
-                SetTexture($"overlay_{GlobalState.CURRENT_MAP_NAME}_grass", 24, 24);
+                SetTexture($"overlay_{GlobalState.CurrentMapName}_grass", 24, 24);
                 offset.Y = 1;
                 layer = Drawing.DrawOrder.FG_SPRITES;
             }
@@ -84,7 +84,7 @@ namespace AnodyneSharp.Entities
                 OnMapChange();
             }
             activated = true;
-            if (GlobalState.CURRENT_MAP_NAME == "WINDMILL")
+            if (GlobalState.CurrentMapName == "WINDMILL")
             {
                 visible = true;
             }

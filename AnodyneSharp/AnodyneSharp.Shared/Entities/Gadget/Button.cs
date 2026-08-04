@@ -18,7 +18,7 @@ namespace AnodyneSharp.Entities.Gadget
         public Button(EntityPreset preset, Player p) : base(preset.Position, "buttons", 16, 16, DrawOrder.BG_ENTITIES)
         {
             permanent = preset.Frame == 0;
-            switch(GlobalState.CURRENT_MAP_NAME)
+            switch(GlobalState.CurrentMapName)
             {
                 case "STREET":
                     SetFrame(6);
@@ -55,13 +55,13 @@ namespace AnodyneSharp.Entities.Gadget
             if(pressed && !incremented)
             {
                 incremented = true;
-                GlobalState.PUZZLES_SOLVED++;
+                GlobalState.PuzzlesSolvedRoom++;
                 SetFrame(Frame + 1);
                 SoundManager.PlaySoundEffect("button_down");
             }
             else if(!pressed && incremented && !permanent)
             {
-                GlobalState.PUZZLES_SOLVED--;
+                GlobalState.PuzzlesSolvedRoom--;
                 incremented = false;
                 SetFrame(Frame - 1);
                 SoundManager.PlaySoundEffect("button_up");

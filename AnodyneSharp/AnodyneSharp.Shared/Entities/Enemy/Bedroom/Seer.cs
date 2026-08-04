@@ -68,7 +68,7 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
         {
             if (!bossRush)
             {
-                GlobalState.darkness.TargetAlpha(0.9f, 0.36f);
+                GlobalState.Darkness.TargetAlpha(0.9f, 0.36f);
                 SoundManager.StopSong();
 
                 while (_player.Position.Y > Position.Y + 48)
@@ -100,10 +100,10 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
             }
 
             SoundManager.PlaySong("bedroom-boss");
-            GlobalState.darkness.TargetAlpha(0.1f, 1.2f);
-            GlobalState.screenShake.Shake(0.01f, 3f);
+            GlobalState.Darkness.TargetAlpha(0.1f, 1.2f);
+            GlobalState.ScreenShake.Shake(0.01f, 3f);
 
-            while (GlobalState.screenShake.Active())
+            while (GlobalState.ScreenShake.Active())
             {
                 MathUtilities.MoveTo(ref GlobalState.PlayerLight.scale, 1f, 1.2f);
                 yield return null;
@@ -134,9 +134,9 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
                 yield return null;
             }
 
-            GlobalState.darkness.TargetAlpha(1, 0.6f);
+            GlobalState.Darkness.TargetAlpha(1, 0.6f);
 
-            while (!GlobalState.darkness.ReachedAlpha)
+            while (!GlobalState.Darkness.ReachedAlpha)
             {
                 FadeEverything();
                 yield return null;
@@ -155,20 +155,20 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
 
             for (int i = 0; i < 3; ++i)
             {
-                GlobalState.flash.Flash(2.38f, Color.White);
-                GlobalState.screenShake.Shake(0.01f, 1f);
+                GlobalState.Flash.Flash(2.38f, Color.White);
+                GlobalState.ScreenShake.Shake(0.01f, 1f);
                 SoundManager.PlaySoundEffect("sun_guy_death_short");
-                while (GlobalState.flash.Active())
+                while (GlobalState.Flash.Active())
                     yield return null;
             }
 
-            GlobalState.flash.Flash(3.3f, Color.White);
-            GlobalState.screenShake.Shake(0.02f, 2f);
+            GlobalState.Flash.Flash(3.3f, Color.White);
+            GlobalState.ScreenShake.Shake(0.02f, 2f);
             SoundManager.PlaySoundEffect("sun_guy_death_long");
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
                 yield return null;
 
-            GlobalState.darkness.TargetAlpha(0.75f, 1.25f);
+            GlobalState.Darkness.TargetAlpha(0.75f, 1.25f);
 
             while (!MathUtilities.MoveTo(ref GlobalState.PlayerLight.scale, 4f, 3.6f))
                 yield return null;
@@ -177,13 +177,13 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add("BEDROOM");
+                GlobalState.Events.BossDefeated.Add("BEDROOM");
 
-                GlobalState.darkness.ForceAlpha(0.5f);
+                GlobalState.Darkness.ForceAlpha(0.5f);
             }
             else
             {
-                GlobalState.darkness.ForceAlpha(0);
+                GlobalState.Darkness.ForceAlpha(0);
             }
 
             _preset.Alive = exists = false;
@@ -275,7 +275,7 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
                 while (!MathUtilities.MoveTo(ref Position.Y, _preset.Position.Y + 80f, 90))
                     yield return null;
 
-                GlobalState.screenShake.Shake(0.05f, 0.3f);
+                GlobalState.ScreenShake.Shake(0.05f, 0.3f);
                 if (i < dusts.Length)
                 {
                     Dust d = dusts[i];
@@ -311,7 +311,7 @@ namespace AnodyneSharp.Entities.Enemy.Bedroom
 
             while (!(MathUtilities.MoveTo(ref _orbs[0].Position.X, wave.Position.X, 18f) & MathUtilities.MoveTo(ref _orbs[1].Position.X, _preset.Position.X + 75, 18f)))
             {
-                GlobalState.screenShake.Shake(0.02f, 0.1f);
+                GlobalState.ScreenShake.Shake(0.02f, 0.1f);
 
                 if (wave.End) break;
 

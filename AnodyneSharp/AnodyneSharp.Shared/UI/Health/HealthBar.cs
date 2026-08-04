@@ -23,11 +23,11 @@ namespace AnodyneSharp.UI
         {
             _position = position ?? DefaultPosition;
 
-            _lastAmount = cur_health ?? GlobalState.CUR_HEALTH;
+            _lastAmount = cur_health ?? GlobalState.CurrentHealth;
 
             _healthPieces = new List<HealthBarPiece>();
 
-            CreateHealthBoxes(max_health ?? GlobalState.MAX_HEALTH);
+            CreateHealthBoxes(max_health ?? GlobalState.MaxHealth);
         }
 
         public void CreateHealthBoxes(int max)
@@ -68,7 +68,7 @@ namespace AnodyneSharp.UI
         /// <returns></returns>
         public void UpdateHealth()
         {
-            int change = GlobalState.CUR_HEALTH - _lastAmount;
+            int change = GlobalState.CurrentHealth - _lastAmount;
             
             if (change < 0)
             {
@@ -79,7 +79,7 @@ namespace AnodyneSharp.UI
                 IncreaseHealth(change);
             }
 
-            _lastAmount = GlobalState.CUR_HEALTH;
+            _lastAmount = GlobalState.CurrentHealth;
 
             if ( _lastAmount == 1)
             {
@@ -94,7 +94,7 @@ namespace AnodyneSharp.UI
 
         private void LowerHealth(int change)
         {
-            int cur_health = GlobalState.CUR_HEALTH;
+            int cur_health = GlobalState.CurrentHealth;
 
             for (int i = cur_health - change; i > cur_health; i--)
             {
@@ -105,7 +105,7 @@ namespace AnodyneSharp.UI
 
         private void IncreaseHealth(int change)
         {
-            int cur_health = GlobalState.CUR_HEALTH;
+            int cur_health = GlobalState.CurrentHealth;
 
 
             for (int i = cur_health; i > cur_health - change; i--)

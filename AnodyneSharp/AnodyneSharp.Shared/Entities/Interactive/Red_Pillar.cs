@@ -70,8 +70,8 @@ namespace AnodyneSharp.Entities
             }
 
             string eventName = $"red_cave_{c}_ss";
-            GlobalState.events.IncEvent(eventName);
-            if(GlobalState.events.GetEvent(eventName) == required)
+            GlobalState.Events.IncEvent(eventName);
+            if(GlobalState.Events.GetEvent(eventName) == required)
             {
                 Point warp = c switch
                 {
@@ -90,7 +90,7 @@ namespace AnodyneSharp.Entities
                 while(door.y_push > 0)
                 {
                     float time = 0.02f;
-                    GlobalState.screenShake.Shake(0.05f, 0.5f);
+                    GlobalState.ScreenShake.Shake(0.05f, 0.5f);
                     while(time > 0)
                     {
                         time -= GameTimes.DeltaTime;

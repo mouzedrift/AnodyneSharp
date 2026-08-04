@@ -21,9 +21,9 @@ namespace AnodyneSharp.Entities.Gadget
 
         public override bool TryUnlock()
         {
-            if (GlobalState.inventory.GetCurrentMapKeys() > 0)
+            if (GlobalState.Inventory.GetCurrentMapKeys() > 0)
             {
-                GlobalState.inventory.RemoveCurrentMapKey();
+                GlobalState.Inventory.RemoveCurrentMapKey();
                 SoundManager.PlaySoundEffect("unlock");
                 Play("Open");
                 Solid = false;

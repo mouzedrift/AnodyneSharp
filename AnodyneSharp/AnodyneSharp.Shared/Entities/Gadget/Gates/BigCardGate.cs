@@ -35,7 +35,7 @@ namespace AnodyneSharp.Entities.Gadget
 
         public override bool TryUnlock()
         {
-            if (GlobalState.inventory.CardCount >= _preset.Frame)
+            if (GlobalState.Inventory.CardCount >= _preset.Frame)
             {
                 GlobalState.Dialogue = _preset.Frame switch
                 {

@@ -20,7 +20,7 @@ namespace AnodyneSharp.States
 
         List<Entity> _entities = new();
 
-        float oldDarkness = GlobalState.darkness.Alpha;
+        float oldDarkness = GlobalState.Darkness.Alpha;
 
         IEnumerator<CutsceneEvent> _state;
 
@@ -81,7 +81,7 @@ namespace AnodyneSharp.States
         {
             SpriteDrawer.Camera.GoTo(MapUtilities.GetRoomUpperLeftPos(GlobalState.CurrentMapGrid)); //reset camera
             (GlobalState.Map as Map).ReloadSettings(SpriteDrawer.Camera.Position2D, graphics_only:true, screen_transition: false);
-            GlobalState.darkness.ForceAlpha(oldDarkness);
+            GlobalState.Darkness.ForceAlpha(oldDarkness);
             DrawPlayState = true;
             UpdateEntities = true;
             _map = null;

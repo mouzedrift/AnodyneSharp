@@ -24,7 +24,7 @@ namespace AnodyneSharp.Entities.Gadget.Doors
         {
             _preset = preset;
 
-            if (GlobalState.events.GetEvent("fisherman.dead") != 0)
+            if (GlobalState.Events.GetEvent("fisherman.dead") != 0)
             {
                 Play("whirl_red");
             }
@@ -33,7 +33,7 @@ namespace AnodyneSharp.Entities.Gadget.Doors
                 Play("whirl");
             }
 
-            if (GlobalState.CURRENT_MAP_NAME == "REDSEA")
+            if (GlobalState.CurrentMapName == "REDSEA")
             {
                 teleportOffset = new Vector2(0, -36);
             }
@@ -51,7 +51,7 @@ namespace AnodyneSharp.Entities.Gadget.Doors
 
         public void DoTransition()
         {
-            GlobalState.events.IncEvent("fisherman.dead");
+            GlobalState.Events.IncEvent("fisherman.dead");
             Play("transition");
         }
     }

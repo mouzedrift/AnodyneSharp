@@ -11,8 +11,8 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
         public static bool NeedsSecond(string name, string normal, string second)
         {
             string eventName = $"{name}-QuestCounter";
-            int previousCount = GlobalState.events.GetEvent(eventName);
-            int currentCount = GlobalState.events.BossDefeated.Count;
+            int previousCount = GlobalState.Events.GetEvent(eventName);
+            int currentCount = GlobalState.Events.BossDefeated.Count;
             if(DialogueManager.IsSceneDirty("generic_npc",normal))
             {
                 bool seenSecond = DialogueManager.IsSceneDirty("generic_npc", second);
@@ -20,7 +20,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
 
                 if (finishedFirst && (currentCount >= 6 || currentCount > previousCount || seenSecond))
                 {
-                    GlobalState.events.SetEvent(eventName, currentCount);
+                    GlobalState.Events.SetEvent(eventName, currentCount);
                     return true;
                 }
                 return false;
@@ -28,7 +28,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
             else
             {
                 //First time talking never do second
-                GlobalState.events.SetEvent(eventName, currentCount);
+                GlobalState.Events.SetEvent(eventName, currentCount);
                 return false;
             }
         }

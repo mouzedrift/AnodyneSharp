@@ -43,7 +43,7 @@ namespace AnodyneSharp.Entities.Gadget
         private bool ConditionSatisfied()
         {
             // 0-4,10-14 are enemies killed, 5-7,15-17 are puzzles solved
-            int check = (_preset.Frame % 10 >= 5) ? GlobalState.PUZZLES_SOLVED : GlobalState.ENEMIES_KILLED;
+            int check = (_preset.Frame % 10 >= 5) ? GlobalState.PuzzlesSolvedRoom : GlobalState.EnemiesKilledRoom;
             return check > (_preset.Frame % 5);
         }
 

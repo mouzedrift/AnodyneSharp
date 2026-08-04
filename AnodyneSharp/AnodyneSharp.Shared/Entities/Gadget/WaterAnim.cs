@@ -11,7 +11,7 @@ namespace AnodyneSharp.Entities.Gadget
     {
         public WaterAnim(EntityPreset preset, Player p) : base(preset.Position)
         {
-            if(GlobalState.events.GetEvent(preset.TypeValue) != 0)
+            if(GlobalState.Events.GetEvent(preset.TypeValue) != 0)
             {
                 var s = DoWaterAnim(preset.Position);
                 while (s.MoveNext());

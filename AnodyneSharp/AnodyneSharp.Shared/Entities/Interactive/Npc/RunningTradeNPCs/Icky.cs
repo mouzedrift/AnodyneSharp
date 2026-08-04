@@ -20,7 +20,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
 
         public Icky(EntityPreset preset, Player p) : base(preset.Position, GetSprite(), Drawing.DrawOrder.ENTITIES)
         {
-            if(GlobalState.events.GetEvent("icky.rescued") == 0)
+            if(GlobalState.Events.GetEvent("icky.rescued") == 0)
             {
                 exists = false;
                 return;

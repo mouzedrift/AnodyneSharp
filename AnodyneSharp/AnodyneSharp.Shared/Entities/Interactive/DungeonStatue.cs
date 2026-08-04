@@ -28,7 +28,7 @@ namespace AnodyneSharp.Entities.Interactive
 
         public DungeonStatue(EntityPreset preset, Player p) : this(preset.Position,preset.Frame)
         {
-            if(GlobalState.events.GetEvent("WindmillOpened") != 0)
+            if(GlobalState.Events.GetEvent("WindmillOpened") != 0)
             {
                 Position += FacingDirection(MoveDir(Frame)) * 32;
             }
@@ -36,7 +36,7 @@ namespace AnodyneSharp.Entities.Interactive
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            if (GlobalState.events.GetEvent("WindmillOpened") != 0)
+            if (GlobalState.Events.GetEvent("WindmillOpened") != 0)
             {
                 GlobalState.Dialogue = DialogueManager.GetDialogue("dungeon_statue", "two");
             }

@@ -29,7 +29,7 @@ namespace AnodyneSharp.Entities.Gadget.Doors
             Position += new Vector2(6, 6);
             teleportOffset = new Vector2(10, 34);
 
-            GlobalState.events.ActivatedNexusPortals.Add(GlobalState.CURRENT_MAP_NAME);
+            GlobalState.Events.ActivatedNexusPortals.Add(GlobalState.CurrentMapName);
         }
 
         public override void Update()

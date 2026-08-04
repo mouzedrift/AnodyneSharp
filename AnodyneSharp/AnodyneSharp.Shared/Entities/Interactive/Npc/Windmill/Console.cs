@@ -21,7 +21,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
 
         public Console(EntityPreset preset, Player p) : base(preset.Position, GetSprite(), Drawing.DrawOrder.BG_ENTITIES)
         {
-            if (GlobalState.events.GetEvent("WindmillOpened") == 0)
+            if (GlobalState.Events.GetEvent("WindmillOpened") == 0)
             {
                 Play("active");
             }
@@ -56,8 +56,8 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
                 yield return null;
             }
 
-            GlobalState.gameScreenFade.fadeColor = Color.Black;
-            while (!MathUtilities.MoveTo(ref GlobalState.gameScreenFade.alpha, 1, 0.6f))
+            GlobalState.GameScreenFade.fadeColor = Color.Black;
+            while (!MathUtilities.MoveTo(ref GlobalState.GameScreenFade.alpha, 1, 0.6f))
             {
                 yield return null;
             }
@@ -77,12 +77,12 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
                 statue.visible = true;
                 yield return new WarpEvent(map, grid);
 
-                while (!MathUtilities.MoveTo(ref GlobalState.gameScreenFade.alpha, 0.45f, 0.6f))
+                while (!MathUtilities.MoveTo(ref GlobalState.GameScreenFade.alpha, 0.45f, 0.6f))
                 {
                     yield return null;
                 }
                 SoundManager.PlaySoundEffect("red_cave_rise");
-                while (!MathUtilities.MoveTo(ref GlobalState.gameScreenFade.alpha, 0, 0.6f))
+                while (!MathUtilities.MoveTo(ref GlobalState.GameScreenFade.alpha, 0, 0.6f))
                 {
                     yield return null;
                 }
@@ -92,10 +92,10 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
                 {
                     yield return null;
                 }
-                GlobalState.screenShake.Shake(0.05f, 0.5f);
+                GlobalState.ScreenShake.Shake(0.05f, 0.5f);
                 SoundManager.PlaySoundEffect("wb_hit_ground");
 
-                while (!MathUtilities.MoveTo(ref GlobalState.gameScreenFade.alpha, 1, 0.6f))
+                while (!MathUtilities.MoveTo(ref GlobalState.GameScreenFade.alpha, 1, 0.6f))
                 {
                     yield return null;
                 }
@@ -105,13 +105,13 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Windmill
 
             yield return new ReturnWarp();
             e.SetTarget(1);
-            while (!MathUtilities.MoveTo(ref GlobalState.gameScreenFade.alpha, 0, 0.6f) | !e.ReachedTarget)
+            while (!MathUtilities.MoveTo(ref GlobalState.GameScreenFade.alpha, 0, 0.6f) | !e.ReachedTarget)
             {
                 yield return null;
             }
 
             SoundManager.PlaySong("windmill");
-            GlobalState.events.IncEvent("WindmillOpened");
+            GlobalState.Events.IncEvent("WindmillOpened");
             GlobalState.FireEvent(new OpenedWindmill());
 
             yield break;

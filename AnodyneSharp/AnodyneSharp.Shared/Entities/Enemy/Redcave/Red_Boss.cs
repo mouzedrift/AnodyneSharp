@@ -180,7 +180,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
                         push_timer = 0f;
                         if (y_push > 0)
                         {
-                            GlobalState.screenShake.Shake(0.021f, 0.1f);
+                            GlobalState.ScreenShake.Shake(0.021f, 0.1f);
                             y_push--;
                         }
                     }
@@ -198,7 +198,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
                         push_timer = 0f;
                         if (y_push > 0)
                         {
-                            GlobalState.screenShake.Shake(0.021f, 0.1f);
+                            GlobalState.ScreenShake.Shake(0.021f, 0.1f);
                             y_push--;
                         }
                     }
@@ -265,7 +265,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
                                velocity.X = -60;
                                dirs |= Drawing.Effects.ScreenShake.Directions.Horizontal;
                            }
-                           GlobalState.screenShake.Shake(0.05f, 0.1f, dirs);
+                           GlobalState.ScreenShake.Shake(0.05f, 0.1f, dirs);
                        })
                     .Event("Tentacles", (s) =>
                      {
@@ -319,8 +319,8 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
                 GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("redboss", "after_fight");
             }
 
-            GlobalState.screenShake.Shake(0.05f, 0.1f);
-            GlobalState.flash.Flash(1f, Color.Red);
+            GlobalState.ScreenShake.Shake(0.05f, 0.1f);
+            GlobalState.Flash.Flash(1f, Color.Red);
 
             small_wave.exists = false;
 
@@ -376,7 +376,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add("REDCAVE");
+                GlobalState.Events.BossDefeated.Add("REDCAVE");
                 SoundManager.PlaySong("redcave");
             }
             else
@@ -482,7 +482,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
         public void Launch()
         {
             velocity.X = -20;
-            GlobalState.screenShake.Shake(0.03f, 1f);
+            GlobalState.ScreenShake.Shake(0.03f, 1f);
             Play("move");
             SoundManager.PlaySoundEffect("small_wave");
         }
@@ -539,7 +539,7 @@ namespace AnodyneSharp.Entities.Enemy.Redcave
         public void Launch()
         {
             velocity.X = -40;
-            GlobalState.screenShake.Shake(0.05f, 1f);
+            GlobalState.ScreenShake.Shake(0.05f, 1f);
             Play("move");
             SoundManager.PlaySoundEffect("big_wave");
             disable_player_hit = false;

@@ -68,7 +68,7 @@ namespace AnodyneSharp.States
 
         public override void Update()
         {
-            if (GlobalState.CUR_HEALTH == 0)
+            if (GlobalState.CurrentHealth == 0)
             {
                 Exit = true;
                 return;
@@ -108,7 +108,7 @@ namespace AnodyneSharp.States
                     _inSubstate = false;
                     _substate.Exit = false;
                     _selector.Play("flash");
-                    if (GlobalState.WARP) //exit pause state if substate triggered a warp
+                    if (GlobalState.Warping) //exit pause state if substate triggered a warp
                     {
                         Exit = true;
                         return;
@@ -244,7 +244,7 @@ namespace AnodyneSharp.States
                 (DialogueManager.GetDialogue("misc", "any", "config", 0), () => new ConfigSubstate()),
             };
 
-            if (GlobalState.inventory.UnlockedSecretz)
+            if (GlobalState.Inventory.UnlockedSecretz)
             {
                 ret.Add(("???", () => new SecretSubstate()));
             }

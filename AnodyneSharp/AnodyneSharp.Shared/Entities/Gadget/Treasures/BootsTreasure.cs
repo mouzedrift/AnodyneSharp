@@ -17,7 +17,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
         {
             base.GetTreasure();
 
-            GlobalState.inventory.CanJump = true;
+            GlobalState.Inventory.CanJump = true;
         }
     }
 }

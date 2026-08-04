@@ -40,20 +40,20 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
         public WaterPhase(EntityPreset preset, Player p) : base(preset.Position,EyebossPreview.GetSprite(),Drawing.DrawOrder.BG_ENTITIES)
         {
             player = p;
-            if(GlobalState.events.BossDefeated.Contains(GlobalState.CURRENT_MAP_NAME) ||
-               GlobalState.events.GetEvent("BossRushLandDefeated") == 1)
+            if(GlobalState.Events.BossDefeated.Contains(GlobalState.CurrentMapName) ||
+               GlobalState.Events.GetEvent("BossRushLandDefeated") == 1)
             {
                 //Full boss is defeated, open both gates and do nothing beyond that
                 exists = false;
                 death_marker.exists = false;
-                GlobalState.PUZZLES_SOLVED++;
+                GlobalState.PuzzlesSolvedRoom++;
                 return;
             }
             else if(SoundManager.CurrentSongName == "hotel-boss")
             {
                 //Came back up from second phase screen
                 (GlobalState.Map as MapData.Map).IgnoreMusicNextUpdate();
-                GlobalState.PUZZLES_SOLVED++;
+                GlobalState.PuzzlesSolvedRoom++;
                 preset.Alive = exists = false;
                 return;
             }
@@ -149,7 +149,7 @@ namespace AnodyneSharp.Entities.Enemy.Hotel.Boss
                 yield return null;
             }
 
-            GlobalState.PUZZLES_SOLVED++;
+            GlobalState.PuzzlesSolvedRoom++;
             exists = false;
 
             preset.Alive = false;

@@ -32,7 +32,7 @@ namespace AnodyneSharp.Cheatz
 
         public static void Default()
         {
-            GlobalState.CUR_HEALTH -= 2;
+            GlobalState.CurrentHealth -= 2;
             GlobalState.DamageDealer = DamageDealer;
             SoundManager.PlaySoundEffect("sb_hurt");
         }
@@ -43,7 +43,7 @@ namespace AnodyneSharp.Cheatz
         [Cheat("LRLR121212")]
         public static void ToggleFuckItMode()
         {
-            GlobalState.FUCK_IT_MODE_ON = !GlobalState.FUCK_IT_MODE_ON;
+            GlobalState.FuckItModeOn = !GlobalState.FuckItModeOn;
         }
 
         [Cheat("UUDDLRLR21")]
@@ -51,31 +51,31 @@ namespace AnodyneSharp.Cheatz
         {
             SoundManager.PlaySoundEffect("unlock");
 
-            GlobalState.MAX_HEALTH = 16;
-            GlobalState.CUR_HEALTH = GlobalState.MAX_HEALTH;
+            GlobalState.MaxHealth = 16;
+            GlobalState.CurrentHealth = GlobalState.MaxHealth;
 
-            GlobalState.inventory.HasBroom = true;
-            GlobalState.inventory.HasLengthen = true;
-            GlobalState.inventory.HasWiden = true;
-            GlobalState.inventory.HasTransformer = true;
-            GlobalState.inventory.CanJump = true;
+            GlobalState.Inventory.HasBroom = true;
+            GlobalState.Inventory.HasLengthen = true;
+            GlobalState.Inventory.HasWiden = true;
+            GlobalState.Inventory.HasTransformer = true;
+            GlobalState.Inventory.CanJump = true;
 
-            for (int i = 0; i < GlobalState.inventory.CardStatus.Length; i++)
+            for (int i = 0; i < GlobalState.Inventory.CardStatus.Length; i++)
             {
-                GlobalState.inventory.CardStatus[i] = true;
+                GlobalState.Inventory.CardStatus[i] = true;
             }
 
             for (int i = 0; i < 3; i++)
             {
-                GlobalState.inventory.BigKeyStatus[i] = true;
+                GlobalState.Inventory.BigKeyStatus[i] = true;
             }
 
-            for (int i = 0; i < GlobalState.inventory.SecretStatus.Length; i++)
+            for (int i = 0; i < GlobalState.Inventory.SecretStatus.Length; i++)
             {
-                GlobalState.inventory.SecretStatus[i] = true;
+                GlobalState.Inventory.SecretStatus[i] = true;
             }
 
-            GlobalState.inventory.EquippedBroom = GlobalState.inventory.EquippedBroom == Entities.BroomType.NONE ? Entities.BroomType.Normal : GlobalState.inventory.EquippedBroom;
+            GlobalState.Inventory.EquippedBroom = GlobalState.Inventory.EquippedBroom == Entities.BroomType.NONE ? Entities.BroomType.Normal : GlobalState.Inventory.EquippedBroom;
         }
 
         [Cheat("UDUD121212")]
@@ -83,7 +83,7 @@ namespace AnodyneSharp.Cheatz
         {
             foreach(var map in (GameConstants.MapOrder[])Enum.GetValues(typeof(GameConstants.MapOrder)))
             {
-                GlobalState.events.ActivatedNexusPortals.Add(map.ToString());
+                GlobalState.Events.ActivatedNexusPortals.Add(map.ToString());
             }
 
             SoundManager.PlaySoundEffect("menu_select");
@@ -100,7 +100,7 @@ namespace AnodyneSharp.Cheatz
         [Cheat("12UULLRRDD")]
         public static void GiveKey()
         {
-            GlobalState.inventory.AddCurrentMapKey();
+            GlobalState.Inventory.AddCurrentMapKey();
             SoundManager.PlaySoundEffect("keyget");
             GlobalState.RefreshKeyCount = true;
         }

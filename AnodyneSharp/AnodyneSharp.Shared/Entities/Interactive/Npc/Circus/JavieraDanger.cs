@@ -83,7 +83,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Circus
 
             Play("walk_d");
 
-            while (GlobalState.ENEMIES_KILLED < 2)
+            while (GlobalState.EnemiesKilledRoom < 2)
             {
                 yield return null;
             }
@@ -117,7 +117,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Circus
             _preset.Alive = false;
             exists = false;
 
-            GlobalState.PUZZLES_SOLVED++;
+            GlobalState.PuzzlesSolvedRoom++;
 
             yield break;
         }

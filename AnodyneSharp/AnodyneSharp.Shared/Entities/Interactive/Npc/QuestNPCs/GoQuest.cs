@@ -25,7 +25,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
 
         public bool PlayerInteraction(Facing player_direction)
         {
-            int quest_progress = GlobalState.events.GetEvent("GoQuestProgress");
+            int quest_progress = GlobalState.Events.GetEvent("GoQuestProgress");
             if ((quest_progress == 7) && !_played_quest)
             {
                 _played_quest = true;

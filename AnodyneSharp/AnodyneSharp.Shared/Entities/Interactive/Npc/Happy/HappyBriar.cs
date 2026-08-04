@@ -34,7 +34,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Happy
 
         IEnumerator<string> State()
         {
-            while (GlobalState.PUZZLES_SOLVED != 1) yield return null;
+            while (GlobalState.PuzzlesSolvedRoom != 1) yield return null;
             GlobalState.StartCutscene = Entrance();
             while(true)
             {
@@ -78,7 +78,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Happy
                 yield return null;
 
             exists = preset.Alive = false;
-            GlobalState.events.IncEvent("HappyDone");
+            GlobalState.Events.IncEvent("HappyDone");
 
         }
     }

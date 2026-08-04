@@ -87,12 +87,12 @@ namespace AnodyneSharp.States.MainMenu
                 .State("IntroFade")
                     .Enter((state) =>
                     {
-                        GlobalState.flash.Flash(2f, Color.Black);
+                        GlobalState.Flash.Flash(2f, Color.Black);
                         GlobalState.TitleScreenFinish.Darkness = ResourceManager.GetTexture("title_overlay1");
                         GlobalState.TitleScreenFinish.ForceAlpha(1);
                     })
                     .Condition(() => AnyKeyPressed, (s) => _state.ChangeState("PressStart"))
-                    .Condition(() => !GlobalState.flash.Active(), (s) => _state.ChangeState("CreditsWrite"))
+                    .Condition(() => !GlobalState.Flash.Active(), (s) => _state.ChangeState("CreditsWrite"))
                 .End()
                 .State<TextDrawTimer>("CreditsWrite")
                     .Enter((state) =>
@@ -198,7 +198,7 @@ namespace AnodyneSharp.States.MainMenu
                 .State("PressStart")
                     .Enter((s) =>
                     {
-                        GlobalState.flash.Flash(1.5f, Color.White, onFull: () => _state.ChangeState("DisplayTitle"));
+                        GlobalState.Flash.Flash(1.5f, Color.White, onFull: () => _state.ChangeState("DisplayTitle"));
                     })
                 .End()
                 .State<PressEnterTimer>("DisplayTitle")
@@ -246,7 +246,7 @@ namespace AnodyneSharp.States.MainMenu
                     .Update((state, t) =>
                     {
                         GlobalState.pixelation.AddPixelation(15);
-                        GlobalState.black_overlay.ChangeAlpha(0.36f);
+                        GlobalState.BlackOverlay.ChangeAlpha(0.36f);
                     })
                     .Condition(() => GlobalState.pixelation.Pixelation >= 15f, (state) => _state.ChangeState("FadeOut"))
                 .End()
@@ -254,15 +254,15 @@ namespace AnodyneSharp.States.MainMenu
                     .Update((state, t) =>
                     {
                         GlobalState.pixelation.AddPixelation(15);
-                        GlobalState.black_overlay.ChangeAlpha(0.72f);
+                        GlobalState.BlackOverlay.ChangeAlpha(0.72f);
                     })
-                    .Condition(() => GlobalState.black_overlay.alpha >= 1f, (state) =>
+                    .Condition(() => GlobalState.BlackOverlay.alpha >= 1f, (state) =>
                     {
                         GlobalState.pixelation.SetPixelation(0);
-                        GlobalState.black_overlay.alpha = 0;
+                        GlobalState.BlackOverlay.alpha = 0;
 
 
-                        GlobalState.flash.ForceAlpha(0);
+                        GlobalState.Flash.ForceAlpha(0);
                         GlobalState.TitleScreenFinish.ForceAlpha(0);
 
                         GlobalState.TitleScreenFinish.Entities.Clear();

@@ -29,7 +29,7 @@ namespace AnodyneSharp.Entities.Events
             }
         }
 
-        bool Active => GlobalState.checkpoint == new GlobalState.CheckPoint(GlobalState.CURRENT_MAP_NAME, Position);
+        bool Active => GlobalState.checkpoint == new GlobalState.CheckPoint(GlobalState.CurrentMapName, Position);
 
         IState state;
 
@@ -64,7 +64,7 @@ namespace AnodyneSharp.Entities.Events
                     .Condition(()=>(p.Position-Position).Length() < 18, (s) =>
                     {
                         GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("misc", "any", "checkpoint", 3);
-                        GlobalState.events.IncEvent("CheckpointTutorial");
+                        GlobalState.Events.IncEvent("CheckpointTutorial");
                         state.ChangeState("Wait");
                     })
                 .End()
@@ -79,8 +79,8 @@ namespace AnodyneSharp.Entities.Events
                         SoundManager.PlaySoundEffect("button_down");
                         if (!Active)
                         {
-                            GlobalState.CUR_HEALTH = GlobalState.MAX_HEALTH;
-                            GlobalState.checkpoint = new GlobalState.CheckPoint(GlobalState.CURRENT_MAP_NAME, Position);
+                            GlobalState.CurrentHealth = GlobalState.MaxHealth;
+                            GlobalState.checkpoint = new GlobalState.CheckPoint(GlobalState.CurrentMapName, Position);
                         }
                         GlobalState.SaveGame();
                         saveIcon.opacity = 1f;
@@ -98,7 +98,7 @@ namespace AnodyneSharp.Entities.Events
                 .End()
                 .Build();
 
-            state.ChangeState(GlobalState.events.GetEvent("CheckpointTutorial") == 0 ? "WaitTutorial" : (playerOn() ? "SpawnedOn" : "Wait"));
+            state.ChangeState(GlobalState.Events.GetEvent("CheckpointTutorial") == 0 ? "WaitTutorial" : (playerOn() ? "SpawnedOn" : "Wait"));
         }
 
         public override void Update()

@@ -35,7 +35,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
         {
             base.GetTreasure();
 
-            if (GlobalState.inventory.CardStatus[Frame])
+            if (GlobalState.Inventory.CardStatus[Frame])
             {
                 exists = false;
                 GlobalState.FireEvent(new EmptyTreasureEvent());
@@ -43,7 +43,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
             }
 
 
-            GlobalState.inventory.CardStatus[Frame] = true;
+            GlobalState.Inventory.CardStatus[Frame] = true;
 
             DebugLogger.AddInfo($"Got card {Frame}");
         }
@@ -68,7 +68,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
 
                     state++;
                     velocity.Y = -24;
-                    if (Position.Y <= GlobalState.CURRENT_GRID_Y * 160 + 80)
+                    if (Position.Y <= GlobalState.CurrentGridY * 160 + 80)
                     {
                         velocity.Y *= -1;
                     }
@@ -93,7 +93,7 @@ namespace AnodyneSharp.Entities.Gadget.Treasures
                         angularVelocity = MathHelper.ToRadians(50);
                         angularAcceleration = MathHelper.ToRadians(200);
 
-                        if (Position.Y <= GlobalState.CURRENT_GRID_Y * 160 + 80)
+                        if (Position.Y <= GlobalState.CurrentGridY * 160 + 80)
                         {
                             acceleration.Y *= -1;
                             angularVelocity *= -1;

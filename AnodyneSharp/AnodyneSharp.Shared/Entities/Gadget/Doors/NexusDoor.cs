@@ -94,7 +94,7 @@ namespace AnodyneSharp.Entities.Gadget.Doors
             {
                 height += 25;
 
-                if (!GlobalState.events.ActivatedNexusPortals.Contains(map))
+                if (!GlobalState.Events.ActivatedNexusPortals.Contains(map))
                 {
                     exists = false;
                 }

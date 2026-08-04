@@ -140,8 +140,8 @@ namespace AnodyneSharp.States.MenuSubstates.MainMenu
 
             if(LoadedSave)
             {
-                GlobalState.black_overlay.ChangeAlpha(0.72f);
-                if(GlobalState.black_overlay.alpha == 1)
+                GlobalState.BlackOverlay.ChangeAlpha(0.72f);
+                if(GlobalState.BlackOverlay.alpha == 1)
                 {
                     if (NewSave)
                         GlobalState.GameState.SetState<IntroState>();

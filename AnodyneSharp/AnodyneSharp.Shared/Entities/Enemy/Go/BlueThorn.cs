@@ -48,7 +48,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
             if (CurAnimName == "off")
             {
                 Play("hurt");
-                GlobalState.screenShake.Shake(0.01f, 0.2f);
+                GlobalState.ScreenShake.Shake(0.01f, 0.2f);
                 SoundManager.PlaySoundEffect("wb_hit_ground");
                 shooter.Stop();
             }

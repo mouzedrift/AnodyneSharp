@@ -293,7 +293,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
 
             bool onFull = false;
 
-            GlobalState.flash.Flash(0.2f, Color.White, () => onFull = true);
+            GlobalState.Flash.Flash(0.2f, Color.White, () => onFull = true);
 
             while (!onFull)
             {
@@ -350,7 +350,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
 
             onFull = false;
 
-            GlobalState.flash.Flash(0.2f, Color.White, () => onFull = true);
+            GlobalState.Flash.Flash(0.2f, Color.White, () => onFull = true);
 
             while (!onFull)
             {
@@ -388,7 +388,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
 
             SoundManager.PlaySoundEffect("sun_guy_death_short");
 
-            GlobalState.screenShake.Shake(0.04f, 1f);
+            GlobalState.ScreenShake.Shake(0.04f, 1f);
 
             foreach (var shockWave in _shockWaves.Entities)
             {
@@ -479,7 +479,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
             bool onFull = false;
 
             SoundManager.PlaySoundEffect("wb_hit_ground");
-            GlobalState.flash.Flash(1, Color.Red, () => onFull = true);
+            GlobalState.Flash.Flash(1, Color.Red, () => onFull = true);
 
             while (!onFull)
             {
@@ -491,7 +491,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
 
             if (!bossRush)
             {
-                GlobalState.events.BossDefeated.Add(GlobalState.CURRENT_MAP_NAME);
+                GlobalState.Events.BossDefeated.Add(GlobalState.CurrentMapName);
                 SoundManager.PlaySong("circus");
             }
             else
@@ -619,7 +619,7 @@ namespace AnodyneSharp.Entities.Enemy.Circus
 
                 SoundManager.PlaySoundEffect("hit_ground_1");
 
-                GlobalState.screenShake.Shake(0.03f, 0.1f);
+                GlobalState.ScreenShake.Shake(0.03f, 0.1f);
 
                 yield break;
             }

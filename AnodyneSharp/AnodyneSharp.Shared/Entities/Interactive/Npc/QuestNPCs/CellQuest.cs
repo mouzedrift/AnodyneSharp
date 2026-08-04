@@ -37,12 +37,12 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
 
             PlayFacing("idle");
 
-            int quest_progress = GlobalState.events.GetEvent("GoQuestProgress");
+            int quest_progress = GlobalState.Events.GetEvent("GoQuestProgress");
             if ((quest_progress == 4 || quest_progress == 5) && !_played_quest)
             {
                 _played_quest = true;
                 GlobalState.Dialogue = DialogueManager.GetDialogue("generic_npc", "quest_event");
-                if (quest_progress == 4) GlobalState.events.IncEvent("GoQuestProgress");
+                if (quest_progress == 4) GlobalState.Events.IncEvent("GoQuestProgress");
             }
             else
             {

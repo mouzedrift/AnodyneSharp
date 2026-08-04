@@ -53,7 +53,7 @@ namespace AnodyneSharp.Resources
 
         public static int GetCardId()
         {
-            string mapName = GlobalState.CURRENT_MAP_NAME;
+            string mapName = GlobalState.CurrentMapName;
             Point gridPos = GlobalState.CurrentMapGrid;
 
             if (mapName == "NEXUS")
@@ -83,10 +83,10 @@ namespace AnodyneSharp.Resources
         {
             if (!_cardLocations.ContainsKey(mapName))
             {
-                return GlobalState.events.ActivatedNexusPortals.Contains(mapName);
+                return GlobalState.Events.ActivatedNexusPortals.Contains(mapName);
             }
 
-            return _cardLocations[mapName].Values.All((c) => (c > 36 && c != 43) || GlobalState.inventory.CardStatus[c]);
+            return _cardLocations[mapName].Values.All((c) => (c > 36 && c != 43) || GlobalState.Inventory.CardStatus[c]);
         }
 
         public static bool GotAllNormalCardsOfAnyMap()

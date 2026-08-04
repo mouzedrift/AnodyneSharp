@@ -143,7 +143,7 @@ namespace AnodyneSharp.Entities.Enemy.Etc
                 Flicker(_flickerLength);
                 _health--;
                 SoundManager.PlaySoundEffect("broom_hit");
-                flash.Flash(0.4f, Color.Black);
+                Flash.Flash(0.4f, Color.Black);
             }
         }
 
@@ -206,18 +206,18 @@ namespace AnodyneSharp.Entities.Enemy.Etc
 
             SoundManager.PlaySong("sagefight");
 
-            GlobalState.flash.Flash(2.18f, Color.Black);
-            GlobalState.screenShake.Shake(0.02f, 1.5f);
+            GlobalState.Flash.Flash(2.18f, Color.Black);
+            GlobalState.ScreenShake.Shake(0.02f, 1.5f);
 
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
             {
                 yield return null;
             }
 
-            GlobalState.flash.Flash(2.15f, Color.Black);
-            GlobalState.screenShake.Shake(0.025f, 1.5f);
+            GlobalState.Flash.Flash(2.15f, Color.Black);
+            GlobalState.ScreenShake.Shake(0.025f, 1.5f);
 
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
             {
                 Position.X = _topLeft.X + GlobalState.RNG.Next(40, 100);
                 Position.Y = _topLeft.Y + GlobalState.RNG.Next(30, 70);
@@ -227,17 +227,17 @@ namespace AnodyneSharp.Entities.Enemy.Etc
 
             Position = _player.Position - new Vector2(2, 16);
 
-            GlobalState.flash.Flash(2.15f, Color.Black);
-            GlobalState.screenShake.Shake(0.03f, 1.5f);
+            GlobalState.Flash.Flash(2.15f, Color.Black);
+            GlobalState.ScreenShake.Shake(0.03f, 1.5f);
 
 
-            while (GlobalState.flash.Active())
+            while (GlobalState.Flash.Active())
             {
                 yield return null;
             }
 
-            GlobalState.flash.Flash(6f, Color.Black);
-            GlobalState.screenShake.Shake(0.035f, 1.7f);
+            GlobalState.Flash.Flash(6f, Color.Black);
+            GlobalState.ScreenShake.Shake(0.035f, 1.7f);
 
             Position.X = _topLeft.X + 80 - width / 2;
             Position.Y = _topLeft.Y + 25;
@@ -561,8 +561,8 @@ namespace AnodyneSharp.Entities.Enemy.Etc
             {
                 SoundManager.PlaySong("terminal_alt");
 
-                events.BossDefeated.Add("TERMINAL");
-                events.SetEvent("SageDied", 1);
+                GlobalState.Events.BossDefeated.Add("TERMINAL");
+                GlobalState.Events.SetEvent("SageDied", 1);
 
             }
             else

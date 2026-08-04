@@ -19,7 +19,7 @@ namespace AnodyneSharp.Entities.Decorations
 
             immovable = true;
 
-            if(GlobalState.events.GetEvent(preset.TypeValue) < required_events)
+            if(GlobalState.Events.GetEvent(preset.TypeValue) < required_events)
             {
                 exists = false;
                 GlobalState.SpawnEntity(new DoorToggle(Position,width,height));

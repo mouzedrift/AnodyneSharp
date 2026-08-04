@@ -46,10 +46,10 @@ namespace AnodyneSharp.Entities.Interactive.Npc.Forest
                 if (Position.X - initial_pos > 80)
                 {
                     lol_timer = 80f;
-                    GlobalState.PUZZLES_SOLVED = 1;
+                    GlobalState.PuzzlesSolvedRoom = 1;
                     if (Position.X - initial_pos > 160)
                     {
-                        GlobalState.PUZZLES_SOLVED = 2;
+                        GlobalState.PuzzlesSolvedRoom = 2;
                         exists = false;
                     }
                 }

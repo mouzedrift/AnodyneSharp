@@ -57,7 +57,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
                 FaceTowards(Position - FacingDirection(player_direction));
 
                 PlayFacing("walk");
-                var dialog = GlobalState.events.GetEvent("SuburbKilled") switch
+                var dialog = GlobalState.Events.GetEvent("SuburbKilled") switch
                 {
                     < 6 => 0,
                     < 9 => 1,

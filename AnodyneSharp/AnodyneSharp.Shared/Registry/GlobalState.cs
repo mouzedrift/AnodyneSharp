@@ -35,17 +35,17 @@ namespace AnodyneSharp.Registry
                 IncludeFields = true
             };
 
-            public Dictionary<string, List<int>> minimap_state = GlobalState.minimaps.interest;
+            public Dictionary<string, List<int>> minimap_state = GlobalState.Minimaps.interest;
             public Dictionary<Guid, EntityState> entity_state = EntityManager.State;
             public Dictionary<string, DialogueNPC> dialogue_state = DialogueManager.SceneTree;
-            public EventRegister events = GlobalState.events;
-            public InventoryManager inventory = GlobalState.inventory;
+            public EventRegister events = GlobalState.Events;
+            public InventoryManager inventory = GlobalState.Inventory;
             public CheckPoint checkpoint = GlobalState.checkpoint;
             public CheckPoint ReturnTarget = GlobalState.ReturnTarget;
             public int PillarSwitchOn = GlobalState.PillarSwitchOn;
 
             public long playtime = PlayTime.Ticks;
-            public int current_health = _curHealth;
+            public int current_health = _currentHealth;
             public int max_health = _maxHealth;
             public int deaths = DeathCount;
 
@@ -96,37 +96,37 @@ namespace AnodyneSharp.Registry
 
         public static void LoadSave(Save s)
         {
-            minimaps.interest = s.minimap_state;
+            Minimaps.interest = s.minimap_state;
             EntityManager.State = s.entity_state;
             DialogueManager.SceneTree = s.dialogue_state;
             DialogueManager.Reload();
-            events = s.events;
-            inventory = s.inventory;
+            Events = s.events;
+            Inventory = s.inventory;
             checkpoint = s.checkpoint;
             ReturnTarget = s.ReturnTarget;
             PillarSwitchOn = s.PillarSwitchOn;
 
-            PLAYER_WARP_TARGET = checkpoint.Position;
-            NEXT_MAP_NAME = checkpoint.map;
+            PlayerWarpTarget = checkpoint.Position;
+            NextMapName = checkpoint.map;
 
             _totalPreviously = new TimeSpan(s.playtime);
-            MAX_HEALTH = s.max_health;
-            CUR_HEALTH = s.current_health;
+            MaxHealth = s.max_health;
+            CurrentHealth = s.current_health;
             DeathCount = s.deaths;
         }
 
         public static void ResetValues()
         {
-            START_TIME = DateTime.Now;
+            _startTime = DateTime.Now;
 
-            CURRENT_MAP_NAME = "";
-            NEXT_MAP_NAME = "BLANK";
-            PLAYER_WARP_TARGET = new Vector2(23, 130 - 20); //original reports 23,130 but ends up subtracting HEADER_HEIGHT(20) from Y value
+            CurrentMapName = "";
+            NextMapName = "BLANK";
+            PlayerWarpTarget = new Vector2(23, 130 - 20); //original reports 23,130 but ends up subtracting HEADER_HEIGHT(20) from Y value
 
             NewMapFacing = Facing.RIGHT;
 
             _maxHealth = 6;
-            _curHealth = 6;
+            _currentHealth = 6;
 
             DeathCount = 0;
 
@@ -138,21 +138,21 @@ namespace AnodyneSharp.Registry
 
             InDeathRoom = false;
 
-            minimaps = new();
-            events = new();
-            inventory = new();
+            Minimaps = new();
+            Events = new();
+            Inventory = new();
             DialogueManager.SceneTree = null;
             DialogueManager.Reload();
             EntityManager.State = new();
             PauseState.Reset();
 
-            disable_menu = false;
+            DisableMenu = false;
         }
 
         private static TimeSpan _totalPreviously;
-        private static DateTime START_TIME;
+        private static DateTime _startTime;
 
-        public static TimeSpan PlayTime => _totalPreviously + (DateTime.Now - START_TIME);
+        public static TimeSpan PlayTime => _totalPreviously + (DateTime.Now - _startTime);
 
         public static string Dialogue
         {
@@ -179,13 +179,13 @@ namespace AnodyneSharp.Registry
         {
             get
             {
-                return new(CURRENT_GRID_X, CURRENT_GRID_Y);
+                return new(CurrentGridX, CurrentGridY);
             }
         }
 
-        public static Point TopLeftTile => new(CURRENT_GRID_X * 10, CURRENT_GRID_Y * 10);
+        public static Point TopLeftTile => new(CurrentGridX * 10, CurrentGridY * 10);
 
-        public static Rectangle ScreenHitbox => new(CURRENT_GRID_X * 160, CURRENT_GRID_Y * 160, 160, 160);
+        public static Rectangle ScreenHitbox => new(CurrentGridX * 160, CurrentGridY * 160, 160, 160);
 
         public static bool CanChangeBroom
         {
@@ -199,7 +199,7 @@ namespace AnodyneSharp.Registry
         {
             get
             {
-                return AlwaysCellGraphics || CURRENT_MAP_NAME == "CELL";
+                return AlwaysCellGraphics || CurrentMapName == "CELL";
             }
         }
 
@@ -207,7 +207,7 @@ namespace AnodyneSharp.Registry
         {
             get
             {
-                return CURRENT_MAP_NAME == "SUBURB";
+                return CurrentMapName == "SUBURB";
             }
         }
 
@@ -226,13 +226,13 @@ namespace AnodyneSharp.Registry
         public static int PillarSwitchOn = 0; //Reset when entering a map with different name
 
         public static bool ScreenTransition = false; //Whether a screen transition is happening right now
-        public static int CURRENT_GRID_X;
-        public static int CURRENT_GRID_Y;
-        public static int MAP_GRID_WIDTH;
-        public static int MAP_GRID_HEIGHT;
-        public static string CURRENT_MAP_NAME;
-        public static int ENEMIES_KILLED;
-        public static int PUZZLES_SOLVED;
+        public static int CurrentGridX;
+        public static int CurrentGridY;
+        public static int MapGridWidth;
+        public static int MapGridHeight;
+        public static string CurrentMapName;
+        public static int EnemiesKilledRoom;
+        public static int PuzzlesSolvedRoom;
 
         public static IStateSetter GameState;
 
@@ -247,18 +247,18 @@ namespace AnodyneSharp.Registry
 
         public static IPublicMap Map;
 
-        private static MinimapTracker minimaps = new();
+        private static MinimapTracker Minimaps = new();
 
-        public static Minimap CurrentMinimap => minimaps.GetMinimap(CURRENT_MAP_NAME);
+        public static Minimap CurrentMinimap => Minimaps.GetMinimap(CurrentMapName);
 
-        public static EventRegister events = new();
-        public static InventoryManager inventory = new();
+        public static EventRegister Events = new();
+        public static InventoryManager Inventory = new();
 
 
         public static Facing? NewMapFacing = Facing.RIGHT;
-        public static bool WARP = false;
-        public static string NEXT_MAP_NAME;
-        public static Vector2 PLAYER_WARP_TARGET;
+        public static bool Warping = false;
+        public static string NextMapName;
+        public static Vector2 PlayerWarpTarget;
 
         public static bool RefreshKeyCount = false;
         public static bool RefreshMaxHealth = false;
@@ -286,9 +286,9 @@ namespace AnodyneSharp.Registry
 
             public void Warp(Vector2 offset)
             {
-                NEXT_MAP_NAME = map;
-                PLAYER_WARP_TARGET = Position + offset;
-                WARP = true;
+                NextMapName = map;
+                PlayerWarpTarget = Position + offset;
+                Warping = true;
             }
         }
         public static CheckPoint checkpoint;
@@ -297,26 +297,26 @@ namespace AnodyneSharp.Registry
         /**
          * Used for disabling the menu during an event because you could potentially break the game  otherwise
          */
-        public static bool disable_menu = false;
+        public static bool DisableMenu = false;
 
-        public static bool FUCK_IT_MODE_ON = false;
+        public static bool FuckItModeOn = false;
 
-        public static bool draw_hitboxes = false;
+        public static bool DrawHitboxes = false;
 
         //Health stuff
-        public static int CUR_HEALTH
+        public static int CurrentHealth
         {
             get
             {
-                return _curHealth;
+                return _currentHealth;
             }
             set
             {
-                _curHealth = Math.Clamp(value,0,MAX_HEALTH);
+                _currentHealth = Math.Clamp(value,0,MaxHealth);
             }
         }
 
-        public static int MAX_HEALTH
+        public static int MaxHealth
         {
             get
             {
@@ -331,7 +331,7 @@ namespace AnodyneSharp.Registry
 
         public static string DamageDealer = "";
 
-        private static int _curHealth = 6;
+        private static int _currentHealth = 6;
         private static int _maxHealth = 6;
 
         //Cheatz stuff
@@ -358,17 +358,17 @@ namespace AnodyneSharp.Registry
 
         public static Light PlayerLight = null;
 
-        public static Darkness darkness = new Darkness();
-        public static FadeEffect gameScreenFade = new() { fadeColor = Color.Black };
+        public static Darkness Darkness = new Darkness();
+        public static FadeEffect GameScreenFade = new() { fadeColor = Color.Black };
 
         public static TitleScreenOverlay TitleScreenFinish = new TitleScreenOverlay();
 
-        public static Static staticEffect = new();
+        public static Static StaticEffect = new();
 
-        public static ScreenShake screenShake = new();
+        public static ScreenShake ScreenShake = new();
 
-        public static FadeEffect black_overlay = new FadeEffect() { fadeColor = Color.Black };
-        public static FlashEffect flash = new();
+        public static FadeEffect BlackOverlay = new FadeEffect() { fadeColor = Color.Black };
+        public static FlashEffect Flash = new();
 
         public static Pixelate pixelation = new Pixelate();
 
@@ -379,8 +379,8 @@ namespace AnodyneSharp.Registry
         public static Wave wave = new();
         public static Glitch glitch = new();
 
-        public static List<IFullScreenEffect> gameEffects = new List<IFullScreenEffect>() { fgBlend, staticEffect, darkness, gameScreenFade };
-        public static List<IFullScreenEffect> fullScreenEffects = new List<IFullScreenEffect>() { black_overlay, glitch, new GrayScale(), TitleScreenFinish, pixelation, extraBlend, wave, flash, screenShake };
+        public static List<IFullScreenEffect> gameEffects = new List<IFullScreenEffect>() { fgBlend, StaticEffect, Darkness, GameScreenFade };
+        public static List<IFullScreenEffect> fullScreenEffects = new List<IFullScreenEffect>() { BlackOverlay, glitch, new GrayScale(), TitleScreenFinish, pixelation, extraBlend, wave, Flash, ScreenShake };
         public static IEnumerable<IFullScreenEffect> AllEffects
         {
             get

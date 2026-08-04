@@ -86,7 +86,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
                         yield return null;
                     }
                     explosions.Spawn(s => s.Spawn(this));
-                    GlobalState.screenShake.Shake(0.01f, 0.2f);
+                    GlobalState.ScreenShake.Shake(0.01f, 0.2f);
                     if (hit_player)
                     {
                         player.ReceiveDamage(1, BriarBossMain.IceDamageDealer);
@@ -102,7 +102,7 @@ namespace AnodyneSharp.Entities.Enemy.Go
 
                     while ((Position - thorn_target_loc).LengthSquared() > 25) yield return null;
 
-                    GlobalState.screenShake.Shake(0.01f, 0.2f);
+                    GlobalState.ScreenShake.Shake(0.01f, 0.2f);
                     explosions.Spawn(s => s.Spawn(this));
                     SoundManager.PlaySoundEffect("sb_ball_appear");
 

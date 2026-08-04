@@ -26,7 +26,7 @@ namespace AnodyneSharp.Entities.Lights
 
         public override void Draw()
         {
-            GlobalState.darkness.AddLight(this);
+            GlobalState.Darkness.AddLight(this);
         }
 
         public void DrawLight()
@@ -116,7 +116,7 @@ namespace AnodyneSharp.Entities.Lights
                 velocity.Y *= -1;
             }
             
-            if (GlobalState.CURRENT_MAP_NAME == "BEDROOM" && GlobalState.events.BossDefeated.Contains("BEDROOM"))
+            if (GlobalState.CurrentMapName == "BEDROOM" && GlobalState.Events.BossDefeated.Contains("BEDROOM"))
             {
                 preset.Alive = exists = false;
                 return;

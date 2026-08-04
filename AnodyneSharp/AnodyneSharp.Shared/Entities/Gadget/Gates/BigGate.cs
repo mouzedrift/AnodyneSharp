@@ -39,7 +39,7 @@ namespace AnodyneSharp.Entities.Gadget
                 while (!MathUtilities.MoveTo(ref t, 0.8f, 1f)) yield return null;
                 t = 0;
 
-                GlobalState.screenShake.Shake(0.02f, 0.3f);
+                GlobalState.ScreenShake.Shake(0.02f, 0.3f);
                 SoundManager.PlaySoundEffect("hit_ground_1");
                 if (i == 0) BreakLock();
                 Play(i.ToString());

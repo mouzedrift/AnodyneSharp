@@ -60,7 +60,7 @@ namespace AnodyneSharp.MapData.Settings
 
             foreach (var eventCheck in Events)
             {
-                if (GlobalState.events.GetEvent(eventCheck.Event) != 0)
+                if (GlobalState.Events.GetEvent(eventCheck.Event) != 0)
                 {
                     groups.Add(eventCheck.Settings);
                 }

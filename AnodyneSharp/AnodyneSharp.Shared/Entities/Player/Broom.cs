@@ -162,11 +162,11 @@ namespace AnodyneSharp.Entities
                     is_behind_player = true;
                     layer_def = new RefLayer(_root.layer_def, -1);
 
-                    if (GlobalState.inventory.EquippedBroom == BroomType.Wide)
+                    if (GlobalState.Inventory.EquippedBroom == BroomType.Wide)
                     {
                         SetWideValues(new Vector2(1, -5), new Vector2(-3, 0));
                     }
-                    else if (GlobalState.inventory.EquippedBroom == BroomType.Long)
+                    else if (GlobalState.Inventory.EquippedBroom == BroomType.Long)
                     {
                         SetLongValues(new Vector2(-13, 0), new Vector2(-1, 1));
                     }
@@ -185,11 +185,11 @@ namespace AnodyneSharp.Entities
                     is_behind_player = false;
                     layer_def = new RefLayer(_root.layer_def, 1);
 
-                    if (GlobalState.inventory.EquippedBroom == BroomType.Wide)
+                    if (GlobalState.Inventory.EquippedBroom == BroomType.Wide)
                     {
                         SetWideValues(new Vector2(3, -3), new Vector2(5, 0));
                     }
-                    else if (GlobalState.inventory.EquippedBroom == BroomType.Long)
+                    else if (GlobalState.Inventory.EquippedBroom == BroomType.Long)
                     {
                         SetLongValues(new Vector2(6, 2), new Vector2(0, 0));
                     }
@@ -207,11 +207,11 @@ namespace AnodyneSharp.Entities
                     is_behind_player = true;
                     layer_def = new RefLayer(_root.layer_def, -1);
 
-                    if (GlobalState.inventory.EquippedBroom == BroomType.Wide)
+                    if (GlobalState.Inventory.EquippedBroom == BroomType.Wide)
                     {
                         SetWideValues(new Vector2(-3, -1), new Vector2(6, -6));
                     }
-                    else if (GlobalState.inventory.EquippedBroom == BroomType.Long)
+                    else if (GlobalState.Inventory.EquippedBroom == BroomType.Long)
                     {
                         SetLongValues(new Vector2(3, -10), new Vector2(-5, 4));
                     }
@@ -229,11 +229,11 @@ namespace AnodyneSharp.Entities
                     is_behind_player = false;
                     layer_def = new RefLayer(_root.layer_def, 1);
 
-                    if (GlobalState.inventory.EquippedBroom == BroomType.Wide)
+                    if (GlobalState.Inventory.EquippedBroom == BroomType.Wide)
                     {
                         SetWideValues(new Vector2(-5, 4), new Vector2(6, -6));
                     }
-                    else if (GlobalState.inventory.EquippedBroom == BroomType.Long)
+                    else if (GlobalState.Inventory.EquippedBroom == BroomType.Long)
                     {
                         SetLongValues(new Vector2(1, 6), new Vector2(-5, 3));
                     }
@@ -309,11 +309,11 @@ namespace AnodyneSharp.Entities
 
             GlobalState.FireEvent(new BroomUsed());
 
-            if (GlobalState.IsKnife && GlobalState.events.GetEvent("Stabbed") == 0)
+            if (GlobalState.IsKnife && GlobalState.Events.GetEvent("Stabbed") == 0)
             {
-                GlobalState.events.IncEvent("Stabbed");
+                GlobalState.Events.IncEvent("Stabbed");
 
-                GlobalState.inventory.EquippedBroomChanged = true;
+                GlobalState.Inventory.EquippedBroomChanged = true;
             }
 
             if (dust != null)

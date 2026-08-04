@@ -21,7 +21,7 @@ namespace AnodyneSharp.Entities.Interactive.Npc.RunningTradeNPCs
             Play("walk_d");
             immovable = true;
 
-            if (!GlobalState.events.SpookedMonster)
+            if (!GlobalState.Events.SpookedMonster)
             {
                 exists = false;
             }

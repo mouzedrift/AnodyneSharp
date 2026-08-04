@@ -19,11 +19,11 @@ namespace AnodyneSharp.Entities.Interactive.Npc
             string texName = "note_rock";
             int f = 0;
 
-            if (GlobalState.CURRENT_MAP_NAME == "SPACE")
+            if (GlobalState.CurrentMapName == "SPACE")
             {
                 texName = "space_npcs";
 
-                f = GlobalState.CURRENT_GRID_X > 5 ? 31 : 30;
+                f = GlobalState.CurrentGridX > 5 ? 31 : 30;
             }
             else if (GlobalState.IsCell)
             {
@@ -50,11 +50,11 @@ namespace AnodyneSharp.Entities.Interactive.Npc
         {
             GlobalState.Dialogue = DialogueManager.GetDialogue("rock", scene);
 
-            if (GlobalState.events.GetEvent("RockTalk") == 0)
+            if (GlobalState.Events.GetEvent("RockTalk") == 0)
             {
                 GlobalState.Dialogue = DialogueManager.GetDialogue("misc", "any", "rock", 0) + "^\n" + GlobalState.Dialogue;
 
-                GlobalState.events.IncEvent("RockTalk");
+                GlobalState.Events.IncEvent("RockTalk");
             }
             return true;
         }

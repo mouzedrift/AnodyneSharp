@@ -48,12 +48,12 @@ namespace AnodyneSharp.States
                     {
                         Vector2 startPos = new Vector2(77, 87);
 
-                        GlobalState.PLAYER_WARP_TARGET = startPos;
+                        GlobalState.PlayerWarpTarget = startPos;
                         GlobalState.checkpoint = new GlobalState.CheckPoint("BLANK", startPos);
 
-                        GlobalState.NEXT_MAP_NAME = "BLANK";
+                        GlobalState.NextMapName = "BLANK";
 
-                        GlobalState.events.ActivatedNexusPortals.Add("STREET");
+                        GlobalState.Events.ActivatedNexusPortals.Add("STREET");
 
                         GlobalState.GameState.SetState<PlayState>();
                     })

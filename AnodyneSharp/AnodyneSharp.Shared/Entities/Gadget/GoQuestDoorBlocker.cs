@@ -19,7 +19,7 @@ namespace AnodyneSharp.Entities.Gadget
 
         public override IEnumerable<Entity> SubEntities()
         {
-            if (GlobalState.events.GetEvent("GoQuestProgress") < 7)
+            if (GlobalState.Events.GetEvent("GoQuestProgress") < 7)
             {
                 return new List<Entity>() { doorBlocker };
             }

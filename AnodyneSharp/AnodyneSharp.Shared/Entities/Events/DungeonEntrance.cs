@@ -15,9 +15,9 @@ namespace AnodyneSharp.Entities
         {
             exists = false;
 
-            if (GlobalState.ReturnTarget.map == GlobalState.CURRENT_MAP_NAME) return;
+            if (GlobalState.ReturnTarget.map == GlobalState.CurrentMapName) return;
             
-            GlobalState.ReturnTarget = new(GlobalState.CURRENT_MAP_NAME, preset.Position - new Vector2(10, 34));
+            GlobalState.ReturnTarget = new(GlobalState.CurrentMapName, preset.Position - new Vector2(10, 34));
         }
     }
 
