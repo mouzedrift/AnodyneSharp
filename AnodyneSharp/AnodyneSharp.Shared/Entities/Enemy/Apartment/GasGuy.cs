@@ -22,7 +22,15 @@ public class GasGuy : HealthDropper
 
     public const string DamageDealer = "Gas Guy";
     private int _health = 3;
-    private IState _state;
+    private enum GasGuyState
+    {
+        InitialLatency,
+        Normal,
+        Shoot
+    }
+
+    private GasGuyState _state;
+    private float _stateTimer;
 
     private float soundDelay;
     private float soundDelayMax;
@@ -46,61 +54,67 @@ public class GasGuy : HealthDropper
 
         gasClouds = new EntityPool<Gas>(3, () => new Gas());
 
-        _state = new StateMachineBuilder()
-            .State<TimerState>("InitialLatency")
-                .Enter((state) =>
-                {
-                    state.Reset();
-                    state.AddTimer(1.5f, "StartTimer");
-                    _inDelay = true;
-                })
-                .Event("StartTimer", (state) =>
-                {
-                    _state.ChangeState("Normal");
-                })
-                .Exit((state) =>
-                {
-                    _inDelay = false;
-                })
-            .End()
-            .State<TimerState>("Normal")
-                .Enter((state) =>
-                {
-                    state.Reset();
-                    state.AddTimer(_didFirstShot ? 5f : 1f, "PreShootTimer");
-                    Play("float");
-                })
-                .Event("PreShootTimer", (state) =>
-                {
-                    Play("release_gas");
-                    _state.ChangeState("Shoot");
-                    _didFirstShot = true;
-                })
-            .End()
-            .State<TimerState>("Shoot")
-            .Enter((state) =>
-                {
-                    state.Reset();
-                    state.AddTimer(1.2f, "ShootTimer");
-                })
-                .Event("ShootTimer", (state) =>
-                {
-                    Play("float");
-                    _state.ChangeState("Normal");
-                    SoundManager.PlaySoundEffect("gasguy_shoot");
-                    gasClouds.Spawn((s) => s.Spawn(this, _player), 3, true);
-                })
-            .End()
-        .Build();
+        ChangeState(GasGuyState.InitialLatency);
+    }
 
-        _state.ChangeState("InitialLatency");
+    private void ChangeState(GasGuyState newState)
+    {
+        _state = newState;
+
+        switch (_state)
+        {
+            case GasGuyState.InitialLatency:
+                _stateTimer = 1.5f;
+                _inDelay = true;
+                break;
+
+            case GasGuyState.Normal:
+                _stateTimer = _didFirstShot ? 5f : 1f;
+                Play("float");
+                break;
+
+            case GasGuyState.Shoot:
+                _stateTimer = 1.2f;
+                break;
+        }
     }
 
     public override void Update()
     {
         base.Update();
 
-        _state.Update(GameTimes.DeltaTime);
+        _stateTimer -= GameTimes.DeltaTime;
+
+        switch (_state)
+        {
+            case GasGuyState.InitialLatency:
+                if (_stateTimer <= 0f)
+                {
+                    _inDelay = false;
+                    ChangeState(GasGuyState.Normal);
+                }
+                break;
+
+            case GasGuyState.Normal:
+                if (_stateTimer <= 0f)
+                {
+                    Play("release_gas");
+                    _didFirstShot = true;
+                    ChangeState(GasGuyState.Shoot);
+                }
+                break;
+
+            case GasGuyState.Shoot:
+                if (_stateTimer <= 0f)
+                {
+                    Play("float");
+                    SoundManager.PlaySoundEffect("gasguy_shoot");
+                    gasClouds.Spawn(s => s.Spawn(this, _player), 3, true);
+
+                    ChangeState(GasGuyState.Normal);
+                }
+                break;
+        }
 
         soundDelay += GameTimes.DeltaTime;
 
