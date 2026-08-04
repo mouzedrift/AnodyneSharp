@@ -1,16 +1,13 @@
 ﻿using AnodyneSharp.Drawing;
 using AnodyneSharp.Entities.Base.Rendering;
 using AnodyneSharp.Entities.Gadget;
-using AnodyneSharp.FSM;
 using AnodyneSharp.Registry;
 using AnodyneSharp.Sounds;
 using AnodyneSharp.Utilities;
 using Microsoft.Xna.Framework;
-using RSG;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace AnodyneSharp.Entities.Enemy;
 
@@ -31,20 +28,21 @@ public class Slime : HealthDropper
 
     private int _health = 2;
 
-    private IState state;
-
-    private class MoveState : TimerState
+    private enum State
     {
-        public bool move_frame_sound_sync = false;
-        public DateTime exit_time = DateTime.Now;
-        public MoveState()
-        {
-            AddTimer(0.5f, "MoveTimer");
-        }
+        Move,
+        Hurt,
+        Dying
     }
 
-    private float _speed = 20f;
+    private State _state;
 
+    private float _moveTimer;
+    private float _shootTimer;
+    private bool _moveFrameSoundSync;
+    private DateTime _moveExitTime;
+
+    private float _speed = 20f;
 
     private EntityPool<Goo> goos;
     private EntityPool<Bullet> bullets;
@@ -75,51 +73,53 @@ public class Slime : HealthDropper
             _speed *= 2;
         }
 
-        state = new StateMachineBuilder()
-            .State<MoveState>("Move")
-                .Enter((state) =>
-                {
-                    Play("Move");
-                    state.Advance((float)(DateTime.Now - state.exit_time).TotalSeconds);
-                    if (_type == SlimeType.Bullet)
-                    {
-                        state.AddTimer(1.8f, "ShootTimer");
-                    }
-                })
-                .Update((state, time) => SyncSplash(state))
-                .Event("ShootTimer", (state) => bullets.Spawn(b => b.Spawn(this, target)))
-                .Event("MoveTimer", (state) => ChangeDir())
-                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit(b.entity))
-                .Exit((s) =>
-                {
-                    s.exit_time = DateTime.Now;
-                })
-            .End()
-            .State("Hurt")
-                .Enter((state) => Play("Hurt"))
-                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                .Condition(() => _health <= 0, (state) => state.Parent.ChangeState("Dying"))
-                .Condition(() => AnimFinished, (state) => state.Parent.ChangeState("Move"))
-            .End()
-            .State("Dying")
-                .Enter((state) => Play("Dying"))
-                .Condition(() => AnimFinished, (state) => { GlobalState.SpawnEntity(new Explosion(this)); Die(); })
-            .End()
-            .Build();
-        state.ChangeState("Move");
+        ChangeState(State.Move);
     }
 
-    private void SyncSplash(MoveState state)
+    private void ChangeState(State newState)
     {
-        if (Frame == 1 && !state.move_frame_sound_sync)
+        switch (_state)
+        {
+            case State.Move:
+                _moveExitTime = DateTime.Now;
+                break;
+        }
+
+        _state = newState;
+
+        switch (_state)
+        {
+            case State.Move:
+                Play("Move");
+
+                _moveTimer += (float)(DateTime.Now - _moveExitTime).TotalSeconds;
+
+                if (_type == SlimeType.Bullet)
+                {
+                    _shootTimer = 1.8f;
+                }
+                break;
+
+            case State.Hurt:
+                Play("Hurt");
+                break;
+
+            case State.Dying:
+                Play("Dying");
+                break;
+        }
+    }
+
+    private void SyncSplash()
+    {
+        if (Frame == 1 && !_moveFrameSoundSync)
         {
             SoundManager.PlaySoundEffect("slime_walk");
-            state.move_frame_sound_sync = true;
+            _moveFrameSoundSync = true;
         }
         else if (Frame == 0)
         {
-            state.move_frame_sound_sync = false;
+            _moveFrameSoundSync = false;
         }
     }
 
@@ -146,12 +146,70 @@ public class Slime : HealthDropper
         _health -= 1;
         velocity = FacingDirection(b.facing) * 100;
 
-        state.ChangeState("Hurt");
+        ChangeState(State.Hurt);
+    }
+    private void UpdateMove()
+    {
+        SyncSplash();
+
+        _moveTimer -= GameTimes.DeltaTime;
+        if (_moveTimer <= 0f)
+        {
+            _moveTimer += 0.5f;
+            ChangeDir();
+        }
+
+        if (_type == SlimeType.Bullet)
+        {
+            _shootTimer -= GameTimes.DeltaTime;
+            if (_shootTimer <= 0f)
+            {
+                _shootTimer += 1.8f;
+                bullets.Spawn(b => b.Spawn(this, target));
+            }
+        }
+    }
+
+    private void UpdateHurt()
+    {
+        if (_health <= 0)
+        {
+            ChangeState(State.Dying);
+            return;
+        }
+
+        if (AnimFinished)
+        {
+            ChangeState(State.Move);
+        }
+    }
+
+    private void UpdateDying()
+    {
+        if (AnimFinished)
+        {
+            GlobalState.SpawnEntity(new Explosion(this));
+            Die();
+        }
     }
 
     public override void Update()
     {
-        state.Update(GameTimes.DeltaTime);
+        switch (_state)
+        {
+            case State.Move:
+                UpdateMove();
+                break;
+
+            case State.Hurt:
+                UpdateHurt();
+                break;
+
+            case State.Dying:
+                UpdateDying();
+                break;
+        }
+
         base.Update();
     }
 
@@ -159,11 +217,14 @@ public class Slime : HealthDropper
     {
         if (other is Player p)
         {
-            state.TriggerEvent("Player", new CollisionEvent<Player>() { entity = p });
+            p.ReceiveDamage(1, DamageDealer);
         }
         else if (other is Broom b)
         {
-            state.TriggerEvent("Hit", new CollisionEvent<Broom>() { entity = b });
+            if (_state == State.Move)
+            {
+                GetHit(b);
+            }
         }
     }
 
@@ -183,12 +244,14 @@ public class Slime : HealthDropper
     [Collision(MapCollision = true)]
     public class Goo : Entity
     {
-        private IState state;
-
-        private class MoveState : AbstractState
+        private enum GooState
         {
-            public Parabola_Thing parabola;
+            Move,
+            Splash
         }
+
+        private GooState _state;
+        private Parabola_Thing _parabola;
 
         public static AnimatedSpriteRenderer GetSprite(int framerate)
         {
@@ -202,49 +265,64 @@ public class Slime : HealthDropper
         {
             shadow = new Shadow(this, Vector2.Zero, ShadowType.Tiny);
 
-            state = new StateMachineBuilder()
-                .State<MoveState>("Move")
-                    .Enter((state) =>
-                    {
-                        state.parabola = new Parabola_Thing(this, 16, 0.8f + 0.3f * (float)GlobalState.RNG.NextDouble());
-                        velocity.X = MathUtilities.OneRandomOf(-1, 1) * (10 + 5 * (float)GlobalState.RNG.NextDouble());
-                        velocity.Y = MathUtilities.OneRandomOf(-1, 1) * (10 + 5 * (float)GlobalState.RNG.NextDouble());
-                        Play("move");
-                        shadow.exists = true;
-                        opacity = 1.0f;
-                    })
-                    .Update((state, time) =>
-                    {
-                        if (state.parabola.Tick())
-                        {
-                            state.Parent.ChangeState("Splash");
-                        }
-                    })
-                .End()
-                .State("Splash")
-                    .Enter((state) =>
-                    {
-                        SoundManager.PlaySoundEffect("slime_splash");
-                        shadow.exists = false;
-                        Play("splash");
-                        velocity = Vector2.Zero;
-                    })
-                    .Update((state, time) => opacity -= 0.05f)
-                    .Condition(() => opacity <= 0, (state) => exists = false)
-                .End()
-                .Build();
+            ChangeState(GooState.Move);
+        }
+
+        private void ChangeState(GooState newState)
+        {
+            _state = newState;
+
+            switch (_state)
+            {
+                case GooState.Move:
+                    _parabola = new Parabola_Thing(this, 16, 0.8f + 0.3f * (float)GlobalState.RNG.NextDouble());
+
+                    velocity.X = MathUtilities.OneRandomOf(-1, 1) * (10 + 5 * (float)GlobalState.RNG.NextDouble());
+                    velocity.Y = MathUtilities.OneRandomOf(-1, 1) * (10 + 5 * (float)GlobalState.RNG.NextDouble());
+
+                    Play("move");
+                    shadow.exists = true;
+                    opacity = 1.0f;
+                    break;
+
+                case GooState.Splash:
+                    SoundManager.PlaySoundEffect("slime_splash");
+
+                    shadow.exists = false;
+                    Play("splash");
+                    velocity = Vector2.Zero;
+                    break;
+            }
         }
 
         public void Spawn(Slime parent)
         {
             Position = parent.Position;
-            state.ChangeState("Move");
+            ChangeState(GooState.Move);
         }
 
         public override void Update()
         {
             base.Update();
-            state.Update(GameTimes.DeltaTime);
+
+            switch (_state)
+            {
+                case GooState.Move:
+                    if (_parabola.Tick())
+                    {
+                        ChangeState(GooState.Splash);
+                    }
+                    break;
+
+                case GooState.Splash:
+                    opacity -= 0.05f;
+
+                    if (opacity <= 0f)
+                    {
+                        exists = false;
+                    }
+                    break;
+            }
         }
     }
 
