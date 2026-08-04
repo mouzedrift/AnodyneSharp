@@ -103,50 +103,82 @@ public class BounceDashTrap : DashTrap
 [NamedEntity("Dash_Trap", null, 0), Collision(typeof(DashTrap))]
 public class OnSightDashTrap : DashTrap
 {
-    IState _state;
-    Player _player;
-    Vector2 _idlepos;
+    private enum TrapState
+    {
+        Idle,
+        Charging,
+        Returning
+    }
+
+    private TrapState _state;
+
+    private Player _player;
+    private Vector2 _idlepos;
 
     public OnSightDashTrap(EntityPreset preset, Player p) : base(preset)
     {
         _player = p;
         _idlepos = Position;
-        _state = new StateMachineBuilder()
-            .State("Idle")
-                .Enter((s) => Play("idle"))
-                .Condition(SeePlayer, (s) => _state.ChangeState("Charging"))
-            .End()
-            .State("Charging")
-                .Enter((s) =>
-                {
-                    FaceTowards(_player.Center);
-                    velocity = FacingDirection(facing) * DashVel;
-                    SoundManager.PlaySoundEffect("slasher_atk");
-                    Play("dash");
-                })
-                .Event("bounce", (s) =>
-                 {
-                     SoundManager.PlaySoundEffect("shieldy_ineffective");
-                     velocity = -velocity / 2;
-                     _state.ChangeState("Returning");
-                 })
-            .End()
-            .State("Returning")
-                .Condition(() => (_idlepos - Position).LengthSquared() < 4, (s) =>
-                    {
-                        velocity = Vector2.Zero;
-                        Position = _idlepos;
-                        _state.ChangeState("Idle");
-                    })
-            .End()
-        .Build();
-        _state.ChangeState("Idle");
+
+        ChangeState(TrapState.Idle);
+    }
+
+    private void ChangeState(TrapState newState)
+    {
+        _state = newState;
+
+        switch (_state)
+        {
+            case TrapState.Idle:
+                Play("idle");
+                break;
+
+            case TrapState.Charging:
+                FaceTowards(_player.Center);
+                velocity = FacingDirection(facing) * DashVel;
+                SoundManager.PlaySoundEffect("slasher_atk");
+                Play("dash");
+                break;
+
+            case TrapState.Returning:
+                break;
+        }
+    }
+
+    private void Bounce()
+    {
+        if (_state != TrapState.Charging)
+        {
+            return;
+        }
+
+        SoundManager.PlaySoundEffect("shieldy_ineffective");
+        velocity = -velocity / 2;
+        ChangeState(TrapState.Returning);
     }
 
     public override void Update()
     {
         base.Update();
-        _state.Update(GameTimes.DeltaTime);
+
+        switch (_state)
+        {
+            case TrapState.Idle:
+                if (SeePlayer())
+                {
+                    ChangeState(TrapState.Charging);
+                }
+                break;
+
+            case TrapState.Returning:
+                if ((_idlepos - Position).LengthSquared() < 4)
+                {
+                    velocity = Vector2.Zero;
+                    Position = _idlepos;
+                    ChangeState(TrapState.Idle);
+                }
+                break;
+        }
     }
 
     bool SeePlayer()
@@ -158,11 +190,11 @@ public class OnSightDashTrap : DashTrap
 
     protected override void OnPlayer()
     {
-        _state.TriggerEvent("bounce");
+        Bounce();
     }
 
     protected override void OnTouch()
     {
-        _state.TriggerEvent("bounce");
+        Bounce();
     }
 }
