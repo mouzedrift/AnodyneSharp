@@ -12,8 +12,7 @@ namespace AnodyneSharp.Windows
         [STAThread]
         static void Main()
         {
-            ResourceManager.GetDirectories = GetDirectories;
-            ResourceManager.GetFiles = GetFiles;
+            ResourceManager.BaseDir = AppDomain.CurrentDomain.BaseDirectory;
 
             using AnodyneGame game = new AnodyneGame();
             game.Run();
