@@ -40,8 +40,6 @@ public class Annoyer : Entity
 
     private int _health = 1;
 
-    private IState _state;
-
     private EntityPreset _preset;
 
     private Player _target;
@@ -52,39 +50,10 @@ public class Annoyer : Entity
     private const int T_SUPER = 2;
 
     private const float rotation_radius = 20f;
-    private string start_state = "Wait";
+    private AnnoyerState _startState = AnnoyerState.Wait;
 
     private Explosion explosion;
     private EntityPool<Fireball> fireballs;
-
-    private class CirclingState : TimerState
-    {
-        public CirclingState()
-        {
-            AddTimer(3f, "Swoop");
-        }
-        public const float velocity = 8.4f;
-        public float angle;
-
-        public override void Update(float deltaTime)
-        {
-            angle += velocity * deltaTime;
-            base.Update(deltaTime);
-        }
-    }
-
-    private class ActiveState : TimerState
-    {
-        public ActiveState()
-        {
-            AddTimer(2.3f, "Fire");
-        }
-    }
-
-    private class SwoopState : AbstractState
-    {
-        public Vector2 target;
-    }
 
     private Vector2 ApproachTarget
     {
@@ -93,6 +62,21 @@ public class Annoyer : Entity
             return _target.Center + Vector2.UnitX * rotation_radius;
         }
     }
+
+    private enum AnnoyerState
+    {
+        Wait,
+        Approach,
+        Circle,
+        Swoop,
+        Hit
+    }
+
+    private AnnoyerState _state;
+    private float _stateTimer;
+    private float _circleAngle;
+    private Vector2 _swoopTarget;
+    private float _fireTimer;
 
     public Annoyer(EntityPreset preset, Player player) 
         : base(preset.Position, GetSprite(preset.Frame), DrawOrder.ENTITIES)
@@ -116,99 +100,140 @@ public class Annoyer : Entity
 
         fireballs = new EntityPool<Fireball>(preset.Frame == T_SUPER ? 4 : 0, () => new Fireball());
 
-        _state = new StateMachineBuilder()
-            .State<ActiveState>("Active")
-                .Enter((state) => {
-                    velocity = Vector2.Zero;
-                    state.ChangeState(start_state);
-                    start_state = "Approach"; //TODO: Add way of entering nested states(see ChangeState in Hit, needs to go to Approach, not Wait)
-                })
-                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                .Event<CollisionEvent<Broom>>("Hit", (state,b) => {
-                    velocity = FacingDirection(b.entity.facing) * 150;
-                    if (velocity.Y < 0)
-                        velocity.X = GlobalState.RNG.Next(-30, 31);
-                    _state.ChangeState("Hit");
-                })
+        ChangeState(AnnoyerState.Wait);
+    }
 
-                .Event("Fire", (state) => fireballs.Spawn((f)=>f.Spawn(this,_target)))
-                
-                .State<TimerState>("Wait")
-                    .Enter((state) =>
-                    {
-                        state.Reset();
-                        state.AddTimer(0.25f, "ApproachCheck");
-                    })
-                    .Event("ApproachCheck", (state) =>
-                    {
-                        if ((Position - _target.Position).Length() < 64)
-                            state.Parent.ChangeState("Approach");
-                    })
-                .End()
+    private void ResetFireTimer()
+    {
+        _fireTimer = 2.3f;
+    }
 
-                .State("Approach")
-                    .Update((state, time) => {
-                        MathUtilities.MoveTo(ref Position.X, ApproachTarget.X, 36);
-                        MathUtilities.MoveTo(ref Position.Y, ApproachTarget.Y, 36);
-                    })
-                    .Condition(() => (Position - ApproachTarget).Length() < 2, (state) => state.Parent.ChangeState("Circle"))
-                    .Exit((state) => velocity = Vector2.Zero)
-                .End()
-                
-                .State<CirclingState>("Circle")
-                    .Enter((state) => state.angle = 0)
-                    .Update((state, time) =>
-                    {
-                        Position = _target.VisualCenter + new Vector2((float)Math.Cos(state.angle), (float)Math.Sin(state.angle)) * rotation_radius;
-                    })
-                    .Event("Swoop", (state) => state.Parent.ChangeState("Swoop"))
-                .End()
-                
-                .State<SwoopState>("Swoop")
-                    .Enter((state) => state.target = Position + 3 * (_target.Position - Position) )
-                    .Update((state,time) => { //TODO: make it possible for this to be a Condition
-                        if (MathUtilities.MoveTo(ref Position.X, state.target.X, 2.5f*60) & MathUtilities.MoveTo(ref Position.Y, state.target.Y, 2.5f*60))
-                            state.Parent.ChangeState("Approach");
-                    })
-                .End()
-            .End()
+    private void ChangeState(AnnoyerState newState)
+    {
+        // Exit behavior
+        if (_state == AnnoyerState.Approach)
+        {
+            velocity = Vector2.Zero;
+        }
 
-            .State<TimerState>("Hit")
-                .Enter((state) =>
+        _state = newState;
+
+        switch (_state)
+        {
+            case AnnoyerState.Wait:
+                velocity = Vector2.Zero;
+                _stateTimer = 0.25f;
+                ResetFireTimer();
+                break;
+
+            case AnnoyerState.Circle:
+                _circleAngle = 0;
+                break;
+
+            case AnnoyerState.Swoop:
+                _swoopTarget = Position + 3 * (_target.Position - Position);
+                break;
+
+            case AnnoyerState.Hit:
+                SoundManager.PlaySoundEffect("player_hit_1");
+                Flicker(0.2f);
+
+                if (--_health <= 0)
                 {
-                    SoundManager.PlaySoundEffect("player_hit_1");
-                    state.Reset();
-                    Flicker(0.2f);
-                    if(--_health <= 0)
-                    {
-                        Solid = true;
-                        state.AddTimer(0.25f, "Die");
-                    }
-                    else
-                    {
-                        state.AddTimer(0.4f, "EndKnockback");
-                    }
-                })
-                .Event("EndKnockback", (state) => _state.ChangeState("Active"))
-                .Event("Die", (state) => {
-                    exists = _preset.Alive = false;
-                    explosion.exists = true;
-                    explosion.Position = Position;
-                    SoundManager.PlaySoundEffect("hit_wall");
-                })
-                .Exit((state) =>
+                    Solid = true;
+                    _stateTimer = 0.25f;
+                }
+                else
                 {
-                    Solid = false;
-                })
-            .End()
-
-            .Build();
-        _state.ChangeState("Active");
+                    _stateTimer = 0.4f;
+                }
+                break;
+        }
     }
 
     public override void Update()
     {
-        _state.Update(GameTimes.DeltaTime);
+        if (_state != AnnoyerState.Hit)
+        {
+            _fireTimer -= GameTimes.DeltaTime;
+
+            if (_fireTimer <= 0f)
+            {
+                fireballs.Spawn(f => f.Spawn(this, _target));
+                _fireTimer += 2.3f;
+            }
+        }
+
+        switch (_state)
+        {
+            case AnnoyerState.Wait:
+                _stateTimer -= GameTimes.DeltaTime;
+
+                if (_stateTimer <= 0)
+                {
+                    if ((Position - _target.Position).Length() < 64)
+                    {
+                        ChangeState(AnnoyerState.Approach);
+                    }
+                    else
+                    {
+                        _stateTimer = 0.25f;
+                    }
+                }
+                break;
+
+            case AnnoyerState.Approach:
+                MathUtilities.MoveTo(ref Position.X, ApproachTarget.X, 36);
+                MathUtilities.MoveTo(ref Position.Y, ApproachTarget.Y, 36);
+
+                if ((Position - ApproachTarget).Length() < 2)
+                {
+                    ChangeState(AnnoyerState.Circle);
+                }
+
+                break;
+
+            case AnnoyerState.Circle:
+                _circleAngle += 8.4f * GameTimes.DeltaTime;
+
+                Position = _target.VisualCenter +
+                    new Vector2(
+                        (float)Math.Cos(_circleAngle),
+                        (float)Math.Sin(_circleAngle)
+                    ) * rotation_radius;
+
+                break;
+
+            case AnnoyerState.Swoop:
+                if (MathUtilities.MoveTo(ref Position.X, _swoopTarget.X, 2.5f * 60) &
+                    MathUtilities.MoveTo(ref Position.Y, _swoopTarget.Y, 2.5f * 60))
+                {
+                    ChangeState(AnnoyerState.Approach);
+                }
+                break;
+
+            case AnnoyerState.Hit:
+                _stateTimer -= GameTimes.DeltaTime;
+
+                if (_stateTimer <= 0)
+                {
+                    if (_health <= 0)
+                    {
+                        exists = _preset.Alive = false;
+                        explosion.exists = true;
+                        explosion.Position = Position;
+                        SoundManager.PlaySoundEffect("hit_wall");
+                    }
+                    else
+                    {
+                        Solid = false;
+                        ChangeState(_startState);
+                        _startState = AnnoyerState.Approach;
+                    }
+                }
+                break;
+        }
+
         base.Update();
     }
 
@@ -219,13 +244,25 @@ public class Annoyer : Entity
 
     public override void Collided(Entity other)
     {
+        if (_state == AnnoyerState.Hit)
+        {
+            return;
+        }
+
         if (other is Player p)
         {
-            _state.TriggerEvent("Player", new CollisionEvent<Player>() { entity = p });
+            p.ReceiveDamage(1, DamageDealer);
         }
         else if (other is Broom b)
         {
-            _state.TriggerEvent("Hit", new CollisionEvent<Broom>() { entity = b });
+            velocity = FacingDirection(b.facing) * 150;
+
+            if (velocity.Y < 0)
+            {
+                velocity.X = GlobalState.RNG.Next(-30, 31);
+            }
+
+            ChangeState(AnnoyerState.Hit);
         }
     }
 
@@ -250,26 +287,34 @@ public class Annoyer : Entity
     public class Fireball : Entity
     {
         private const float speed = 30f;
-        private IState _state;
+        private enum FireballState
+        {
+            Shoot,
+            Poof
+        }
+
+        private FireballState _state;
 
         public Fireball() : base(Vector2.Zero, Lion.Fireball.GetSprite(8), DrawOrder.FG_SPRITES)
         {
             width = height = 8;
             offset = new Vector2(4, 4);
+        }
 
-            _state = new StateMachineBuilder()
-                .State("Shoot")
-                    .Enter((state) => Play("shoot"))
-                    .Update((state,time) => opacity -= 0.06f * time)
-                    .Condition(()=>opacity <= 0.6f, (s) => _state.ChangeState("Poof"))
-                    .Event<CollisionEvent<Broom>>("Hit",(s,b) => _state.ChangeState("Poof"))
-                    .Event<CollisionEvent<Player>>("Player",(s,p) => { p.entity.ReceiveDamage(1, FireballDamageDealer); _state.ChangeState("Poof"); })
-                .End()
-                .State("Poof")
-                    .Enter((state) => Play("poof"))
-                    .Condition(()=> AnimFinished, (s) => exists=false)
-                .End()
-                .Build();
+        private void ChangeState(FireballState newState)
+        {
+            _state = newState;
+
+            switch (_state)
+            {
+                case FireballState.Shoot:
+                    Play("shoot");
+                    break;
+
+                case FireballState.Poof:
+                    Play("poof");
+                    break;
+            }
         }
 
         public void Spawn(Entity parent, Entity target)
@@ -277,24 +322,48 @@ public class Annoyer : Entity
             Position = parent.Position;
             MoveTowards(target.Position, speed);
             opacity = 1.0f;
-            _state.ChangeState("Shoot");
+            ChangeState(FireballState.Shoot);
         }
 
         public override void Collided(Entity other)
         {
+            if (_state != FireballState.Shoot)
+            {
+                return;
+            }
+
             if (other is Player p)
             {
-                _state.TriggerEvent("Player", new CollisionEvent<Player>() { entity = p });
+                p.ReceiveDamage(1, FireballDamageDealer);
+                ChangeState(FireballState.Poof);
             }
-            else if (other is Broom b)
+            else if (other is Broom)
             {
-                _state.TriggerEvent("Hit", new CollisionEvent<Broom>() { entity = b });
+                ChangeState(FireballState.Poof);
             }
         }
 
         public override void Update()
         {
-            _state.Update(GameTimes.DeltaTime);
+            switch (_state)
+            {
+                case FireballState.Shoot:
+                    opacity -= 0.06f * GameTimes.DeltaTime;
+
+                    if (opacity <= 0.6f)
+                    {
+                        ChangeState(FireballState.Poof);
+                    }
+                    break;
+
+                case FireballState.Poof:
+                    if (AnimFinished)
+                    {
+                        exists = false;
+                    }
+                    break;
+            }
+
             base.Update();
         }
     }
