@@ -6,68 +6,67 @@ using AnodyneSharp.Registry;
 using AnodyneSharp.Sounds;
 using static AnodyneSharp.Entities.Interactive.Npc.Blue.BlueBriar;
 
-namespace AnodyneSharp.Entities.Gadget
+namespace AnodyneSharp.Entities.Gadget;
+
+[NamedEntity, Collision(typeof(Player), typeof(Shieldy), typeof(Mover), typeof(Rat), typeof(Silverfish), typeof(BlueMitra))]
+public class Button : Entity
 {
-    [NamedEntity, Collision(typeof(Player), typeof(Shieldy), typeof(Mover), typeof(Rat), typeof(Silverfish), typeof(BlueMitra))]
-    public class Button : Entity
+    bool pressed = false;
+    bool incremented = false;
+    bool permanent;
+
+    public Button(EntityPreset preset, Player p) : base(preset.Position, "buttons", 16, 16, DrawOrder.BG_ENTITIES)
     {
-        bool pressed = false;
-        bool incremented = false;
-        bool permanent;
-
-        public Button(EntityPreset preset, Player p) : base(preset.Position, "buttons", 16, 16, DrawOrder.BG_ENTITIES)
+        permanent = preset.Frame == 0;
+        switch(GlobalState.CurrentMapName)
         {
-            permanent = preset.Frame == 0;
-            switch(GlobalState.CurrentMapName)
-            {
-                case "STREET":
-                    SetFrame(6);
-                    break;
-                case "BEDROOM":
-                    SetFrame(0);
-                    break;
-                case "REDCAVE":
-                    SetFrame(4);
-                    break;
-                case "CELL":
-                    SetFrame(8);
-                    break;
-                default:
-                    SetFrame(2);
-                    break;
-            }
+            case "STREET":
+                SetFrame(6);
+                break;
+            case "BEDROOM":
+                SetFrame(0);
+                break;
+            case "REDCAVE":
+                SetFrame(4);
+                break;
+            case "CELL":
+                SetFrame(8);
+                break;
+            default:
+                SetFrame(2);
+                break;
+        }
+    }
+
+    public override void Collided(Entity other)
+    {
+        if(other is Player p)
+        {
+            pressed |= p.state == PlayerState.GROUND;
+        }
+        else
+        {
+            pressed = true;
+        }
+    }
+
+    public override void Update()
+    {
+        if(pressed && !incremented)
+        {
+            incremented = true;
+            GlobalState.PuzzlesSolvedRoom++;
+            SetFrame(Frame + 1);
+            SoundManager.PlaySoundEffect("button_down");
+        }
+        else if(!pressed && incremented && !permanent)
+        {
+            GlobalState.PuzzlesSolvedRoom--;
+            incremented = false;
+            SetFrame(Frame - 1);
+            SoundManager.PlaySoundEffect("button_up");
         }
 
-        public override void Collided(Entity other)
-        {
-            if(other is Player p)
-            {
-                pressed |= p.state == PlayerState.GROUND;
-            }
-            else
-            {
-                pressed = true;
-            }
-        }
-
-        public override void Update()
-        {
-            if(pressed && !incremented)
-            {
-                incremented = true;
-                GlobalState.PuzzlesSolvedRoom++;
-                SetFrame(Frame + 1);
-                SoundManager.PlaySoundEffect("button_down");
-            }
-            else if(!pressed && incremented && !permanent)
-            {
-                GlobalState.PuzzlesSolvedRoom--;
-                incremented = false;
-                SetFrame(Frame - 1);
-                SoundManager.PlaySoundEffect("button_up");
-            }
-
-            pressed = false;
-        }
+        pressed = false;
     }
 }

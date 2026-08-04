@@ -12,170 +12,169 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States
+namespace AnodyneSharp.States;
+
+public class DeathState : State
 {
-    public class DeathState : State
+    private enum CurrentState
     {
-        private enum CurrentState
+        FadeIn,
+        SelectOption,
+        FadeOut
+    }
+
+    PlayerDieDummy _dieDummy;
+    DeathFadeIn _deathFade;
+
+    UILabel _continueLabel;
+    UILabel _yesLabel;
+    UILabel _noLabel;
+
+    MenuSelector _selector;
+
+    bool gotControl;
+    bool yesSelected;
+
+    CurrentState state;
+
+    Player _player;
+
+    public DeathState(Player player)
+    {
+        GlobalState.DeathCount++;
+
+        _player = player;
+
+        player.Reset();
+
+        GlobalState.wave.Deactivate();
+
+        _dieDummy = new PlayerDieDummy(player.Position);
+
+        _deathFade = new DeathFadeIn(GlobalState.IsCell ? Color.Black : Color.White);
+
+        float x = 50;
+        float y = 60 /*- GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)*/;
+        float yStep = GameConstants.FONT_LINE_HEIGHT - GameConstants.LineOffset;
+
+        Color textColor = GlobalState.IsCell ? Color.White : Color.Black;
+
+        //TODO Not localized, see if it's on purpose
+        _continueLabel = new UILabel(new Vector2(x, y), false, "Continue?", textColor, DrawOrder.DEATH_TEXT);
+        _yesLabel = new UILabel(new Vector2(x + 19, y + yStep), false, "Yes", textColor, DrawOrder.DEATH_TEXT);
+        _noLabel = new UILabel(new Vector2(x + 17, y + yStep * 2), false, "No..", textColor, DrawOrder.DEATH_TEXT);
+
+
+        _selector = new MenuSelector(DrawOrder.DEATH_TEXT);
+
+        yesSelected = true;
+
+        UpdateEntities = false;
+
+        state = CurrentState.FadeIn;
+
+        _player.dontMove = true;
+        _player.exists = false;
+        GlobalState.DisableMenu = true;
+    }
+
+    public override void Update()
+    {
+        _dieDummy.Update();
+        _dieDummy.PostUpdate();
+
+        if (!gotControl && _dieDummy.AnimFinished)
         {
-            FadeIn,
-            SelectOption,
-            FadeOut
+            SoundManager.PlaySoundEffect("player_hit_1");
+            SoundManager.PlaySong("gameover");
+
+            GetControl();
         }
 
-        PlayerDieDummy _dieDummy;
-        DeathFadeIn _deathFade;
+        _deathFade.Update();
 
-        UILabel _continueLabel;
-        UILabel _yesLabel;
-        UILabel _noLabel;
+        _selector.Update();
+        _selector.PostUpdate();
 
-        MenuSelector _selector;
-
-        bool gotControl;
-        bool yesSelected;
-
-        CurrentState state;
-
-        Player _player;
-
-        public DeathState(Player player)
+        if (state == CurrentState.FadeOut)
         {
-            GlobalState.DeathCount++;
+            GlobalState.BlackOverlay.ChangeAlpha(0.6f);
 
-            _player = player;
-
-            player.Reset();
-
-            GlobalState.wave.Deactivate();
-
-            _dieDummy = new PlayerDieDummy(player.Position);
-
-            _deathFade = new DeathFadeIn(GlobalState.IsCell ? Color.Black : Color.White);
-
-            float x = 50;
-            float y = 60 /*- GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)*/;
-            float yStep = GameConstants.FONT_LINE_HEIGHT - GameConstants.LineOffset;
-
-            Color textColor = GlobalState.IsCell ? Color.White : Color.Black;
-
-            //TODO Not localized, see if it's on purpose
-            _continueLabel = new UILabel(new Vector2(x, y), false, "Continue?", textColor, DrawOrder.DEATH_TEXT);
-            _yesLabel = new UILabel(new Vector2(x + 19, y + yStep), false, "Yes", textColor, DrawOrder.DEATH_TEXT);
-            _noLabel = new UILabel(new Vector2(x + 17, y + yStep * 2), false, "No..", textColor, DrawOrder.DEATH_TEXT);
-
-
-            _selector = new MenuSelector(DrawOrder.DEATH_TEXT);
-
-            yesSelected = true;
-
-            UpdateEntities = false;
-
-            state = CurrentState.FadeIn;
-
-            _player.dontMove = true;
-            _player.exists = false;
-            GlobalState.DisableMenu = true;
+            if (GlobalState.BlackOverlay.alpha == 1)
+            {
+                GlobalState.Warping = true;
+                Exit = true;
+            }
         }
-
-        public override void Update()
+        else if (state == CurrentState.SelectOption)
         {
-            _dieDummy.Update();
-            _dieDummy.PostUpdate();
-
-            if (!gotControl && _dieDummy.AnimFinished)
+            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
             {
-                SoundManager.PlaySoundEffect("player_hit_1");
-                SoundManager.PlaySong("gameover");
-
-                GetControl();
+                _selector.Position = new Vector2(53, _yesLabel.Position.Y + 2);
+                yesSelected = true;
+                SoundManager.PlaySoundEffect("menu_move");
             }
-
-            _deathFade.Update();
-
-            _selector.Update();
-            _selector.PostUpdate();
-
-            if (state == CurrentState.FadeOut)
+            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
             {
-                GlobalState.BlackOverlay.ChangeAlpha(0.6f);
-
-                if (GlobalState.BlackOverlay.alpha == 1)
-                {
-                    GlobalState.Warping = true;
-                    Exit = true;
-                }
+                _selector.Position = new Vector2(53, _noLabel.Position.Y + 2);
+                yesSelected = false;
+                SoundManager.PlaySoundEffect("menu_move");
             }
-            else if (state == CurrentState.SelectOption)
+            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
             {
-                if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
+                SoundManager.PlaySoundEffect("menu_select");
+
+                GlobalState.CurrentHealth = GlobalState.MaxHealth;
+
+                state = CurrentState.FadeOut;
+
+                if (yesSelected)
                 {
-                    _selector.Position = new Vector2(53, _yesLabel.Position.Y + 2);
-                    yesSelected = true;
-                    SoundManager.PlaySoundEffect("menu_move");
+                    (GlobalState.NextMapName, GlobalState.PlayerWarpTarget) = (GlobalState.checkpoint.map,GlobalState.checkpoint.Position);
+
+                    _player.dontMove = false;
+                    _player.exists = true;
+                    GlobalState.DisableMenu = false;
                 }
-                else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
+                else
                 {
-                    _selector.Position = new Vector2(53, _noLabel.Position.Y + 2);
-                    yesSelected = false;
-                    SoundManager.PlaySoundEffect("menu_move");
-                }
-                else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
-                {
-                    SoundManager.PlaySoundEffect("menu_select");
-
-                    GlobalState.CurrentHealth = GlobalState.MaxHealth;
-
-                    state = CurrentState.FadeOut;
-
-                    if (yesSelected)
-                    {
-                        (GlobalState.NextMapName, GlobalState.PlayerWarpTarget) = (GlobalState.checkpoint.map,GlobalState.checkpoint.Position);
-
-                        _player.dontMove = false;
-                        _player.exists = true;
-                        GlobalState.DisableMenu = false;
-                    }
-                    else
-                    {
-                        GlobalState.NextMapName = "DRAWER";
-                        GlobalState.PlayerWarpTarget = new Vector2(368, 224);
+                    GlobalState.NextMapName = "DRAWER";
+                    GlobalState.PlayerWarpTarget = new Vector2(368, 224);
 
 
-                        _player.ANIM_STATE = PlayerAnimState.as_slumped;
+                    _player.ANIM_STATE = PlayerAnimState.as_slumped;
 
-                        GlobalState.Inventory.EquippedBroom =  BroomType.NONE;
+                    GlobalState.Inventory.EquippedBroom =  BroomType.NONE;
 
-                        GlobalState.InDeathRoom = true;
-                    }
+                    GlobalState.InDeathRoom = true;
                 }
             }
         }
+    }
 
-        public override void DrawUI()
+    public override void DrawUI()
+    {
+        _dieDummy.Draw();
+        _deathFade.Draw();
+
+        if (gotControl)
         {
-            _dieDummy.Draw();
-            _deathFade.Draw();
+            _continueLabel.Draw();
+            _yesLabel.Draw();
+            _noLabel.Draw();
 
-            if (gotControl)
-            {
-                _continueLabel.Draw();
-                _yesLabel.Draw();
-                _noLabel.Draw();
-
-                _selector.Draw();
-            }
+            _selector.Draw();
         }
+    }
 
-        public virtual void GetControl()
-        {
-            _selector.visible = true;
-            _selector.Play("enabledRight");
-            gotControl = true;
+    public virtual void GetControl()
+    {
+        _selector.visible = true;
+        _selector.Play("enabledRight");
+        gotControl = true;
 
-            _selector.Position = new Vector2(53, _yesLabel.Position.Y + 2);
+        _selector.Position = new Vector2(53, _yesLabel.Position.Y + 2);
 
-            state = CurrentState.SelectOption;
-        }
+        state = CurrentState.SelectOption;
     }
 }

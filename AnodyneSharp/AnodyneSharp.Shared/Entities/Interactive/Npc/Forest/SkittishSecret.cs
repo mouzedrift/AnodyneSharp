@@ -9,61 +9,60 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive.Npc.Forest
+namespace AnodyneSharp.Entities.Interactive.Npc.Forest;
+
+[NamedEntity("Black_Thing", map: "FOREST")]
+public class SkittishSecret : Entity
 {
-    [NamedEntity("Black_Thing", map: "FOREST")]
-    public class SkittishSecret : Entity
+    float yell_timer = 0.5f;
+    float lol_timer = 1f;
+    float initial_pos;
+
+    Player player;
+
+    public SkittishSecret(EntityPreset preset, Player p) 
+        : base(preset.Position, new AnimatedSpriteRenderer( "forest_npcs", 16, 16, new Anim("walk_r", new int[] { 32, 33 }, 4, true)), Drawing.DrawOrder.ENTITIES)
     {
-        float yell_timer = 0.5f;
-        float lol_timer = 1f;
-        float initial_pos;
+        Position.X = initial_pos = MapUtilities.GetRoomUpperLeftPos(GlobalState.CurrentMapGrid).X;
 
-        Player player;
+        player = p;
+    }
 
-        public SkittishSecret(EntityPreset preset, Player p) 
-            : base(preset.Position, new AnimatedSpriteRenderer( "forest_npcs", 16, 16, new Anim("walk_r", new int[] { 32, 33 }, 4, true)), Drawing.DrawOrder.ENTITIES)
+    public override void Update()
+    {
+        base.Update();
+        yell_timer -= GameTimes.DeltaTime;
+        if (yell_timer < 0)
         {
-            Position.X = initial_pos = MapUtilities.GetRoomUpperLeftPos(GlobalState.CurrentMapGrid).X;
-
-            player = p;
+            Yell();
+            yell_timer = 0.5f;
         }
 
-        public override void Update()
+        lol_timer -= GameTimes.DeltaTime;
+        if (lol_timer < 0)
         {
-            base.Update();
-            yell_timer -= GameTimes.DeltaTime;
-            if (yell_timer < 0)
+            Position.X += 1;
+            lol_timer = 1f;
+            if (Position.X - initial_pos > 80)
             {
-                Yell();
-                yell_timer = 0.5f;
-            }
-
-            lol_timer -= GameTimes.DeltaTime;
-            if (lol_timer < 0)
-            {
-                Position.X += 1;
-                lol_timer = 1f;
-                if (Position.X - initial_pos > 80)
+                lol_timer = 80f;
+                GlobalState.PuzzlesSolvedRoom = 1;
+                if (Position.X - initial_pos > 160)
                 {
-                    lol_timer = 80f;
-                    GlobalState.PuzzlesSolvedRoom = 1;
-                    if (Position.X - initial_pos > 160)
-                    {
-                        GlobalState.PuzzlesSolvedRoom = 2;
-                        exists = false;
-                    }
+                    GlobalState.PuzzlesSolvedRoom = 2;
+                    exists = false;
                 }
             }
-
-            if (player.velocity != Vector2.Zero)
-            {
-                MathUtilities.MoveTo(ref Position.X, initial_pos-width, 60);
-            }
         }
 
-        private void Yell()
+        if (player.velocity != Vector2.Zero)
         {
-            SoundManager.PlaySoundEffect("rat_move");
+            MathUtilities.MoveTo(ref Position.X, initial_pos-width, 60);
         }
+    }
+
+    private void Yell()
+    {
+        SoundManager.PlaySoundEffect("rat_move");
     }
 }

@@ -6,35 +6,34 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.MapData.Tiles
+namespace AnodyneSharp.MapData.Tiles;
+
+public class AnimatedTile
 {
-    public class AnimatedTile
+    private Anim _curAnim;
+    public Spritesheet sprite;
+
+    public Rectangle spriteRect;
+
+    public AnimatedTile(int[] frames, int framerate, string texName)
     {
-        private Anim _curAnim;
-        public Spritesheet sprite;
+        _curAnim = new Anim("a", frames, framerate);
 
-        public Rectangle spriteRect;
+        sprite = new Spritesheet(ResourceManager.GetTexHandle(texName), 16, 16);
+    }
 
-        public AnimatedTile(int[] frames, int framerate, string texName)
+    public void UpdateAnimation()
+    {
+        _curAnim.Update();
+
+        if (_curAnim.Dirty)
         {
-            _curAnim = new Anim("a", frames, framerate);
-
-            sprite = new Spritesheet(ResourceManager.GetTexHandle(texName), 16, 16);
+            UpdateRect();
         }
+    }
 
-        public void UpdateAnimation()
-        {
-            _curAnim.Update();
-
-            if (_curAnim.Dirty)
-            {
-                UpdateRect();
-            }
-        }
-
-        private void UpdateRect()
-        {
-            spriteRect = sprite.GetRect(_curAnim.Frame);
-        }
+    private void UpdateRect()
+    {
+        spriteRect = sprite.GetRect(_curAnim.Frame);
     }
 }

@@ -7,57 +7,56 @@ using AnodyneSharp.Registry;
 using AnodyneSharp.Sounds;
 using Microsoft.Xna.Framework;
 
-namespace AnodyneSharp.Entities.Gadget
+namespace AnodyneSharp.Entities.Gadget;
+
+[NamedEntity, Collision(typeof(Player), typeof(Broom))]
+public class Key : Entity
 {
-    [NamedEntity, Collision(typeof(Player), typeof(Broom))]
-    public class Key : Entity
+    EntityPreset _preset;
+
+    bool bossRush;
+
+    public Key(EntityPreset preset, Player p)
+        : base(preset.Position, new StaticSpriteRenderer("key", 16, 16, preset.Frame), DrawOrder.ENTITIES)
     {
-        EntityPreset _preset;
 
-        bool bossRush;
+        _preset = preset;
 
-        public Key(EntityPreset preset, Player p)
-            : base(preset.Position, new StaticSpriteRenderer("key", 16, 16, preset.Frame), DrawOrder.ENTITIES)
+        if (preset.TypeValue == "boss_rush")
         {
+            bossRush = true;
 
-            _preset = preset;
+            visible = false;
 
-            if (preset.TypeValue == "boss_rush")
-            {
-                bossRush = true;
-
-                visible = false;
-
-                if (GlobalState.EnemiesKilledRoom > 1)
-                {
-                    visible = true;
-                }
-            }
-        }
-
-        public override void Update()
-        {
-            base.Update();
-            
-            if (visible == false && bossRush && GlobalState.EnemiesKilledRoom > 0)
+            if (GlobalState.EnemiesKilledRoom > 1)
             {
                 visible = true;
             }
         }
+    }
 
-        public override void Collided(Entity other)
+    public override void Update()
+    {
+        base.Update();
+        
+        if (visible == false && bossRush && GlobalState.EnemiesKilledRoom > 0)
         {
-            if (visible)
-            {
-                visible = false;
-                GlobalState.Inventory.AddCurrentMapKey();
-                SoundManager.PlaySoundEffect("keyget");
+            visible = true;
+        }
+    }
 
-                if (_preset != null)
-                {
-                    _preset.Alive = false;
-                    exists = false;
-                }
+    public override void Collided(Entity other)
+    {
+        if (visible)
+        {
+            visible = false;
+            GlobalState.Inventory.AddCurrentMapKey();
+            SoundManager.PlaySoundEffect("keyget");
+
+            if (_preset != null)
+            {
+                _preset.Alive = false;
+                exists = false;
             }
         }
     }

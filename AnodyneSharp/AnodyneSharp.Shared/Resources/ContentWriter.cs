@@ -4,85 +4,84 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace AnodyneSharp.Resources
+namespace AnodyneSharp.Resources;
+
+public class ContentWriter : IDisposable
 {
-    public class ContentWriter : IDisposable
+    public string FilePath { get; protected set; }
+
+    private StreamWriter _writer;
+    private Stream _stream;
+    private int _lineNumber;
+
+
+    public ContentWriter(string filePath)
     {
-        public string FilePath { get; protected set; }
+        _lineNumber = 0;
+        FilePath = filePath;
+        SetStreamreader(filePath);
+    }
 
-        private StreamWriter _writer;
-        private Stream _stream;
-        private int _lineNumber;
+    public virtual void Dispose()
+    {
+        _writer.Dispose();
+        _stream.Dispose();
+    }
 
+    protected void SetStreamreader(string path)
+    {
+        _stream = new FileStream(path, FileMode.Create);
 
-        public ContentWriter(string filePath)
+        if (_stream != null)
         {
-            _lineNumber = 0;
-            FilePath = filePath;
-            SetStreamreader(filePath);
+            _writer = new StreamWriter(_stream);
         }
-
-        public virtual void Dispose()
+        else
         {
-            _writer.Dispose();
-            _stream.Dispose();
+            DebugLogger.AddError($"Unable to read content file: {FilePath}. File does not exist!");
         }
+    }
 
-        protected void SetStreamreader(string path)
-        {
-            _stream = new FileStream(path, FileMode.Create);
+    protected void ThrowFileWarning(string message)
+    {
+        DebugLogger.AddWarning(FormatFileError(message), false);
+    }
 
-            if (_stream != null)
-            {
-                _writer = new StreamWriter(_stream);
-            }
-            else
-            {
-                DebugLogger.AddError($"Unable to read content file: {FilePath}. File does not exist!");
-            }
-        }
+    protected void ThrowFileError(string message)
+    {
+        DebugLogger.AddError(FormatFileError(message), false);
+    }
+    protected void WriteLine()
+    {
+        _lineNumber++;
+        _writer.WriteLine();
+    }
 
-        protected void ThrowFileWarning(string message)
-        {
-            DebugLogger.AddWarning(FormatFileError(message), false);
-        }
+    protected void WriteLine(string line)
+    {
+        _lineNumber++;
+        _writer.WriteLine(line);
+    }
 
-        protected void ThrowFileError(string message)
-        {
-            DebugLogger.AddError(FormatFileError(message), false);
-        }
-        protected void WriteLine()
-        {
-            _lineNumber++;
-            _writer.WriteLine();
-        }
+    protected void WriteLine(char line)
+    {
+        _lineNumber++;
+        _writer.WriteLine(line);
+    }
 
-        protected void WriteLine(string line)
-        {
-            _lineNumber++;
-            _writer.WriteLine(line);
-        }
+    protected void WriteLine(int value)
+    {
+        _lineNumber++;
+        _writer.WriteLine(value.ToString());
+    }
 
-        protected void WriteLine(char line)
-        {
-            _lineNumber++;
-            _writer.WriteLine(line);
-        }
+    protected void Write(string line)
+    {
+        _writer.Write(line);
+    }
 
-        protected void WriteLine(int value)
-        {
-            _lineNumber++;
-            _writer.WriteLine(value.ToString());
-        }
-
-        protected void Write(string line)
-        {
-            _writer.Write(line);
-        }
-
-        private string FormatFileError(string message)
-        {
-            return $"{message} : {FilePath} {_lineNumber}";
-        }
+    private string FormatFileError(string message)
+    {
+        return $"{message} : {FilePath} {_lineNumber}";
     }
 }

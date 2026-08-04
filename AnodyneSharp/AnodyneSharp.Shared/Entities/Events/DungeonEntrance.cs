@@ -6,29 +6,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AnodyneSharp.Entities
+namespace AnodyneSharp.Entities;
+
+[NamedEntity("Event", "entrance", 5)]
+public class DungeonEntrance : Entity
 {
-    [NamedEntity("Event", "entrance", 5)]
-    public class DungeonEntrance : Entity
+    public DungeonEntrance(EntityPreset preset, Player p) : base(preset.Position)
     {
-        public DungeonEntrance(EntityPreset preset, Player p) : base(preset.Position)
-        {
-            exists = false;
+        exists = false;
 
-            if (GlobalState.ReturnTarget.map == GlobalState.CurrentMapName) return;
-            
-            GlobalState.ReturnTarget = new(GlobalState.CurrentMapName, preset.Position - new Vector2(10, 34));
-        }
+        if (GlobalState.ReturnTarget.map == GlobalState.CurrentMapName) return;
+        
+        GlobalState.ReturnTarget = new(GlobalState.CurrentMapName, preset.Position - new Vector2(10, 34));
     }
+}
 
-    [NamedEntity("Event", "entrance_ref", 5)]
-    public class DungeonEntranceRef : Entity
+[NamedEntity("Event", "entrance_ref", 5)]
+public class DungeonEntranceRef : Entity
+{
+    public DungeonEntranceRef(EntityPreset preset, Player p) : base(preset.Position)
     {
-        public DungeonEntranceRef(EntityPreset preset, Player p) : base(preset.Position)
-        {
-            exists = false;
+        exists = false;
 
-            _ = new DungeonEntrance(EntityManager.GetLinkGroup(preset.LinkID).Where(s => s.TypeValue == "entrance").First(),p);
-        }
+        _ = new DungeonEntrance(EntityManager.GetLinkGroup(preset.LinkID).Where(s => s.TypeValue == "entrance").First(),p);
     }
 }

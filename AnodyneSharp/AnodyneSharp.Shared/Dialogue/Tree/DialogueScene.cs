@@ -4,60 +4,59 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace AnodyneSharp.Dialogue
+namespace AnodyneSharp.Dialogue;
+
+public class DialogueScene
 {
-    public class DialogueScene
+    [JsonIgnore]
+    public bool AlignTop { get; private set; }
+    [JsonIgnore]
+    public int? LoopID { get; private set; }
+
+    [JsonInclude]
+    public DialogueState state;
+
+    private List<string> _lines;
+
+    [JsonIgnore]
+    public int Length => _lines.Count;
+
+    public DialogueScene() { }
+
+    public DialogueScene(bool alignTop, int? loopID, List<string> lines)
     {
-        [JsonIgnore]
-        public bool AlignTop { get; private set; }
-        [JsonIgnore]
-        public int? LoopID { get; private set; }
+        AlignTop = alignTop;
+        LoopID = loopID;
+        _lines = lines;
 
-        [JsonInclude]
-        public DialogueState state;
+        state = new DialogueState();
+    }
 
-        private List<string> _lines;
+    public string GetDialogue(int id = -1)
+    {
+        state.dirty = true;
 
-        [JsonIgnore]
-        public int Length => _lines.Count;
-
-        public DialogueScene() { }
-
-        public DialogueScene(bool alignTop, int? loopID, List<string> lines)
+        if (id == -1)
         {
-            AlignTop = alignTop;
-            LoopID = loopID;
-            _lines = lines;
-
-            state = new DialogueState();
+            id = state.line;
         }
 
-        public string GetDialogue(int id = -1)
+        if (id >= _lines.Count)
         {
-            state.dirty = true;
-
-            if (id == -1)
-            {
-                id = state.line;
-            }
-
-            if (id >= _lines.Count)
-            {
-                id = LoopID ?? 0;
-            }
-
-            string line = _lines[id];
-
-            id++;
-
-            if (id >= _lines.Count)
-            {
-                    state.finished = true;
-            }
-
-            state.line = id;
-
-            return line;
+            id = LoopID ?? 0;
         }
+
+        string line = _lines[id];
+
+        id++;
+
+        if (id >= _lines.Count)
+        {
+                state.finished = true;
+        }
+
+        state.line = id;
+
+        return line;
     }
 }

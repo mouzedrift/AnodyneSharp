@@ -5,116 +5,115 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget.Treasures
+namespace AnodyneSharp.Entities.Gadget.Treasures;
+
+public record EmptyTreasureEvent : GameEvents.GameEvent { }
+
+public class CardTreasure : BaseTreasure
 {
-    public record EmptyTreasureEvent : GameEvents.GameEvent { }
-
-    public class CardTreasure : BaseTreasure
+    private enum AnimState
     {
-        private enum AnimState
+        Delay,
+        Grow,
+        Hang,
+        GrowSpinFade
+    }
+
+    AnimState state;
+    float animTimer;
+
+    public CardTreasure(Vector2 pos, int frame)
+        : base(frame != 48 ?"card_sheet" : "card_49", pos, 24, 24, frame)
+    {
+        animTimer = 0;
+        scale = 0.5f;
+        offset = new Vector2( 12);
+        Position.X += 9;
+    }
+
+    public override void GetTreasure()
+    {
+        base.GetTreasure();
+
+        if (GlobalState.Inventory.CardStatus[Frame])
         {
-            Delay,
-            Grow,
-            Hang,
-            GrowSpinFade
+            exists = false;
+            GlobalState.FireEvent(new EmptyTreasureEvent());
+            return;
         }
 
-        AnimState state;
-        float animTimer;
 
-        public CardTreasure(Vector2 pos, int frame)
-            : base(frame != 48 ?"card_sheet" : "card_49", pos, 24, 24, frame)
+        GlobalState.Inventory.CardStatus[Frame] = true;
+
+        DebugLogger.AddInfo($"Got card {Frame}");
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (exists)
         {
-            animTimer = 0;
-            scale = 0.5f;
-            offset = new Vector2( 12);
-            Position.X += 9;
+            GrowthAnim();
         }
 
-        public override void GetTreasure()
+        base.PostUpdate();
+    }
+
+    private void GrowthAnim()
+    {
+        switch (state)
         {
-            base.GetTreasure();
+            case AnimState.Delay:
 
-            if (GlobalState.Inventory.CardStatus[Frame])
-            {
-                exists = false;
-                GlobalState.FireEvent(new EmptyTreasureEvent());
-                return;
-            }
+                state++;
+                velocity.Y = -24;
+                if (Position.Y <= GlobalState.CurrentGridY * 160 + 80)
+                {
+                    velocity.Y *= -1;
+                }
+                break;
+            case AnimState.Grow:
+                scale += 0.5f * GameTimes.DeltaTime;
 
-
-            GlobalState.Inventory.CardStatus[Frame] = true;
-
-            DebugLogger.AddInfo($"Got card {Frame}");
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            if (exists)
-            {
-                GrowthAnim();
-            }
-
-            base.PostUpdate();
-        }
-
-        private void GrowthAnim()
-        {
-            switch (state)
-            {
-                case AnimState.Delay:
-
+                if (scale >= 1)
+                {
+                    scale = 1;
+                    velocity = Vector2.Zero;
                     state++;
-                    velocity.Y = -24;
+                }
+                break;
+            case AnimState.Hang:
+                animTimer += GameTimes.DeltaTime;
+                if (animTimer > 1)
+                {
+                    state++;
+
+                    acceleration.Y = -80;
+                    angularVelocity = MathHelper.ToRadians(50);
+                    angularAcceleration = MathHelper.ToRadians(200);
+
                     if (Position.Y <= GlobalState.CurrentGridY * 160 + 80)
                     {
-                        velocity.Y *= -1;
+                        acceleration.Y *= -1;
+                        angularVelocity *= -1;
+                        angularAcceleration *= -1;
                     }
-                    break;
-                case AnimState.Grow:
-                    scale += 0.5f * GameTimes.DeltaTime;
-
-                    if (scale >= 1)
-                    {
-                        scale = 1;
-                        velocity = Vector2.Zero;
-                        state++;
-                    }
-                    break;
-                case AnimState.Hang:
-                    animTimer += GameTimes.DeltaTime;
-                    if (animTimer > 1)
-                    {
-                        state++;
-
-                        acceleration.Y = -80;
-                        angularVelocity = MathHelper.ToRadians(50);
-                        angularAcceleration = MathHelper.ToRadians(200);
-
-                        if (Position.Y <= GlobalState.CurrentGridY * 160 + 80)
-                        {
-                            acceleration.Y *= -1;
-                            angularVelocity *= -1;
-                            angularAcceleration *= -1;
-                        }
-                    }
-                    break;
-                case AnimState.GrowSpinFade:
-                    scale += GameTimes.DeltaTime * 3f;
-                    opacity -= GameTimes.DeltaTime * 0.5f;
-                    if (opacity <= 0)
-                    {
-                        visible = false;
-                        state++;
-                    }
-                    break;
-                default:
-                    exists = false;
-                    break;
-            }
-
+                }
+                break;
+            case AnimState.GrowSpinFade:
+                scale += GameTimes.DeltaTime * 3f;
+                opacity -= GameTimes.DeltaTime * 0.5f;
+                if (opacity <= 0)
+                {
+                    visible = false;
+                    state++;
+                }
+                break;
+            default:
+                exists = false;
+                break;
         }
+
     }
 }

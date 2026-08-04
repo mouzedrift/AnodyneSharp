@@ -6,50 +6,49 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive
+namespace AnodyneSharp.Entities.Interactive;
+
+[NamedEntity("Dungeon_Statue"),Collision(PartOfMap = true)]
+public class DungeonStatue : Entity, Interactable
 {
-    [NamedEntity("Dungeon_Statue"),Collision(PartOfMap = true)]
-    public class DungeonStatue : Entity, Interactable
+    public static Facing MoveDir(int frame) => frame switch
     {
-        public static Facing MoveDir(int frame) => frame switch
-        {
-            0 => Facing.UP,
-            _ => Facing.RIGHT
-        };
+        0 => Facing.UP,
+        _ => Facing.RIGHT
+    };
 
-        public DungeonStatue(Vector2 pos, int frame) : base(pos, new StaticSpriteRenderer("big_statue", 32, 48, frame), Drawing.DrawOrder.ENTITIES)
-        {
-            immovable = true;
-            width = 30;
-            height = 16;
-            offset = new Vector2(1, 32);
-            Position += offset;
-        }
+    public DungeonStatue(Vector2 pos, int frame) : base(pos, new StaticSpriteRenderer("big_statue", 32, 48, frame), Drawing.DrawOrder.ENTITIES)
+    {
+        immovable = true;
+        width = 30;
+        height = 16;
+        offset = new Vector2(1, 32);
+        Position += offset;
+    }
 
-        public DungeonStatue(EntityPreset preset, Player p) : this(preset.Position,preset.Frame)
+    public DungeonStatue(EntityPreset preset, Player p) : this(preset.Position,preset.Frame)
+    {
+        if(GlobalState.Events.GetEvent("WindmillOpened") != 0)
         {
-            if(GlobalState.Events.GetEvent("WindmillOpened") != 0)
-            {
-                Position += FacingDirection(MoveDir(Frame)) * 32;
-            }
+            Position += FacingDirection(MoveDir(Frame)) * 32;
         }
+    }
 
-        public bool PlayerInteraction(Facing player_direction)
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        if (GlobalState.Events.GetEvent("WindmillOpened") != 0)
         {
-            if (GlobalState.Events.GetEvent("WindmillOpened") != 0)
-            {
-                GlobalState.Dialogue = DialogueManager.GetDialogue("dungeon_statue", "two");
-            }
-            else
-            {
-                GlobalState.Dialogue = DialogueManager.GetDialogue("dungeon_statue", "one");
-            }
-            return true;
+            GlobalState.Dialogue = DialogueManager.GetDialogue("dungeon_statue", "two");
         }
+        else
+        {
+            GlobalState.Dialogue = DialogueManager.GetDialogue("dungeon_statue", "one");
+        }
+        return true;
+    }
 
-        public override void Collided(Entity other)
-        {
-            Separate(this, other);
-        }
+    public override void Collided(Entity other)
+    {
+        Separate(this, other);
     }
 }

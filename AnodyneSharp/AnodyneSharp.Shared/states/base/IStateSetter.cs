@@ -1,8 +1,7 @@
-namespace AnodyneSharp.States
+namespace AnodyneSharp.States;
+
+public interface IStateSetter
 {
-    public interface IStateSetter
-    {
-        public void SetState<T>() where T : State, new();
-    }
+    public void SetState<T>() where T : State, new();
 }
 

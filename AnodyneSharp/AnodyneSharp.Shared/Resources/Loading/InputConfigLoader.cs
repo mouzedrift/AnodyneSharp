@@ -5,125 +5,124 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Resources.Loading
+namespace AnodyneSharp.Resources.Loading;
+
+public class InputConfigLoader : ContentLoader
 {
-    public class InputConfigLoader : ContentLoader
+    public InputConfigLoader(string filePath)
+        : base(filePath)
+    { }
+
+    public int RebindableKeys { get; private set; }
+
+    public bool LoadInputConfig()
     {
-        public InputConfigLoader(string filePath)
-            : base(filePath)
-        { }
+        bool success = true;
+        Dictionary<KeyFunctions, RebindableKey> rKeys = new Dictionary<KeyFunctions, RebindableKey>();
 
-        public int RebindableKeys { get; private set; }
-
-        public bool LoadInputConfig()
+        while (!EndOfStream)
         {
-            bool success = true;
-            Dictionary<KeyFunctions, RebindableKey> rKeys = new Dictionary<KeyFunctions, RebindableKey>();
+            string[] lineParts = SplitNextLine();
 
-            while (!EndOfStream)
+            if (lineParts.Length == 1 &&
+                int.TryParse(lineParts[0], out int functionID))
             {
-                string[] lineParts = SplitNextLine();
+                List<Keys> keys = new List<Keys>();
+                List<Buttons> buttons = new List<Buttons>();
 
-                if (lineParts.Length == 1 &&
-                    int.TryParse(lineParts[0], out int functionID))
+                PlayerIndex playerIndex = (PlayerIndex)(-1);
+
+                lineParts = SplitNextLine();
+                if (lineParts[0] != "}")
                 {
-                    List<Keys> keys = new List<Keys>();
-                    List<Buttons> buttons = new List<Buttons>();
-
-                    PlayerIndex playerIndex = (PlayerIndex)(-1);
-
                     lineParts = SplitNextLine();
-                    if (lineParts[0] != "}")
+
+                    keys = ReadKeys(lineParts);
+
+                    if (keys.Count > 0)
                     {
                         lineParts = SplitNextLine();
-
-                        keys = ReadKeys(lineParts);
-
-                        if (keys.Count > 0)
-                        {
-                            lineParts = SplitNextLine();
-                        }
-
-                        buttons = ReadButtons(lineParts, out playerIndex);
                     }
 
-                    rKeys.Add((KeyFunctions)functionID, new RebindableKey(keys, buttons, playerIndex));
+                    buttons = ReadButtons(lineParts, out playerIndex);
+                }
 
-                    SplitNextLine();
-                }
-                else
-                {
-                    ThrowFileError("Unable to parse input data line!");
-                    success = false;
-                    break;
-                }
+                rKeys.Add((KeyFunctions)functionID, new RebindableKey(keys, buttons, playerIndex));
+
+                SplitNextLine();
             }
-
-            if (success)
+            else
             {
-                KeyInput.RebindableKeys = rKeys;
+                ThrowFileError("Unable to parse input data line!");
+                success = false;
+                break;
             }
-
-            return success;
         }
 
-        protected List<Keys> ReadKeys(string[] keyLine)
+        if (success)
         {
-            List<Keys> keys = new List<Keys>();
-
-            if (keyLine[0] == "k")
-            {
-                keyLine = SplitNextLine();
-                if (keyLine[0] == "{")
-                {
-                    while (SplitNextLine()[0] != "}")
-                    {
-                        keyLine = CurrentLine;
-
-                        if (int.TryParse(keyLine[0], out int keyID))
-                        {
-                            keys.Add((Keys)keyID);
-                        }
-                        else
-                        {
-                            ThrowFileError($"Unable to read key!");
-                            return new List<Keys>(); ;
-                        }
-                    }
-                }
-            }
-            return keys;
+            KeyInput.RebindableKeys = rKeys;
         }
 
-        protected List<Buttons> ReadButtons(string[] buttonLine, out PlayerIndex playerIndex)
+        return success;
+    }
+
+    protected List<Keys> ReadKeys(string[] keyLine)
+    {
+        List<Keys> keys = new List<Keys>();
+
+        if (keyLine[0] == "k")
         {
-            List<Buttons> buttons = new List<Buttons>();
-            playerIndex = (PlayerIndex)(-1);
-
-            if (buttonLine[0] == "b" && int.TryParse(buttonLine[1], out int playerIndexID))
+            keyLine = SplitNextLine();
+            if (keyLine[0] == "{")
             {
-                buttonLine = SplitNextLine();
-                if (buttonLine[0] == "{")
+                while (SplitNextLine()[0] != "}")
                 {
-                    while (SplitNextLine()[0] != "}")
+                    keyLine = CurrentLine;
+
+                    if (int.TryParse(keyLine[0], out int keyID))
                     {
-                        buttonLine = CurrentLine;
-
-                        if (int.TryParse(buttonLine[0], out int buttonID))
-                        {
-                            buttons.Add((Buttons)buttonID);
-                        }
-                        else
-                        {
-                            ThrowFileError($"Unable to read button!");
-                            return new List<Buttons>(); ;
-                        }
+                        keys.Add((Keys)keyID);
                     }
-
-                    playerIndex = (PlayerIndex)playerIndexID;
+                    else
+                    {
+                        ThrowFileError($"Unable to read key!");
+                        return new List<Keys>(); ;
+                    }
                 }
             }
-            return buttons;
         }
+        return keys;
+    }
+
+    protected List<Buttons> ReadButtons(string[] buttonLine, out PlayerIndex playerIndex)
+    {
+        List<Buttons> buttons = new List<Buttons>();
+        playerIndex = (PlayerIndex)(-1);
+
+        if (buttonLine[0] == "b" && int.TryParse(buttonLine[1], out int playerIndexID))
+        {
+            buttonLine = SplitNextLine();
+            if (buttonLine[0] == "{")
+            {
+                while (SplitNextLine()[0] != "}")
+                {
+                    buttonLine = CurrentLine;
+
+                    if (int.TryParse(buttonLine[0], out int buttonID))
+                    {
+                        buttons.Add((Buttons)buttonID);
+                    }
+                    else
+                    {
+                        ThrowFileError($"Unable to read button!");
+                        return new List<Buttons>(); ;
+                    }
+                }
+
+                playerIndex = (PlayerIndex)playerIndexID;
+            }
+        }
+        return buttons;
     }
 }

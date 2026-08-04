@@ -6,33 +6,32 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.UI.PauseMenu.Config
+namespace AnodyneSharp.UI.PauseMenu.Config;
+
+public class ActionOption : UIOption
 {
-    public class ActionOption : UIOption
+    Action _action;
+
+    public ActionOption(Action action)
     {
-        Action _action;
+        _action = action;
+    }
 
-        public ActionOption(Action action)
-        {
-            _action = action;
-        }
+    public override void Update()
+    {
+    }
 
-        public override void Update()
-        {
-        }
+    public override void Draw()
+    {
+    }
 
-        public override void Draw()
-        {
-        }
+    public override void GetControl()
+    {
+        _action();
+        Exit = true;
+    }
 
-        public override void GetControl()
-        {
-            _action();
-            Exit = true;
-        }
-
-        public override void LoseControl()
-        {
-        }
+    public override void LoseControl()
+    {
     }
 }

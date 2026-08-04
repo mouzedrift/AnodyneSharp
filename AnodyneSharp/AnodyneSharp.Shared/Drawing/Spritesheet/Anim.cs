@@ -2,80 +2,79 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp
+namespace AnodyneSharp;
+
+public class Anim
 {
-    public class Anim
+    public int Frame => frames[_curIndex];
+    public bool Dirty { get; set; }
+    public int CurIndex { get { return _curIndex; } }
+
+    public string name;
+    public int[] frames;
+    public float FrameRate { 
+        get => delay == 0 ? 0 : 1.0f / delay;
+        set
+        {
+            delay = value == 0 ? 0 : 1.0f / value;
+        }
+    }
+    public bool looped;
+    private float delay;
+
+    private bool _finishedLastFrame;
+    private int _curIndex;
+    private float _frameTimer;
+
+
+    public bool Finished => delay == 0 || (!looped && _finishedLastFrame);
+
+    public Anim(string name, int[] frames, float frameRate, bool looped = true)
     {
-        public int Frame => frames[_curIndex];
-        public bool Dirty { get; set; }
-        public int CurIndex { get { return _curIndex; } }
+        this.name = name;
+        this.frames = frames;
+        FrameRate = frameRate;
 
-        public string name;
-        public int[] frames;
-        public float FrameRate { 
-            get => delay == 0 ? 0 : 1.0f / delay;
-            set
+        this.looped = looped;
+        Dirty = true;
+    }
+
+    public override string ToString()
+    {
+        return name;
+    }
+
+    public void Reset()
+    {
+        _curIndex = 0;
+        _frameTimer = 0;
+        _finishedLastFrame = false;
+
+        Dirty = true;
+    }
+
+    public void Update()
+    {
+        if (Finished) return;
+
+        _frameTimer += GameTimes.DeltaTime;
+        while (_frameTimer > delay)
+        {
+            _frameTimer -= delay;
+            if (_curIndex == frames.Length - 1)
             {
-                delay = value == 0 ? 0 : 1.0f / value;
+                _finishedLastFrame = true;
+                if (looped)
+                {
+                    _curIndex = 0;
+                }
             }
-        }
-        public bool looped;
-        private float delay;
-
-        private bool _finishedLastFrame;
-        private int _curIndex;
-        private float _frameTimer;
-
-
-        public bool Finished => delay == 0 || (!looped && _finishedLastFrame);
-
-        public Anim(string name, int[] frames, float frameRate, bool looped = true)
-        {
-            this.name = name;
-            this.frames = frames;
-            FrameRate = frameRate;
-
-            this.looped = looped;
-            Dirty = true;
-        }
-
-        public override string ToString()
-        {
-            return name;
-        }
-
-        public void Reset()
-        {
-            _curIndex = 0;
-            _frameTimer = 0;
-            _finishedLastFrame = false;
-
-            Dirty = true;
-        }
-
-        public void Update()
-        {
-            if (Finished) return;
-
-            _frameTimer += GameTimes.DeltaTime;
-            while (_frameTimer > delay)
+            else
             {
-                _frameTimer -= delay;
-                if (_curIndex == frames.Length - 1)
-                {
-                    _finishedLastFrame = true;
-                    if (looped)
-                    {
-                        _curIndex = 0;
-                    }
-                }
-                else
-                {
-                    _curIndex++;
-                }
-
-                Dirty = true;
+                _curIndex++;
             }
+
+            Dirty = true;
         }
     }
 }

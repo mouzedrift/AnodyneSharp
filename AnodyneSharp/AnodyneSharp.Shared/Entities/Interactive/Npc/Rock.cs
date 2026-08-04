@@ -7,57 +7,56 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive.Npc
+namespace AnodyneSharp.Entities.Interactive.Npc;
+
+[NamedEntity("NPC", "rock"), Collision(typeof(Player))]
+public class Rock : Entity, Interactable
 {
-    [NamedEntity("NPC", "rock"), Collision(typeof(Player))]
-    public class Rock : Entity, Interactable
+    string scene;
+
+    public static AnimatedSpriteRenderer GetSprite()
     {
-        string scene;
+        string texName = "note_rock";
+        int f = 0;
 
-        public static AnimatedSpriteRenderer GetSprite()
+        if (GlobalState.CurrentMapName == "SPACE")
         {
-            string texName = "note_rock";
-            int f = 0;
+            texName = "space_npcs";
 
-            if (GlobalState.CurrentMapName == "SPACE")
-            {
-                texName = "space_npcs";
-
-                f = GlobalState.CurrentGridX > 5 ? 31 : 30;
-            }
-            else if (GlobalState.IsCell)
-            {
-                f = 1;
-            }
-
-            return new(texName, 16, 16, new Anim("a", new int[] { f }, 1));
+            f = GlobalState.CurrentGridX > 5 ? 31 : 30;
+        }
+        else if (GlobalState.IsCell)
+        {
+            f = 1;
         }
 
-        public Rock(EntityPreset preset, Player p) 
-            : base(preset.Position, GetSprite(), DrawOrder.ENTITIES)
-        {
-            immovable = true;
-
-            scene = MathUtilities.IntToString(preset.Frame + 1);
-        }
-
-        public override void Collided(Entity other)
-        {
-            Separate(other, this);
-        }
-
-        public bool PlayerInteraction(Facing player_direction)
-        {
-            GlobalState.Dialogue = DialogueManager.GetDialogue("rock", scene);
-
-            if (GlobalState.Events.GetEvent("RockTalk") == 0)
-            {
-                GlobalState.Dialogue = DialogueManager.GetDialogue("misc", "any", "rock", 0) + "^\n" + GlobalState.Dialogue;
-
-                GlobalState.Events.IncEvent("RockTalk");
-            }
-            return true;
-        }
-
+        return new(texName, 16, 16, new Anim("a", new int[] { f }, 1));
     }
+
+    public Rock(EntityPreset preset, Player p) 
+        : base(preset.Position, GetSprite(), DrawOrder.ENTITIES)
+    {
+        immovable = true;
+
+        scene = MathUtilities.IntToString(preset.Frame + 1);
+    }
+
+    public override void Collided(Entity other)
+    {
+        Separate(other, this);
+    }
+
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        GlobalState.Dialogue = DialogueManager.GetDialogue("rock", scene);
+
+        if (GlobalState.Events.GetEvent("RockTalk") == 0)
+        {
+            GlobalState.Dialogue = DialogueManager.GetDialogue("misc", "any", "rock", 0) + "^\n" + GlobalState.Dialogue;
+
+            GlobalState.Events.IncEvent("RockTalk");
+        }
+        return true;
+    }
+
 }

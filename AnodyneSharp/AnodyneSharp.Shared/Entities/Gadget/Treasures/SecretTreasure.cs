@@ -6,25 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget.Treasures
+namespace AnodyneSharp.Entities.Gadget.Treasures;
+
+public class SecretTreasure : Treasure
 {
-    public class SecretTreasure : Treasure
+    private int _secretID;
+
+    public SecretTreasure(Vector2 pos, int frame, int dialogueID)
+        : base("secret_trophies", pos, frame, dialogueID)
     {
-        private int _secretID;
+        _secretID = frame;
+    }
 
-        public SecretTreasure(Vector2 pos, int frame, int dialogueID)
-            : base("secret_trophies", pos, frame, dialogueID)
-        {
-            _secretID = frame;
-        }
+    public override void GetTreasure()
+    {
+        base.GetTreasure();
 
-        public override void GetTreasure()
-        {
-            base.GetTreasure();
+        GlobalState.Inventory.SecretStatus[_secretID] = true;
 
-            GlobalState.Inventory.SecretStatus[_secretID] = true;
-
-            DebugLogger.AddInfo($"Got secret {_secretID}");
-        }
+        DebugLogger.AddInfo($"Got secret {_secretID}");
     }
 }

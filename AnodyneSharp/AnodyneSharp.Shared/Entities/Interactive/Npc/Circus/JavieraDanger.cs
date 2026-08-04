@@ -10,116 +10,115 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive.Npc.Circus
+namespace AnodyneSharp.Entities.Interactive.Npc.Circus;
+
+[NamedEntity("Circus_Folks", "danger", 1)]
+public class JavieraDanger : Entity
 {
-    [NamedEntity("Circus_Folks", "danger", 1)]
-    public class JavieraDanger : Entity
+    private const float WaitTimerMax = 1f;
+
+    private float _waitTimer;
+
+    private Vector2 _initPos;
+
+    EntityPreset _preset;
+
+    private IEnumerator _stateLogic;
+
+    public static AnimatedSpriteRenderer GetSprite() => new("javiera_juggle", 16, 24,
+        new Anim("juggle", new int[] { 0, 1 }, 8),
+        new Anim("walk_d", new int[] { 0, 1 }, 8),
+        new Anim("walk_l", new int[] { 4, 5 }, 8),
+        new Anim("walk_u", new int[] { 2, 3 }, 8),
+        new Anim("walk_r", new int[] { 4, 5 }, 8),
+        new Anim("fall", new int[] { 6, 7, 8, 9, 10, 11, 12 }, 2, false) // Should end on an empty frame
+        );
+
+    public JavieraDanger(EntityPreset preset, Player p)
+        : base(preset.Position, GetSprite(), Drawing.DrawOrder.ENTITIES)
     {
-        private const float WaitTimerMax = 1f;
+        _preset = preset;
 
-        private float _waitTimer;
+        _initPos = Position;
 
-        private Vector2 _initPos;
+        _stateLogic = StateLogic();
+    }
 
-        EntityPreset _preset;
+    public override void Update()
+    {
+        base.Update();
 
-        private IEnumerator _stateLogic;
+        _stateLogic.MoveNext();
+    }
 
-        public static AnimatedSpriteRenderer GetSprite() => new("javiera_juggle", 16, 24,
-            new Anim("juggle", new int[] { 0, 1 }, 8),
-            new Anim("walk_d", new int[] { 0, 1 }, 8),
-            new Anim("walk_l", new int[] { 4, 5 }, 8),
-            new Anim("walk_u", new int[] { 2, 3 }, 8),
-            new Anim("walk_r", new int[] { 4, 5 }, 8),
-            new Anim("fall", new int[] { 6, 7, 8, 9, 10, 11, 12 }, 2, false) // Should end on an empty frame
-            );
+    protected override void AnimationChanged(string name)
+    {
+        base.AnimationChanged(name);
 
-        public JavieraDanger(EntityPreset preset, Player p)
-            : base(preset.Position, GetSprite(), Drawing.DrawOrder.ENTITIES)
+        if (name.EndsWith('l'))
         {
-            _preset = preset;
+            _flip = SpriteEffects.FlipHorizontally;
+        }
+        else
+        {
+            _flip = SpriteEffects.None;
+        }
+    }
 
-            _initPos = Position;
-
-            _stateLogic = StateLogic();
+    private IEnumerator StateLogic()
+    {
+        while (GlobalState.ScreenTransition)
+        {
+            yield return null;
         }
 
-        public override void Update()
-        {
-            base.Update();
+        GlobalState.Dialogue = DialogueManager.GetDialogue("javiera", "alone", 0);
 
-            _stateLogic.MoveNext();
+        while (!GlobalState.LastDialogueFinished)
+        {
+            yield return null;
         }
 
-        protected override void AnimationChanged(string name)
-        {
-            base.AnimationChanged(name);
+        SetTexture("javiera", 16, 16);
 
-            if (name.EndsWith('l'))
-            {
-                _flip = SpriteEffects.FlipHorizontally;
-            }
-            else
-            {
-                _flip = SpriteEffects.None;
-            }
+        Play("walk_d");
+
+        while (GlobalState.EnemiesKilledRoom < 2)
+        {
+            yield return null;
         }
 
-        private IEnumerator StateLogic()
+        while (_waitTimer < WaitTimerMax)
         {
-            while (GlobalState.ScreenTransition)
-            {
-                yield return null;
-            }
+            _waitTimer += GameTimes.DeltaTime;
 
-            GlobalState.Dialogue = DialogueManager.GetDialogue("javiera", "alone", 0);
-
-            while (!GlobalState.LastDialogueFinished)
-            {
-                yield return null;
-            }
-
-            SetTexture("javiera", 16, 16);
-
-            Play("walk_d");
-
-            while (GlobalState.EnemiesKilledRoom < 2)
-            {
-                yield return null;
-            }
-
-            while (_waitTimer < WaitTimerMax)
-            {
-                _waitTimer += GameTimes.DeltaTime;
-
-                yield return null;
-            }
-
-            GlobalState.Dialogue = DialogueManager.GetDialogue("javiera", "alone", 1);
-
-            while (!GlobalState.LastDialogueFinished)
-            {
-                yield return null;
-            }
-
-            while (!MathUtilities.MoveTo(ref Position.Y, _initPos.Y, 60))
-            {
-                yield return null;
-            }
-
-            Play("walk_l");
-
-            while (!MathUtilities.MoveTo(ref Position.X, _initPos.X - 66, 60))
-            {
-                yield return null;
-            }
-
-            _preset.Alive = false;
-            exists = false;
-
-            GlobalState.PuzzlesSolvedRoom++;
-
-            yield break;
+            yield return null;
         }
+
+        GlobalState.Dialogue = DialogueManager.GetDialogue("javiera", "alone", 1);
+
+        while (!GlobalState.LastDialogueFinished)
+        {
+            yield return null;
+        }
+
+        while (!MathUtilities.MoveTo(ref Position.Y, _initPos.Y, 60))
+        {
+            yield return null;
+        }
+
+        Play("walk_l");
+
+        while (!MathUtilities.MoveTo(ref Position.X, _initPos.X - 66, 60))
+        {
+            yield return null;
+        }
+
+        _preset.Alive = false;
+        exists = false;
+
+        GlobalState.PuzzlesSolvedRoom++;
+
+        yield break;
     }
 }

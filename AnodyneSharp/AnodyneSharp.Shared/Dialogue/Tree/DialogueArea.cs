@@ -3,31 +3,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace AnodyneSharp.Dialogue
+namespace AnodyneSharp.Dialogue;
+
+public class DialogueArea
 {
-    public class DialogueArea
+    [JsonInclude]
+    public Dictionary<string, DialogueScene> _scenes;
+
+    public DialogueArea()
     {
-        [JsonInclude]
-        public Dictionary<string, DialogueScene> _scenes;
+        _scenes = new Dictionary<string, DialogueScene>();
+    }
 
-        public DialogueArea()
+    internal void AddScene(string scene, DialogueScene dialogueScene)
+    {
+        _scenes.Add(scene, dialogueScene);
+    }
+
+    internal DialogueScene GetScene(string scene)
+    {
+        if (!_scenes.ContainsKey(scene))
         {
-            _scenes = new Dictionary<string, DialogueScene>();
+            return null;
         }
 
-        internal void AddScene(string scene, DialogueScene dialogueScene)
-        {
-            _scenes.Add(scene, dialogueScene);
-        }
-
-        internal DialogueScene GetScene(string scene)
-        {
-            if (!_scenes.ContainsKey(scene))
-            {
-                return null;
-            }
-
-            return _scenes[scene];
-        }
+        return _scenes[scene];
     }
 }

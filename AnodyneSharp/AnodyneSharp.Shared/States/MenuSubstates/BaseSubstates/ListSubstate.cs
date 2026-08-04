@@ -7,131 +7,130 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates
+namespace AnodyneSharp.States.MenuSubstates;
+
+public abstract class ListSubstate : Substate
 {
-    public abstract class ListSubstate : Substate
+    protected bool playSfx = true;
+
+    protected List<(UILabel label, UIOption option)> options;
+    protected int state = 0;
+    private int _lastState = 0;
+
+    private UIOption _selectedOption;
+
+    private bool _leftExits;
+
+    public ListSubstate(bool leftExits = false)
     {
-        protected bool playSfx = true;
+        _leftExits = leftExits;
+    }
 
-        protected List<(UILabel label, UIOption option)> options;
-        protected int state = 0;
-        private int _lastState = 0;
+    public override void GetControl()
+    {
+        base.GetControl();
+        _lastState = state;
 
-        private UIOption _selectedOption;
+        SetSelectorPos();
+    }
 
-        private bool _leftExits;
-
-        public ListSubstate(bool leftExits = false)
+    public override void Update()
+    {
+        if (_lastState != state)
         {
-            _leftExits = leftExits;
-        }
-
-        public override void GetControl()
-        {
-            base.GetControl();
             _lastState = state;
-
             SetSelectorPos();
+            SoundManager.PlaySoundEffect("menu_move");
         }
 
-        public override void Update()
+        base.Update();
+    }
+
+    public override void HandleInput()
+    {
+        if (_selectedOption != null)
         {
-            if (_lastState != state)
+            _selectedOption.Update();
+
+            if (_selectedOption.Exit)
             {
-                _lastState = state;
+                selector.visible = true;
+
+                _selectedOption.LoseControl();
+                _selectedOption.Exit = false;
+                _selectedOption = null;
+                state = _lastState;
                 SetSelectorPos();
-                SoundManager.PlaySoundEffect("menu_move");
-            }
-
-            base.Update();
-        }
-
-        public override void HandleInput()
-        {
-            if (_selectedOption != null)
-            {
-                _selectedOption.Update();
-
-                if (_selectedOption.Exit)
-                {
-                    selector.visible = true;
-
-                    _selectedOption.LoseControl();
-                    _selectedOption.Exit = false;
-                    _selectedOption = null;
-                    state = _lastState;
-                    SetSelectorPos();
-                }
-            }
-            else
-            {
-                if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
-                {
-                    if (state == 0)
-                    {
-                        return;
-                    }
-
-                    state--;
-                }
-                else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
-                {
-                    if (state >= options.Count - 1)
-                    {
-                        return;
-                    }
-
-                    state++;
-                }
-                else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
-                {
-                    Select();
-                }
-                else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel) || (_leftExits && KeyInput.JustPressedRebindableKey(KeyFunctions.Left)))
-                {
-                    ExitSubState();
-                }
             }
         }
-
-        public override void DrawUI()
+        else
         {
-            foreach (var (label, option) in options)
+            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
             {
-                label.Draw();
-                option.Draw();
-            }
+                if (state == 0)
+                {
+                    return;
+                }
 
-            if (_selectedOption == null)
+                state--;
+            }
+            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
             {
-                selector.Draw();
+                if (state >= options.Count - 1)
+                {
+                    return;
+                }
+
+                state++;
+            }
+            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
+            {
+                Select();
+            }
+            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel) || (_leftExits && KeyInput.JustPressedRebindableKey(KeyFunctions.Left)))
+            {
+                ExitSubState();
             }
         }
+    }
 
-        protected void Select()
+    public override void DrawUI()
+    {
+        foreach (var (label, option) in options)
         {
-            selector.visible = false;
-            _selectedOption = options[state].option;
-            _selectedOption.GetControl();
-
-            if (playSfx)
-            {
-                SoundManager.PlaySoundEffect("menu_select");
-            }
-
-            SetSelectorPos();
+            label.Draw();
+            option.Draw();
         }
 
-        protected abstract void SetLabels();
-
-        private void SetSelectorPos()
+        if (_selectedOption == null)
         {
-            selector.Position = options[state].label.Position - new Vector2(selector.sprite.Width, -2);
+            selector.Draw();
+        }
+    }
 
-            if (!options[state].label.ForcedEnglish)
-            {
-                selector.Position.Y += CursorOffset;
-            }
+    protected void Select()
+    {
+        selector.visible = false;
+        _selectedOption = options[state].option;
+        _selectedOption.GetControl();
+
+        if (playSfx)
+        {
+            SoundManager.PlaySoundEffect("menu_select");
+        }
+
+        SetSelectorPos();
+    }
+
+    protected abstract void SetLabels();
+
+    private void SetSelectorPos()
+    {
+        selector.Position = options[state].label.Position - new Vector2(selector.sprite.Width, -2);
+
+        if (!options[state].label.ForcedEnglish)
+        {
+            selector.Position.Y += CursorOffset;
         }
     }
 }

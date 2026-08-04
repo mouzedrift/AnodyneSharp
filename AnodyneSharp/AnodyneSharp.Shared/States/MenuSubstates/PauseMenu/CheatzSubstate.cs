@@ -10,69 +10,68 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates
+namespace AnodyneSharp.States.MenuSubstates;
+
+public class CheatzSubstate : Substate
 {
-    public class CheatzSubstate : Substate
+    private UILabel _cheatLabel;
+
+    public CheatzSubstate()
     {
-        private UILabel _cheatLabel;
+        _cheatLabel = new UILabel(new Vector2(69, 28 + GameConstants.FONT_LINE_HEIGHT * 2), true, "", forceEnglish: true);
 
-        public CheatzSubstate()
+        selector.Position = _cheatLabel.Position - new Vector2(selector.sprite.Width, -2);
+    }
+
+    public override void DrawUI()
+    {
+        _cheatLabel.Draw();
+        selector.Draw();
+    }
+
+    public override void GetControl()
+    {
+        base.GetControl();
+    }
+
+    public override void HandleInput()
+    {
+        if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
         {
-            _cheatLabel = new UILabel(new Vector2(69, 28 + GameConstants.FONT_LINE_HEIGHT * 2), true, "", forceEnglish: true);
-
-            selector.Position = _cheatLabel.Position - new Vector2(selector.sprite.Width, -2);
+            AddChar('U');
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
+        {
+            AddChar('R');
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
+        {
+            AddChar('D');
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
+        {
+            AddChar('L');
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
+        {
+            AddChar('1');
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
+        {
+            AddChar('2');
         }
 
-        public override void DrawUI()
+        if (_cheatLabel.Text.Length == 10)
         {
-            _cheatLabel.Draw();
-            selector.Draw();
+            CheatzManager.DoCheat(_cheatLabel.Text);
+            _cheatLabel.SetText("");
+            ExitSubState();
         }
+    }
 
-        public override void GetControl()
-        {
-            base.GetControl();
-        }
-
-        public override void HandleInput()
-        {
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
-            {
-                AddChar('U');
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
-            {
-                AddChar('R');
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
-            {
-                AddChar('D');
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
-            {
-                AddChar('L');
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
-            {
-                AddChar('1');
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
-            {
-                AddChar('2');
-            }
-
-            if (_cheatLabel.Text.Length == 10)
-            {
-                CheatzManager.DoCheat(_cheatLabel.Text);
-                _cheatLabel.SetText("");
-                ExitSubState();
-            }
-        }
-
-        private void AddChar(char c)
-        {
-            SoundManager.PlaySoundEffect("menu_select");
-            _cheatLabel.SetText(_cheatLabel.Text + c);
-        }
+    private void AddChar(char c)
+    {
+        SoundManager.PlaySoundEffect("menu_select");
+        _cheatLabel.SetText(_cheatLabel.Text + c);
     }
 }

@@ -5,30 +5,29 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Decorations
+namespace AnodyneSharp.Entities.Decorations;
+
+[NamedEntity("Solid_Sprite", "sign"), Collision(PartOfMap = true)]
+public class Sign : Entity, Interactable
 {
-    [NamedEntity("Solid_Sprite", "sign"), Collision(PartOfMap = true)]
-    public class Sign : Entity, Interactable
+    public Sign(EntityPreset preset, Player p)
+        : base(preset.Position, "note_rock", 16, 16, DrawOrder.ENTITIES)
     {
-        public Sign(EntityPreset preset, Player p)
-            : base(preset.Position, "note_rock", 16, 16, DrawOrder.ENTITIES)
-        {
-            immovable = true;
+        immovable = true;
 
-            SetFrame(preset.Frame);
-        }
+        SetFrame(preset.Frame);
+    }
 
-        public override void Collided(Entity other)
-        {
-            base.Collided(other);
+    public override void Collided(Entity other)
+    {
+        base.Collided(other);
 
-            Separate(this, other);
-        }
+        Separate(this, other);
+    }
 
-        public bool PlayerInteraction(Facing player_direction)
-        {
-            GlobalState.Dialogue = DialogueManager.GetDialogue("misc", "any", "solidsprite", Frame -2);
-            return true;
-        }
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        GlobalState.Dialogue = DialogueManager.GetDialogue("misc", "any", "solidsprite", Frame -2);
+        return true;
     }
 }

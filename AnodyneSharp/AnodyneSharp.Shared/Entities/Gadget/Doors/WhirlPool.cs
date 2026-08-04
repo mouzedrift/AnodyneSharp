@@ -6,53 +6,52 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget.Doors
+namespace AnodyneSharp.Entities.Gadget.Doors;
+
+[NamedEntity("Door", "7"), Collision(typeof(Player))]
+public class WhirlPool : Door
 {
-    [NamedEntity("Door", "7"), Collision(typeof(Player))]
-    public class WhirlPool : Door
+    private EntityPreset _preset;
+
+    public static AnimatedSpriteRenderer GetSprite() => new("whirlpool", 16, 16,
+        new Anim("whirl", new int[] { 0, 1 }, 6),
+        new Anim("transition", new int[] { 3, 4, 4 },6,false),
+        new Anim("whirl_red", new int[] { 4, 5 },6)
+        );
+
+    public WhirlPool(EntityPreset preset, Player player)
+        : base(preset, player, GetSprite(), null)
     {
-        private EntityPreset _preset;
+        _preset = preset;
 
-        public static AnimatedSpriteRenderer GetSprite() => new("whirlpool", 16, 16,
-            new Anim("whirl", new int[] { 0, 1 }, 6),
-            new Anim("transition", new int[] { 3, 4, 4 },6,false),
-            new Anim("whirl_red", new int[] { 4, 5 },6)
-            );
-
-        public WhirlPool(EntityPreset preset, Player player)
-            : base(preset, player, GetSprite(), null)
+        if (GlobalState.Events.GetEvent("fisherman.dead") != 0)
         {
-            _preset = preset;
-
-            if (GlobalState.Events.GetEvent("fisherman.dead") != 0)
-            {
-                Play("whirl_red");
-            }
-            else
-            {
-                Play("whirl");
-            }
-
-            if (GlobalState.CurrentMapName == "REDSEA")
-            {
-                teleportOffset = new Vector2(0, -36);
-            }
+            Play("whirl_red");
+        }
+        else
+        {
+            Play("whirl");
         }
 
-        public override void Update()
+        if (GlobalState.CurrentMapName == "REDSEA")
         {
-            base.Update();
-
-            if (AnimFinished)
-            {
-                Play("whirl_red");
-            }
+            teleportOffset = new Vector2(0, -36);
         }
+    }
 
-        public void DoTransition()
+    public override void Update()
+    {
+        base.Update();
+
+        if (AnimFinished)
         {
-            GlobalState.Events.IncEvent("fisherman.dead");
-            Play("transition");
+            Play("whirl_red");
         }
+    }
+
+    public void DoTransition()
+    {
+        GlobalState.Events.IncEvent("fisherman.dead");
+        Play("transition");
     }
 }

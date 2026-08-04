@@ -2,88 +2,87 @@
 using System.IO;
 using AnodyneSharp.Dialogue;
 
-namespace AnodyneSharp.Registry
+namespace AnodyneSharp.Registry;
+
+public static class GameConstants
 {
-    public static class GameConstants
+    public enum MapOrder
     {
-        public enum MapOrder
-        {
-            STREET,
-            OVERWORLD,
-            REDCAVE,
-            CROWD,
-            APARTMENT,
-            HOTEL,
-            CIRCUS,
-            CLIFF,
-            FOREST,
-            WINDMILL,
-            REDSEA,
-            BEACH,
-            BEDROOM,
-            FIELDS,
-            GO,
-            TERMINAL,
-            HAPPY,
-            SPACE,
-            CELL,
-            SUBURB,
-            BLUE,
-            //All maps before this have nexus gates and are in order of nexus gate preview sprite
-            NEXUS,
-            BLANK,
-            DRAWER,
-            DEBUG
-        };
+        STREET,
+        OVERWORLD,
+        REDCAVE,
+        CROWD,
+        APARTMENT,
+        HOTEL,
+        CIRCUS,
+        CLIFF,
+        FOREST,
+        WINDMILL,
+        REDSEA,
+        BEACH,
+        BEDROOM,
+        FIELDS,
+        GO,
+        TERMINAL,
+        HAPPY,
+        SPACE,
+        CELL,
+        SUBURB,
+        BLUE,
+        //All maps before this have nexus gates and are in order of nexus gate preview sprite
+        NEXUS,
+        BLANK,
+        DRAWER,
+        DEBUG
+    };
 
-        public static string SavePath;
+    public static string SavePath;
 
-        public const int SCREEN_WIDTH_IN_TILES = 10;
-        public const int SCREEN_HEIGHT_IN_TILES = 10;
-        public const int TILE_WIDTH = 16;
-        public const int TILE_HEIGHT = 16;
-        public const int SCREEN_WIDTH_IN_PIXELS = 160;
-        public const int SCREEN_HEIGHT_IN_PIXELS = 160;
-        public const int HEADER_HEIGHT = 20; //Height of header. Needed in screen scrolling 
+    public const int SCREEN_WIDTH_IN_TILES = 10;
+    public const int SCREEN_HEIGHT_IN_TILES = 10;
+    public const int TILE_WIDTH = 16;
+    public const int TILE_HEIGHT = 16;
+    public const int SCREEN_WIDTH_IN_PIXELS = 160;
+    public const int SCREEN_HEIGHT_IN_PIXELS = 160;
+    public const int HEADER_HEIGHT = 20; //Height of header. Needed in screen scrolling 
 
-        public const int BUTTON_WIDTH = 13;
-        public const int BUTTON_HEIGHT = 14;
+    public const int BUTTON_WIDTH = 13;
+    public const int BUTTON_HEIGHT = 14;
 
-        static GameConstants()
-        {
-            SavePath =
+    static GameConstants()
+    {
+        SavePath =
 #if ANDROID
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData,Environment.SpecialFolderOption.Create),"AnodyneFanRemake/");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData,Environment.SpecialFolderOption.Create),"AnodyneFanRemake/");
 #elif DEBUG
-                "./";
+            "./";
 #else
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData,Environment.SpecialFolderOption.Create),"AnodyneFanRemake/");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData,Environment.SpecialFolderOption.Create),"AnodyneFanRemake/");
 #endif
 
 
-        }
+    }
 
-        public static int FONT_LINE_HEIGHT
+    public static int FONT_LINE_HEIGHT
+    {
+        get
         {
-            get
+            if (GlobalState.CurrentLanguage == Language.ZH_CN)
             {
-                if (GlobalState.CurrentLanguage == Language.ZH_CN)
-                {
-                    return 12;
-                }
-                else
-                {
-                    return 8;
-                }
+                return 12;
+            }
+            else
+            {
+                return 8;
             }
         }
+    }
 
-        public static int LineOffset
+    public static int LineOffset
+    {
+        get
         {
-            get
-            {
-                return FONT_LINE_HEIGHT - 8;
-            }
+            return FONT_LINE_HEIGHT - 8;
         }
     }
 }

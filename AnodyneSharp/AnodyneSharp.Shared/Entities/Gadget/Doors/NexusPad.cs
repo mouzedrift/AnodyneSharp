@@ -7,61 +7,60 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget.Doors
+namespace AnodyneSharp.Entities.Gadget.Doors;
+
+[NamedEntity("Door", "16"), Collision(typeof(Player))]
+public class NexusPad : Door, Interactable
 {
-    [NamedEntity("Door", "16"), Collision(typeof(Player))]
-    public class NexusPad : Door, Interactable
+    bool playerCollission;
+
+    public static AnimatedSpriteRenderer GetSprite(int off_frame) => new("nexus_pad", 32, 32,
+            new Anim("off",new int[] { off_frame },1),
+            new Anim("on", new int[] { off_frame + 1 },1)
+        );
+
+    public NexusPad(EntityPreset preset, Player player)
+        : base(preset, player, GetSprite(GlobalState.IsCell ? 2 : 0), null)
     {
-        bool playerCollission;
+        width = 22;
+        height = 18;
+        offset = new Vector2(6,4);
 
-        public static AnimatedSpriteRenderer GetSprite(int off_frame) => new("nexus_pad", 32, 32,
-                new Anim("off",new int[] { off_frame },1),
-                new Anim("on", new int[] { off_frame + 1 },1)
-            );
+        Position += new Vector2(6, 6);
+        teleportOffset = new Vector2(10, 34);
 
-        public NexusPad(EntityPreset preset, Player player)
-            : base(preset, player, GetSprite(GlobalState.IsCell ? 2 : 0), null)
+        GlobalState.Events.ActivatedNexusPortals.Add(GlobalState.CurrentMapName);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (playerCollission)
         {
-            width = 22;
-            height = 18;
-            offset = new Vector2(6,4);
-
-            Position += new Vector2(6, 6);
-            teleportOffset = new Vector2(10, 34);
-
-            GlobalState.Events.ActivatedNexusPortals.Add(GlobalState.CurrentMapName);
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            if (playerCollission)
+            if (!_player.Hitbox.Intersects(Hitbox))
             {
-                if (!_player.Hitbox.Intersects(Hitbox))
-                {
-                    playerCollission = false;
-                    Play("off");
-                }
+                playerCollission = false;
+                Play("off");
             }
         }
+    }
 
-        public override void Collided(Entity other)
+    public override void Collided(Entity other)
+    {
+        if (!playerCollission && other is Player p && p.state == PlayerState.GROUND)
         {
-            if (!playerCollission && other is Player p && p.state == PlayerState.GROUND)
-            {
-                Play("on");
-                SoundManager.PlaySoundEffect("menu_select");
+            Play("on");
+            SoundManager.PlaySoundEffect("menu_select");
 
-                playerCollission = true;
-            }
+            playerCollission = true;
         }
+    }
 
-        public bool PlayerInteraction(Facing player_direction)
-        {
-            TeleportPlayer();
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        TeleportPlayer();
 
-            return true;
-        }
+        return true;
     }
 }

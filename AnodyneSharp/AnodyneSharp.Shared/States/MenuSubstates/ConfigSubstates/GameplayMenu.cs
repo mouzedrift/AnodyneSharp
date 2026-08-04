@@ -8,93 +8,92 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates.ConfigSubstates
+namespace AnodyneSharp.States.MenuSubstates.ConfigSubstates;
+
+public class GameplayMenu : ListSubstate
 {
-    public class GameplayMenu : ListSubstate
+    UIEntity _bgBox;
+
+    public GameplayMenu()
     {
-        UIEntity _bgBox;
+        SetLabels();
+    }
 
-        public GameplayMenu()
+    protected override void OnExit()
+    {
+        base.OnExit();
+        GlobalState.settings.Save();
+    }
+
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        _bgBox.Draw();
+    }
+
+    protected override void SetLabels()
+    {
+        bool isChinese = GlobalState.CurrentLanguage == Language.ZH_CN;
+
+        float x = GameConstants.SCREEN_WIDTH_IN_PIXELS / 2 - 136 / 2;
+        float menuX = x + 10;
+        float y = -2;
+        float yStep = GameConstants.FONT_LINE_HEIGHT - GameConstants.LineOffset + 5 + (isChinese ? 2 : 0);
+
+        _bgBox = new UIEntity(new Vector2(x, 10), "pop_menu", 136, 126, Drawing.DrawOrder.TEXTBOX);
+
+        var autosaveLabel = new UILabel(new Vector2(menuX, y + yStep * 1.5f), true, DialogueManager.GetDialogue("misc", "any", "config", 3), layer: Drawing.DrawOrder.TEXT);
+
+        var autosaveSetting = new CheckBox(new Vector2(x + 120, autosaveLabel.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 5 : 2)), GlobalState.settings.autosave_on,  MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
         {
-            SetLabels();
-        }
+            ValueChangedEvent = (val) => { GlobalState.settings.autosave_on = val; }
+        };
 
-        protected override void OnExit()
+        var focusLabel = new UILabel(autosaveLabel.Position + Vector2.UnitY * yStep *1.8f, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 0), layer: Drawing.DrawOrder.TEXT);
+
+        var focusSetting = new CheckBox(new Vector2(x + 120, focusLabel.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.pause_on_unfocus, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
         {
-            base.OnExit();
-            GlobalState.settings.Save();
-        }
+            ValueChangedEvent = (val) => { GlobalState.settings.pause_on_unfocus = val; }
+        };
 
-        public override void DrawUI()
+
+        var fastText = new UILabel(focusLabel.Position + Vector2.UnitY * yStep *1.5f, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 1), layer: Drawing.DrawOrder.TEXT);
+
+        var fastTextSetting = new CheckBox(new Vector2(x + 120, fastText.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.fast_text, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
         {
-            base.DrawUI();
+            ValueChangedEvent = (val) => { GlobalState.settings.fast_text = val; }
+        };
 
-            _bgBox.Draw();
-        }
+        var invincibility = new UILabel(fastText.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 2), layer: Drawing.DrawOrder.TEXT);
 
-        protected override void SetLabels()
+        var invincibilitySetting = new CheckBox(new Vector2(x + 120, invincibility.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.invincible, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
         {
-            bool isChinese = GlobalState.CurrentLanguage == Language.ZH_CN;
+            ValueChangedEvent = (val) => { GlobalState.settings.invincible = val; }
+        };
 
-            float x = GameConstants.SCREEN_WIDTH_IN_PIXELS / 2 - 136 / 2;
-            float menuX = x + 10;
-            float y = -2;
-            float yStep = GameConstants.FONT_LINE_HEIGHT - GameConstants.LineOffset + 5 + (isChinese ? 2 : 0);
+        var healthdrop = new UILabel(invincibility.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 3), layer: Drawing.DrawOrder.TEXT);
 
-            _bgBox = new UIEntity(new Vector2(x, 10), "pop_menu", 136, 126, Drawing.DrawOrder.TEXTBOX);
+        var healthdropSetting = new CheckBox(new Vector2(x + 120, healthdrop.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.guaranteed_health, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
+        {
+            ValueChangedEvent = (val) => { GlobalState.settings.guaranteed_health = val; }
+        };
 
-            var autosaveLabel = new UILabel(new Vector2(menuX, y + yStep * 1.5f), true, DialogueManager.GetDialogue("misc", "any", "config", 3), layer: Drawing.DrawOrder.TEXT);
+        var coyote = new UILabel(healthdrop.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 4), layer: Drawing.DrawOrder.TEXT);
 
-            var autosaveSetting = new CheckBox(new Vector2(x + 120, autosaveLabel.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 5 : 2)), GlobalState.settings.autosave_on,  MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.autosave_on = val; }
-            };
+        var coyoteSetting = new CheckBox(new Vector2(x + 120, coyote.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.extended_coyote, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
+        {
+            ValueChangedEvent = (val) => { GlobalState.settings.extended_coyote = val; }
+        };
 
-            var focusLabel = new UILabel(autosaveLabel.Position + Vector2.UnitY * yStep *1.8f, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 0), layer: Drawing.DrawOrder.TEXT);
-
-            var focusSetting = new CheckBox(new Vector2(x + 120, focusLabel.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.pause_on_unfocus, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.pause_on_unfocus = val; }
-            };
-
-
-            var fastText = new UILabel(focusLabel.Position + Vector2.UnitY * yStep *1.5f, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 1), layer: Drawing.DrawOrder.TEXT);
-
-            var fastTextSetting = new CheckBox(new Vector2(x + 120, fastText.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.fast_text, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.fast_text = val; }
-            };
-
-            var invincibility = new UILabel(fastText.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 2), layer: Drawing.DrawOrder.TEXT);
-
-            var invincibilitySetting = new CheckBox(new Vector2(x + 120, invincibility.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.invincible, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.invincible = val; }
-            };
-
-            var healthdrop = new UILabel(invincibility.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 3), layer: Drawing.DrawOrder.TEXT);
-
-            var healthdropSetting = new CheckBox(new Vector2(x + 120, healthdrop.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.guaranteed_health, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.guaranteed_health = val; }
-            };
-
-            var coyote = new UILabel(healthdrop.Position + Vector2.UnitY * yStep, true, DialogueManager.GetDialogue("misc", "any", "gameplay", 4), layer: Drawing.DrawOrder.TEXT);
-
-            var coyoteSetting = new CheckBox(new Vector2(x + 120, coyote.Position.Y + (GlobalState.CurrentLanguage == Language.ZH_CN ? 3 : 0)), GlobalState.settings.extended_coyote, MenuStyle.SubMenu, Drawing.DrawOrder.SUBMENU_SLIDER)
-            {
-                ValueChangedEvent = (val) => { GlobalState.settings.extended_coyote = val; }
-            };
-
-            options = new()
-            {
-                (autosaveLabel, autosaveSetting),
-                (focusLabel, focusSetting),
-                (fastText, fastTextSetting),
-                (invincibility, invincibilitySetting),
-                (healthdrop,healthdropSetting),
-                (coyote, coyoteSetting)
-            };
-        }
+        options = new()
+        {
+            (autosaveLabel, autosaveSetting),
+            (focusLabel, focusSetting),
+            (fastText, fastTextSetting),
+            (invincibility, invincibilitySetting),
+            (healthdrop,healthdropSetting),
+            (coyote, coyoteSetting)
+        };
     }
 }

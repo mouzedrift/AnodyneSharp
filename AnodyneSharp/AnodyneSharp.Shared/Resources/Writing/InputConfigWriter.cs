@@ -3,61 +3,60 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Resources.Writing
+namespace AnodyneSharp.Resources.Writing;
+
+public class InputConfigWriter : ContentWriter
 {
-    public class InputConfigWriter : ContentWriter
+    public InputConfigWriter(string filePath)
+        : base(filePath)
+    { }
+
+    public bool WriteInputConfig()
     {
-        public InputConfigWriter(string filePath)
-            : base(filePath)
-        { }
+        bool result = true;
 
-        public bool WriteInputConfig()
+        foreach (var rKey in KeyInput.RebindableKeys)
         {
-            bool result = true;
+            WriteLine(((int)rKey.Key).ToString());
 
-            foreach (var rKey in KeyInput.RebindableKeys)
-            {
-                WriteLine(((int)rKey.Key).ToString());
+            WriteLine('{');
 
-                WriteLine('{');
+            WriteKeys(rKey.Value);
 
-                WriteKeys(rKey.Value);
+            WriteButtons(rKey.Value);
 
-                WriteButtons(rKey.Value);
-
-                WriteLine('}');
-            }
-
-            return result;
+            WriteLine('}');
         }
 
+        return result;
+    }
 
-        private void WriteKeys(RebindableKey rKey)
+
+    private void WriteKeys(RebindableKey rKey)
+    {
+        WriteLine("\tk");
+
+        WriteLine("\t{");
+
+        foreach (var key in rKey.Keys)
         {
-            WriteLine("\tk");
-
-            WriteLine("\t{");
-
-            foreach (var key in rKey.Keys)
-            {
-                WriteLine($"\t\t{((int)key).ToString()}");
-            }
-
-            WriteLine("\t}");
+            WriteLine($"\t\t{((int)key).ToString()}");
         }
 
-        private void WriteButtons(RebindableKey rKey)
+        WriteLine("\t}");
+    }
+
+    private void WriteButtons(RebindableKey rKey)
+    {
+        WriteLine($"\tb\t{(int)rKey.GamePadPlayerIndex}");
+
+        WriteLine("\t{");
+
+        foreach (var button in rKey.Buttons)
         {
-            WriteLine($"\tb\t{(int)rKey.GamePadPlayerIndex}");
-
-            WriteLine("\t{");
-
-            foreach (var button in rKey.Buttons)
-            {
-                WriteLine($"\t\t{((int)button).ToString()}");
-            }
-
-            WriteLine("\t}");
+            WriteLine($"\t\t{((int)button).ToString()}");
         }
+
+        WriteLine("\t}");
     }
 }

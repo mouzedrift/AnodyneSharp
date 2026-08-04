@@ -5,25 +5,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace AnodyneSharp.Multiplatform
+namespace AnodyneSharp.Multiplatform;
+
+public static class Program
 {
-    public static class Program
+    [STAThread]
+    static void Main()
     {
-        [STAThread]
-        static void Main()
+        try
         {
-            try
-            {
-                ResourceManager.BaseDir = AppDomain.CurrentDomain.BaseDirectory;
+            ResourceManager.BaseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-                using AnodyneGame game = new AnodyneGame();
-                game.Run();
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.AddException(ex);
-            }
-
+            using AnodyneGame game = new AnodyneGame();
+            game.Run();
         }
+        catch (Exception ex)
+        {
+            DebugLogger.AddException(ex);
+        }
+
     }
 }

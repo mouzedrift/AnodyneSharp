@@ -6,21 +6,21 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace AnodyneSharp.Utilities
-{
+namespace AnodyneSharp.Utilities;
+
 #nullable enable
-    public static class AssemblyReaderUtil
+public static class AssemblyReaderUtil
+{
+    public static Stream? GetStream(string path, Assembly? assembly = null)
     {
-        public static Stream? GetStream(string path, Assembly? assembly = null)
-        {
-            assembly ??= Assembly.GetEntryAssembly();
+        assembly ??= Assembly.GetEntryAssembly();
 
-            path = $"{assembly!.GetName().Name}.{path}";
+        path = $"{assembly!.GetName().Name}.{path}";
 
-            Stream? s = assembly.GetManifestResourceStream(path) ?? null;
+        Stream? s = assembly.GetManifestResourceStream(path) ?? null;
 
-            return ModLoader.mods.Aggregate(s,(stream,mod) => mod.OnManifestLoad(stream,path));
-        }
+        return ModLoader.mods.Aggregate(s,(stream,mod) => mod.OnManifestLoad(stream,path));
     }
-#nullable restore
 }
+#nullable restore
+

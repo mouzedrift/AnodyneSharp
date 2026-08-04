@@ -6,84 +6,83 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.MapData
+namespace AnodyneSharp.MapData;
+
+public class Minimap
 {
-    public class Minimap
+    List<int> interest;
+    public readonly TileMap tiles;
+
+    private int CurrentLoc => GlobalState.CurrentGridX + GlobalState.CurrentGridY * tiles.Width;
+
+    private const int PlayerIndicator = 27;
+    private const int ChestIndicator = 18;
+
+    public Minimap(TileMap map, List<int> interest)
     {
-        List<int> interest;
-        public readonly TileMap tiles;
+        tiles = map;
+        this.interest = interest;
+    }
 
-        private int CurrentLoc => GlobalState.CurrentGridX + GlobalState.CurrentGridY * tiles.Width;
-
-        private const int PlayerIndicator = 27;
-        private const int ChestIndicator = 18;
-
-        public Minimap(TileMap map, List<int> interest)
+    public void Update()
+    {
+        int x = GlobalState.CurrentGridX;
+        int y = GlobalState.CurrentGridY;
+        if (x >= 0 && x < tiles.Width && y >= 0 && y < tiles.Height)
         {
-            tiles = map;
-            this.interest = interest;
+            interest[CurrentLoc] = 1;
+        }
+    }
+
+    //Points-of-interest(only chests for now) get added to the minimap and removed if opened.
+    public void AddInterest()
+    {
+        if (CurrentLoc > interest.Count)
+        {
+            return;
         }
 
-        public void Update()
+        if(interest.Count > 0)
+            interest[CurrentLoc] += 1;
+    }
+
+    public void RemoveInterest()
+    {
+        if (CurrentLoc > interest.Count)
         {
-            int x = GlobalState.CurrentGridX;
-            int y = GlobalState.CurrentGridY;
-            if (x >= 0 && x < tiles.Width && y >= 0 && y < tiles.Height)
+            return;
+        }
+
+        if (interest.Count > 0)
+            interest[CurrentLoc] -= 1;
+    }
+
+    /// <param name="sprites">Spritesheet to use when drawing</param>
+    /// <param name="topleft">Top left coordinate of the 0,0 tile</param>
+    /// <param name="bounds">Part of the minimap to draw</param>
+    public void Draw(Spritesheet sprites, Vector2 topleft, Rectangle? bounds = null, bool DrawPlayerIndicator = true)
+    {
+        Rectangle b = bounds ?? new Rectangle(0, 0, tiles.Width, tiles.Height);
+        for (int y = b.Top; y < b.Bottom; ++y)
+            for (int x = b.Left; x < b.Right; ++x)
             {
-                interest[CurrentLoc] = 1;
-            }
-        }
-
-        //Points-of-interest(only chests for now) get added to the minimap and removed if opened.
-        public void AddInterest()
-        {
-            if (CurrentLoc > interest.Count)
-            {
-                return;
-            }
-
-            if(interest.Count > 0)
-                interest[CurrentLoc] += 1;
-        }
-
-        public void RemoveInterest()
-        {
-            if (CurrentLoc > interest.Count)
-            {
-                return;
-            }
-
-            if (interest.Count > 0)
-                interest[CurrentLoc] -= 1;
-        }
-
-        /// <param name="sprites">Spritesheet to use when drawing</param>
-        /// <param name="topleft">Top left coordinate of the 0,0 tile</param>
-        /// <param name="bounds">Part of the minimap to draw</param>
-        public void Draw(Spritesheet sprites, Vector2 topleft, Rectangle? bounds = null, bool DrawPlayerIndicator = true)
-        {
-            Rectangle b = bounds ?? new Rectangle(0, 0, tiles.Width, tiles.Height);
-            for (int y = b.Top; y < b.Bottom; ++y)
-                for (int x = b.Left; x < b.Right; ++x)
+                Vector2 pos = topleft + new Vector2(x * sprites.Width, y * sprites.Height);
+                int visible = interest[x + y * tiles.Width];
+                if (visible > 0)
                 {
-                    Vector2 pos = topleft + new Vector2(x * sprites.Width, y * sprites.Height);
-                    int visible = interest[x + y * tiles.Width];
-                    if (visible > 0)
-                    {
-                        SpriteDrawer.DrawSprite(sprites.Tex, pos, sprites.GetRect(tiles.GetTile(new(x, y))), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP));
-                    }
-                    if (visible > 1)
-                    {
-                        SpriteDrawer.DrawSprite(sprites.Tex, pos, sprites.GetRect(ChestIndicator), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP_CHEST));
-                    }
-
+                    SpriteDrawer.DrawSprite(sprites.Tex, pos, sprites.GetRect(tiles.GetTile(new(x, y))), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP));
+                }
+                if (visible > 1)
+                {
+                    SpriteDrawer.DrawSprite(sprites.Tex, pos, sprites.GetRect(ChestIndicator), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP_CHEST));
                 }
 
-            Vector2 PlayerPos = new Vector2(GlobalState.CurrentGridX, GlobalState.CurrentGridY);
-            if (b.Contains(PlayerPos) && DrawPlayerIndicator)
-            {
-                SpriteDrawer.DrawSprite(sprites.Tex, topleft + PlayerPos * new Vector2(sprites.Width), sprites.GetRect(PlayerIndicator), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP_PLAYER));
             }
+
+        Vector2 PlayerPos = new Vector2(GlobalState.CurrentGridX, GlobalState.CurrentGridY);
+        if (b.Contains(PlayerPos) && DrawPlayerIndicator)
+        {
+            SpriteDrawer.DrawSprite(sprites.Tex, topleft + PlayerPos * new Vector2(sprites.Width), sprites.GetRect(PlayerIndicator), Z: DrawingUtilities.GetDrawingZ(DrawOrder.MINIMAP_PLAYER));
         }
     }
 }

@@ -4,58 +4,57 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget.Treasures
+namespace AnodyneSharp.Entities.Gadget.Treasures;
+
+public class BroomTreasure : Treasure
 {
-    public class BroomTreasure : Treasure
+    private BroomType _type;
+
+    public BroomTreasure(string textureName, Vector2 pos, BroomType broomType) 
+        :base(textureName, pos, 0, -1)
     {
-        private BroomType _type;
+        _type = broomType;
 
-        public BroomTreasure(string textureName, Vector2 pos, BroomType broomType) 
-            :base(textureName, pos, 0, -1)
+        switch (broomType)
         {
-            _type = broomType;
-
-            switch (broomType)
-            {
-                case BroomType.Normal:
-                    _dialogueID = 1;
-                    break;
-                case BroomType.Wide:
-                    _dialogueID = 4;
-                    break;
-                case BroomType.Long:
-                    _dialogueID = 5;
-                    break;
-                case BroomType.Transformer:
-                    _dialogueID = 6;
-                    break;
-            }
+            case BroomType.Normal:
+                _dialogueID = 1;
+                break;
+            case BroomType.Wide:
+                _dialogueID = 4;
+                break;
+            case BroomType.Long:
+                _dialogueID = 5;
+                break;
+            case BroomType.Transformer:
+                _dialogueID = 6;
+                break;
         }
+    }
 
-        public override void GetTreasure()
+    public override void GetTreasure()
+    {
+        base.GetTreasure();
+
+        switch (_type)
         {
-            base.GetTreasure();
-
-            switch (_type)
-            {
-                case BroomType.Normal:
-                    GlobalState.Inventory.HasBroom = true;
-                    GlobalState.Inventory.EquippedBroom = BroomType.Normal;
-                    break;
-                case BroomType.Wide:
-                    GlobalState.Inventory.HasWiden = true;
-                    break;
-                case BroomType.Long:
-                    GlobalState.Inventory.HasLengthen = true;
-                    break;
-                case BroomType.Transformer:
-                    GlobalState.Inventory.HasTransformer = true;
-                    break;
-            }
-            if (GlobalState.Inventory.EquippedBroom == BroomType.NONE)
-            {
-                GlobalState.Inventory.EquippedBroom = _type;
-            }
+            case BroomType.Normal:
+                GlobalState.Inventory.HasBroom = true;
+                GlobalState.Inventory.EquippedBroom = BroomType.Normal;
+                break;
+            case BroomType.Wide:
+                GlobalState.Inventory.HasWiden = true;
+                break;
+            case BroomType.Long:
+                GlobalState.Inventory.HasLengthen = true;
+                break;
+            case BroomType.Transformer:
+                GlobalState.Inventory.HasTransformer = true;
+                break;
+        }
+        if (GlobalState.Inventory.EquippedBroom == BroomType.NONE)
+        {
+            GlobalState.Inventory.EquippedBroom = _type;
         }
     }
 }

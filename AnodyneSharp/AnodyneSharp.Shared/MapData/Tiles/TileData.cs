@@ -12,125 +12,124 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace AnodyneSharp.MapData.Tiles
+namespace AnodyneSharp.MapData.Tiles;
+
+public enum CollisionEventType
 {
-    public enum CollisionEventType
+    NONE,
+    CONVEYOR,
+    THIN,
+    HOLE,
+    SLOW,
+    SPIKE,
+    LADDER,
+    PUDDLE,
+    REFLECTION,
+    GRASS
+}
+
+public static class TileData
+{
+    public static Spritesheet GetTileset(string MapName)
     {
-        NONE,
-        CONVEYOR,
-        THIN,
-        HOLE,
-        SLOW,
-        SPIKE,
-        LADDER,
-        PUDDLE,
-        REFLECTION,
-        GRASS
+        return new(ResourceManager.GetTexHandle($"{MapName.ToLower()}_tilemap"), 16, 16);
     }
 
-    public static class TileData
+    public static void SetTileProperties(string mapName, Tile[] tiles)
     {
-        public static Spritesheet GetTileset(string MapName)
-        {
-            return new(ResourceManager.GetTexHandle($"{MapName.ToLower()}_tilemap"), 16, 16);
-        }
+        List<CollissionData> data = GetColData(mapName);
 
-        public static void SetTileProperties(string mapName, Tile[] tiles)
+        foreach (var d in data)
         {
-            List<CollissionData> data = GetColData(mapName);
-
-            foreach (var d in data)
+            for(int i = d.Start; i <= d.End; ++i)
             {
-                for(int i = d.Start; i <= d.End; ++i)
-                {
-                    tiles[i].allowCollisions = d.AllowedCollisions;
-                    tiles[i].collisionEventType = d.CollisionEventType;
-                    tiles[i].direction = d.Direction;
-                }
+                tiles[i].allowCollisions = d.AllowedCollisions;
+                tiles[i].collisionEventType = d.CollisionEventType;
+                tiles[i].direction = d.Direction;
             }
         }
+    }
 
-        public static SortedList<int, AnimatedTile> GetAnimData(string map)
+    public static SortedList<int, AnimatedTile> GetAnimData(string map)
+    {
+        SortedList<int, AnimatedTile> animTiles = new SortedList<int, AnimatedTile>();
+
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        var asmpaths = assemblies.Where(asm => !asm.IsDynamic).SelectMany(asm => asm.GetManifestResourceNames().Where(p => p.StartsWith($"{asm.GetName().Name}.Content.Maps.{map}.TileAnims")).Select(p=>(asm,p)));
+
+        foreach (var (asm,path) in asmpaths)
         {
-            SortedList<int, AnimatedTile> animTiles = new SortedList<int, AnimatedTile>();
+            string texName = path.Split('.')[^2];
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            var asmpaths = assemblies.Where(asm => !asm.IsDynamic).SelectMany(asm => asm.GetManifestResourceNames().Where(p => p.StartsWith($"{asm.GetName().Name}.Content.Maps.{map}.TileAnims")).Select(p=>(asm,p)));
-
-            foreach (var (asm,path) in asmpaths)
+            using (Stream stream = AssemblyReaderUtil.GetStream(path.Replace(asm.GetName().Name+".", ""),asm))
             {
-                string texName = path.Split('.')[^2];
-
-                using (Stream stream = AssemblyReaderUtil.GetStream(path.Replace(asm.GetName().Name+".", ""),asm))
-                {
-                    using StreamReader reader = new StreamReader(stream);
-
-                    while (!reader.EndOfStream)
-                    {
-                        string[] values = reader.ReadLine().Trim().Split('\t');
-
-                        int[] frames = values[2].Split(',').Select(v => int.Parse(v)).ToArray();
-
-                        if (int.TryParse(values[0], out int frame) &&
-                            int.TryParse(values[1], out int frameRate))
-                        {
-                            animTiles.Add(frame, new AnimatedTile(frames, frameRate, texName));
-                        }
-                    }
-                }
-            }
-
-            return animTiles;
-        }
-
-        private static List<CollissionData> GetColData(string map)
-        {
-            List<CollissionData> data = new();
-
-            string path = $"Content.Maps.{map}.TileData.col";
-
-            using (Stream stream = AssemblyReaderUtil.GetStream(path))
-            {
-                if (stream == null)
-                {
-                    return new List<CollissionData>();
-                }
-
                 using StreamReader reader = new StreamReader(stream);
 
                 while (!reader.EndOfStream)
                 {
-                    string[] dataStrings = reader.ReadLine().Split('\t');
-                    CollisionEventType eventType = CollisionEventType.NONE;
-                    Touching direction = Touching.ANY;
+                    string[] values = reader.ReadLine().Trim().Split('\t');
 
-                    if (Enum.TryParse(dataStrings[1], out Touching allowedCol) &&
-                        (dataStrings.Length == 2 || (Enum.TryParse(dataStrings[2], out eventType) &&
-                        (dataStrings.Length <= 3 || Enum.TryParse(dataStrings[3], out direction)))))
+                    int[] frames = values[2].Split(',').Select(v => int.Parse(v)).ToArray();
+
+                    if (int.TryParse(values[0], out int frame) &&
+                        int.TryParse(values[1], out int frameRate))
                     {
-                        if (dataStrings[0].Contains('-'))
-                        {
-                            string[] minMax = dataStrings[0].Split('-');
+                        animTiles.Add(frame, new AnimatedTile(frames, frameRate, texName));
+                    }
+                }
+            }
+        }
 
-                            if (int.TryParse(minMax[0], out int min) &&
-                                int.TryParse(minMax[1], out int max))
-                            {
-                                data.Add(new CollissionData(min, max, allowedCol, eventType, direction));
-                            }
-                        }
-                        else
+        return animTiles;
+    }
+
+    private static List<CollissionData> GetColData(string map)
+    {
+        List<CollissionData> data = new();
+
+        string path = $"Content.Maps.{map}.TileData.col";
+
+        using (Stream stream = AssemblyReaderUtil.GetStream(path))
+        {
+            if (stream == null)
+            {
+                return new List<CollissionData>();
+            }
+
+            using StreamReader reader = new StreamReader(stream);
+
+            while (!reader.EndOfStream)
+            {
+                string[] dataStrings = reader.ReadLine().Split('\t');
+                CollisionEventType eventType = CollisionEventType.NONE;
+                Touching direction = Touching.ANY;
+
+                if (Enum.TryParse(dataStrings[1], out Touching allowedCol) &&
+                    (dataStrings.Length == 2 || (Enum.TryParse(dataStrings[2], out eventType) &&
+                    (dataStrings.Length <= 3 || Enum.TryParse(dataStrings[3], out direction)))))
+                {
+                    if (dataStrings[0].Contains('-'))
+                    {
+                        string[] minMax = dataStrings[0].Split('-');
+
+                        if (int.TryParse(minMax[0], out int min) &&
+                            int.TryParse(minMax[1], out int max))
                         {
-                            if (int.TryParse(dataStrings[0], out int min))
-                            {
-                                data.Add(new CollissionData(min, allowedCol, eventType, direction));
-                            }
+                            data.Add(new CollissionData(min, max, allowedCol, eventType, direction));
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse(dataStrings[0], out int min))
+                        {
+                            data.Add(new CollissionData(min, allowedCol, eventType, direction));
                         }
                     }
                 }
             }
-
-            return data;
         }
+
+        return data;
     }
 }

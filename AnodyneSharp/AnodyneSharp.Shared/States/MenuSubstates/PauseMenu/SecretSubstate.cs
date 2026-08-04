@@ -14,14 +14,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates
-{
-    public class SecretSubstate : GridSubstate
-    {
-        public SecretSubstate()
-            :base("secrets", "secret_trophies", GlobalState.Inventory.SecretStatus)
-        {
+namespace AnodyneSharp.States.MenuSubstates;
 
-        }
+public class SecretSubstate : GridSubstate
+{
+    public SecretSubstate()
+        :base("secrets", "secret_trophies", GlobalState.Inventory.SecretStatus)
+    {
+
     }
 }

@@ -5,77 +5,76 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Enemy.Suburb
+namespace AnodyneSharp.Entities.Enemy.Suburb;
+
+[NamedEntity("Suburb_Killer"), Collision(typeof(Player))]
+public class SuburbKiller : Entity
 {
-    [NamedEntity("Suburb_Killer"), Collision(typeof(Player))]
-    public class SuburbKiller : Entity
+    private bool moving;
+    private float moveTimer;
+
+    public const string DamageDealer = "Suburb killer";
+
+    private Player _player;
+
+    public static AnimatedSpriteRenderer GetSprite(int off) => new("suburb_killers", 16, 16,
+        new Anim("idle_d", new int[] { off + 0 }, 1),
+        new Anim("idle_r", new int[] { off + 2 }, 1),
+        new Anim("idle_u", new int[] { off + 4 }, 1),
+        new Anim("idle_l", new int[] { off + 6 }, 1),
+        new Anim("walk_d", new int[] { off, off + 1 }, 4),
+        new Anim("walk_r", new int[] { off + 2, off + 3 }, 4),
+        new Anim("walk_u", new int[] { off + 4, off + 5 }, 4),
+        new Anim("walk_l", new int[] { off + 6, off + 7 }, 4)
+        );
+
+
+    public SuburbKiller(EntityPreset preset, Player p)
+        : base(preset.Position, GetSprite(GlobalState.RNG.Next(0,7)*9), Drawing.DrawOrder.ENTITIES)
     {
-        private bool moving;
-        private float moveTimer;
+        _player = p;
 
-        public const string DamageDealer = "Suburb killer";
+        width = height = 6;
+        offset = new Vector2(5);
 
-        private Player _player;
+        Position += new Vector2(5);
+    }
 
-        public static AnimatedSpriteRenderer GetSprite(int off) => new("suburb_killers", 16, 16,
-            new Anim("idle_d", new int[] { off + 0 }, 1),
-            new Anim("idle_r", new int[] { off + 2 }, 1),
-            new Anim("idle_u", new int[] { off + 4 }, 1),
-            new Anim("idle_l", new int[] { off + 6 }, 1),
-            new Anim("walk_d", new int[] { off, off + 1 }, 4),
-            new Anim("walk_r", new int[] { off + 2, off + 3 }, 4),
-            new Anim("walk_u", new int[] { off + 4, off + 5 }, 4),
-            new Anim("walk_l", new int[] { off + 6, off + 7 }, 4)
-            );
+    public override void Update()
+    {
+        base.Update();
 
+        FaceTowards(_player.Position);
 
-        public SuburbKiller(EntityPreset preset, Player p)
-            : base(preset.Position, GetSprite(GlobalState.RNG.Next(0,7)*9), Drawing.DrawOrder.ENTITIES)
+        if (!moving)
         {
-            _player = p;
+            PlayFacing("idle");
 
-            width = height = 6;
-            offset = new Vector2(5);
-
-            Position += new Vector2(5);
+            moving = (Position - _player.Position).Length() < 36;
         }
-
-        public override void Update()
+        else
         {
-            base.Update();
+            PlayFacing("walk");
 
-            FaceTowards(_player.Position);
+            moveTimer += GameTimes.DeltaTime;
 
-            if (!moving)
+            if (moveTimer > 0.5f)
             {
-                PlayFacing("idle");
+                moveTimer = 0;
 
-                moving = (Position - _player.Position).Length() < 36;
+                MoveTowards(_player.Position, 30);
             }
-            else
-            {
-                PlayFacing("walk");
 
-                moveTimer += GameTimes.DeltaTime;
-
-                if (moveTimer > 0.5f)
-                {
-                    moveTimer = 0;
-
-                    MoveTowards(_player.Position, 30);
-                }
-
-            }
         }
+    }
 
-        public override void Collided(Entity other)
+    public override void Collided(Entity other)
+    {
+        base.Collided(other);
+
+        if (other is Player p)
         {
-            base.Collided(other);
-
-            if (other is Player p)
-            {
-                p.ReceiveDamage(6, DamageDealer);
-            }
+            p.ReceiveDamage(6, DamageDealer);
         }
     }
 }

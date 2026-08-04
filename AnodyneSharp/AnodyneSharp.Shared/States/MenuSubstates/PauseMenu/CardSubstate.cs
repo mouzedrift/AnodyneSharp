@@ -14,227 +14,226 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates
+namespace AnodyneSharp.States.MenuSubstates;
+
+public class CardSubstate : DialogueSubstate
 {
-    public class CardSubstate : DialogueSubstate
+    private int page;
+    private int selectedID;
+
+    private UIEntity[] cards;
+
+    private TextSelector _pageSetter;
+
+    private UILabel cardsLabel;
+
+    public CardSubstate()
     {
-        private int page;
-        private int selectedID;
+        cards = new UIEntity[12];
 
-        private UIEntity[] cards;
+        page = 0;
+        selectedID = 0;
 
-        private TextSelector _pageSetter;
+        cardsLabel = new UILabel(new Vector2(70, 146 - GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)), true, $"{GlobalState.Inventory.CardCount} {DialogueManager.GetDialogue("misc", "any", "cards", 1)}");
 
-        private UILabel cardsLabel;
-
-        public CardSubstate()
+        _pageSetter = new TextSelector(new Vector2(91, 156), 32, 0, true, "1/4", "2/4", "3/4", "4/4")
         {
-            cards = new UIEntity[12];
+            ValueChangedEvent = PageValueChanged,
+            noConfirm = true,
+            noLoop = true
+        };
 
-            page = 0;
-            selectedID = 0;
+        SetCardPage();
+    }
 
-            cardsLabel = new UILabel(new Vector2(70, 146 - GameConstants.LineOffset - (GlobalState.CurrentLanguage == Language.ZH_CN ? 1 : 0)), true, $"{GlobalState.Inventory.CardCount} {DialogueManager.GetDialogue("misc", "any", "cards", 1)}");
-
-            _pageSetter = new TextSelector(new Vector2(91, 156), 32, 0, true, "1/4", "2/4", "3/4", "4/4")
-            {
-                ValueChangedEvent = PageValueChanged,
-                noConfirm = true,
-                noLoop = true
-            };
-
-            SetCardPage();
+    public override void HandleInput()
+    {
+        if (InDialogueMode)
+        {
+            return;
         }
 
-        public override void HandleInput()
+        bool moved = false;
+
+        if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
         {
-            if (InDialogueMode)
-            {
-                return;
-            }
+            _pageSetter.LoseControl();
+            ExitSubState();
+            return;
+        }
 
-            bool moved = false;
-
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
+        if (selectedID < 0)
+        {
+            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
             {
                 _pageSetter.LoseControl();
-                ExitSubState();
-                return;
+                selectedID = -selectedID;
+                selector.visible = true;
+                SoundManager.PlaySoundEffect("menu_select");
             }
-
-            if (selectedID < 0)
+            else
             {
-                if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
-                {
-                    _pageSetter.LoseControl();
-                    selectedID = -selectedID;
-                    selector.visible = true;
-                    SoundManager.PlaySoundEffect("menu_select");
-                }
-                else
-                {
-                    _pageSetter.Update();
-                }
-
-                return;
+                _pageSetter.Update();
             }
 
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
-            {
-                if (selectedID % 3 == 2)
-                {
-                    if (page == 3)
-                    {
-                        return;
-                    }
+            return;
+        }
 
-                    selectedID -= 2;
-                    page++;
-                    SetCardPage();
-                }
-                else
-                {
-                    selectedID++;
-                }
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
-            {
-                if (selectedID % 3 == 0)
-                {
-                    if (page == 0)
-                    {
-                        ExitSubState();
-                        return;
-                    }
-
-                    selectedID += 2;
-                    page--;
-                    SetCardPage();
-                }
-                else
-                {
-                    selectedID--;
-                }
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
-            {
-                if (selectedID < 3)
-                {
-                    return;
-                }
-
-                selectedID -= 3;
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
-            {
-
-                if (selectedID > 8)
-                {
-                    _pageSetter.GetControl();
-                    selector.visible = false;
-                    selectedID = -selectedID;
-                    SoundManager.PlaySoundEffect("menu_select");
-                    return;
-                }
-
-                selectedID += 3;
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
-            {
-                int cardID = page * 12 + selectedID;
-                if (GlobalState.Inventory.CardStatus[cardID])
-                {
-                    SetDialogue(DialogueManager.GetDialogue("card", "ETC", "one", cardID));
-                }
-            }
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.NextPage))
+        if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
+        {
+            if (selectedID % 3 == 2)
             {
                 if (page == 3)
                 {
                     return;
                 }
 
+                selectedID -= 2;
                 page++;
                 SetCardPage();
-
-                moved = true;
             }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.PreviousPage))
+            else
+            {
+                selectedID++;
+            }
+
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
+        {
+            if (selectedID % 3 == 0)
             {
                 if (page == 0)
                 {
+                    ExitSubState();
                     return;
                 }
 
+                selectedID += 2;
                 page--;
                 SetCardPage();
-
-                moved = true;
             }
-
-            if (moved)
+            else
             {
-                SoundManager.PlaySoundEffect("menu_move");
+                selectedID--;
             }
 
-            SetCursor();
+            moved = true;
         }
-
-        public override void GetControl()
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
         {
-            base.GetControl();
-
-            selectedID = 0;
-            SetCursor();
-        }
-
-        public override void DrawUI()
-        {
-            base.DrawUI();
-
-            foreach (var card in cards)
+            if (selectedID < 3)
             {
-                card.Draw();
+                return;
             }
 
-            _pageSetter.Draw();
-            cardsLabel.Draw();
+            selectedID -= 3;
+
+            moved = true;
         }
-
-        private void SetCursor()
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
         {
-            Vector2 pos = cards[selectedID].Position + new Vector2(-10, 8);
 
-            selector.Position = pos;
-        }
-
-        private void SetCardPage()
-        {
-            Vector2 startPos = new Vector2(68, 28);
-            Vector2 cardSize = new Vector2(24 + 6);
-
-            for (int i = 0; i < 12; i++)
+            if (selectedID > 8)
             {
-                int cardnum = page * 12 + i;
-                int frame = GlobalState.Inventory.CardStatus[cardnum] ? cardnum : 49;
-                cards[i] = new UIEntity(startPos + new Vector2(i % 3, i / 3) * cardSize, "card_sheet", frame, 24, 24, DrawOrder.EQUIPMENT_ICON);
+                _pageSetter.GetControl();
+                selector.visible = false;
+                selectedID = -selectedID;
+                SoundManager.PlaySoundEffect("menu_select");
+                return;
             }
 
-            _pageSetter.SetValue(page);
-        }
+            selectedID += 3;
 
-        private void PageValueChanged(string value, int index)
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
         {
-            page = index;
+            int cardID = page * 12 + selectedID;
+            if (GlobalState.Inventory.CardStatus[cardID])
+            {
+                SetDialogue(DialogueManager.GetDialogue("card", "ETC", "one", cardID));
+            }
+        }
+        if (KeyInput.JustPressedRebindableKey(KeyFunctions.NextPage))
+        {
+            if (page == 3)
+            {
+                return;
+            }
+
+            page++;
             SetCardPage();
+
+            moved = true;
         }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.PreviousPage))
+        {
+            if (page == 0)
+            {
+                return;
+            }
+
+            page--;
+            SetCardPage();
+
+            moved = true;
+        }
+
+        if (moved)
+        {
+            SoundManager.PlaySoundEffect("menu_move");
+        }
+
+        SetCursor();
+    }
+
+    public override void GetControl()
+    {
+        base.GetControl();
+
+        selectedID = 0;
+        SetCursor();
+    }
+
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        foreach (var card in cards)
+        {
+            card.Draw();
+        }
+
+        _pageSetter.Draw();
+        cardsLabel.Draw();
+    }
+
+    private void SetCursor()
+    {
+        Vector2 pos = cards[selectedID].Position + new Vector2(-10, 8);
+
+        selector.Position = pos;
+    }
+
+    private void SetCardPage()
+    {
+        Vector2 startPos = new Vector2(68, 28);
+        Vector2 cardSize = new Vector2(24 + 6);
+
+        for (int i = 0; i < 12; i++)
+        {
+            int cardnum = page * 12 + i;
+            int frame = GlobalState.Inventory.CardStatus[cardnum] ? cardnum : 49;
+            cards[i] = new UIEntity(startPos + new Vector2(i % 3, i / 3) * cardSize, "card_sheet", frame, 24, 24, DrawOrder.EQUIPMENT_ICON);
+        }
+
+        _pageSetter.SetValue(page);
+    }
+
+    private void PageValueChanged(string value, int index)
+    {
+        page = index;
+        SetCardPage();
     }
 }

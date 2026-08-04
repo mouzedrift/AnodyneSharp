@@ -5,29 +5,28 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive.Npc.Blank
+namespace AnodyneSharp.Entities.Interactive.Npc.Blank;
+
+[NamedEntity("Console", null, "BLANK", 1), Collision(typeof(Player))]
+public class BlankConsole : Entity, Interactable
 {
-    [NamedEntity("Console", null, "BLANK", 1), Collision(typeof(Player))]
-    public class BlankConsole : Entity, Interactable
+    public BlankConsole(EntityPreset preset, Player p)
+        : base(preset.Position, new AnimatedSpriteRenderer("console", 16, 16, new Anim("flicker", new int[] { 0, 1, 2 }, 10)), Drawing.DrawOrder.ENTITIES)
     {
-        public BlankConsole(EntityPreset preset, Player p)
-            : base(preset.Position, new AnimatedSpriteRenderer("console", 16, 16, new Anim("flicker", new int[] { 0, 1, 2 }, 10)), Drawing.DrawOrder.ENTITIES)
-        {
-            immovable = true;
-        }
+        immovable = true;
+    }
 
-        public override void Collided(Entity other)
-        {
-            base.Collided(other);
+    public override void Collided(Entity other)
+    {
+        base.Collided(other);
 
-            Separate(this, other);
-        }
+        Separate(this, other);
+    }
 
-        public bool PlayerInteraction(Facing player_direction)
-        {
-            GlobalState.Dialogue = DialogueManager.GetDialogue("rock", "NEXUS", "five");
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        GlobalState.Dialogue = DialogueManager.GetDialogue("rock", "NEXUS", "five");
 
-            return true;
-        }
+        return true;
     }
 }

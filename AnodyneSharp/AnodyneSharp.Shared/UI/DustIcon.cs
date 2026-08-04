@@ -6,37 +6,36 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.UI
+namespace AnodyneSharp.UI;
+
+public class DustIcon : UIEntity
 {
-    public class DustIcon : UIEntity
+    private Broom _broom;
+
+    public static AnimatedSpriteRenderer GetSprite() => new("DustUI", 9, 9,
+        new Anim("default", new int[] { 4 },1),
+        new Anim("empty", new int[] { 0, 1, 2, 3, 4 },13,false),
+        new Anim("full", new int[] { 4, 3, 2, 1, 0 },13,false)
+        );
+
+    public DustIcon(Vector2 pos, Broom broom)
+        : base(pos, GetSprite(), DrawOrder.DUST_ICON)
     {
-        private Broom _broom;
+        SetTexture("DustUI", 9, 9); // Disable chaos mode
+        _broom = broom;
+    }
 
-        public static AnimatedSpriteRenderer GetSprite() => new("DustUI", 9, 9,
-            new Anim("default", new int[] { 4 },1),
-            new Anim("empty", new int[] { 0, 1, 2, 3, 4 },13,false),
-            new Anim("full", new int[] { 4, 3, 2, 1, 0 },13,false)
-            );
+    public override void Update()
+    {
+        base.Update();
 
-        public DustIcon(Vector2 pos, Broom broom)
-            : base(pos, GetSprite(), DrawOrder.DUST_ICON)
+        if (CurAnimName == "full" && (_broom.just_released_dust || _broom.dust == null))
         {
-            SetTexture("DustUI", 9, 9); // Disable chaos mode
-            _broom = broom;
+            Play("empty");
         }
-
-        public override void Update()
+        else if (CurAnimName != "full" && !_broom.just_released_dust && _broom.dust != null)
         {
-            base.Update();
-
-            if (CurAnimName == "full" && (_broom.just_released_dust || _broom.dust == null))
-            {
-                Play("empty");
-            }
-            else if (CurAnimName != "full" && !_broom.just_released_dust && _broom.dust != null)
-            {
-                Play("full");
-            }
+            Play("full");
         }
     }
 }

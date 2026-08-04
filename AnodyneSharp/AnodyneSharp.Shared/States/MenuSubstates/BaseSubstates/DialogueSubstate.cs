@@ -3,41 +3,40 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates
+namespace AnodyneSharp.States.MenuSubstates;
+
+public class DialogueSubstate : Substate
 {
-    public class DialogueSubstate : Substate
+    protected bool InDialogueMode => _subsubstate != null;
+    private DialogueState _subsubstate;
+
+    public override void Update()
     {
-        protected bool InDialogueMode => _subsubstate != null;
-        private DialogueState _subsubstate;
+        base.Update();
 
-        public override void Update()
+        if (InDialogueMode)
         {
-            base.Update();
+            _subsubstate.Update();
 
-            if (InDialogueMode)
+            if (_subsubstate.Exit)
             {
-                _subsubstate.Update();
-
-                if (_subsubstate.Exit)
-                {
-                    _subsubstate = null;
-                }
+                _subsubstate = null;
             }
         }
+    }
 
-        public override void DrawUI()
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        if (InDialogueMode)
         {
-            base.DrawUI();
-
-            if (InDialogueMode)
-            {
-                _subsubstate.DrawUI();
-            }
+            _subsubstate.DrawUI();
         }
+    }
 
-        protected void SetDialogue(string text)
-        {
-            _subsubstate = new DialogueState(text, true);
-        }
+    protected void SetDialogue(string text)
+    {
+        _subsubstate = new DialogueState(text, true);
     }
 }

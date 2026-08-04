@@ -7,56 +7,55 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace AnodyneSharp.MapData
+namespace AnodyneSharp.MapData;
+
+public class SwapperControl
 {
-    public class SwapperControl
+    public enum State
     {
-        public enum State
+        Default,
+        Allow,
+        Disallow,
+        DisallowSilently
+    }
+
+    struct Region
+    {
+        public State allow;
+        public Rectangle area;
+    }
+
+    List<Region> regions = new();
+
+    public SwapperControl(string mapName)
+    {
+        var assembly = Assembly.GetEntryAssembly();
+
+        string path = $"Content.Maps.{mapName}.Swapper.dat";
+
+        using Stream stream = AssemblyReaderUtil.GetStream(path);
+
+        if (stream == null)
         {
-            Default,
-            Allow,
-            Disallow,
-            DisallowSilently
+            return;
         }
 
-        struct Region
+        using StreamReader reader = new(stream);
+
+        while(!reader.EndOfStream)
         {
-            public State allow;
-            public Rectangle area;
-        }
-
-        List<Region> regions = new();
-
-        public SwapperControl(string mapName)
-        {
-            var assembly = Assembly.GetEntryAssembly();
-
-            string path = $"Content.Maps.{mapName}.Swapper.dat";
-
-            using Stream stream = AssemblyReaderUtil.GetStream(path);
-
-            if (stream == null)
+            string[] line = reader.ReadLine().Split('\t');
+            if(line.Length == 5)
             {
-                return;
-            }
-
-            using StreamReader reader = new(stream);
-
-            while(!reader.EndOfStream)
-            {
-                string[] line = reader.ReadLine().Split('\t');
-                if(line.Length == 5)
-                {
-                    ArraySegment<string> rectString = new(line, 1, 4);
-                    int[] rect = rectString.Select((s) => (int)float.Parse(s)).ToArray();
-                    regions.Add(new() { allow = Enum.Parse<State>(line[0]), area = new(rect[0], rect[1], rect[2], rect[3]) });
-                }
+                ArraySegment<string> rectString = new(line, 1, 4);
+                int[] rect = rectString.Select((s) => (int)float.Parse(s)).ToArray();
+                regions.Add(new() { allow = Enum.Parse<State>(line[0]), area = new(rect[0], rect[1], rect[2], rect[3]) });
             }
         }
+    }
 
-        public State CheckCoord(Vector2 coord)
-        {
-            return regions.Where(r => r.area.Contains(coord)).Select(r => r.allow).FirstOrDefault();
-        }
+    public State CheckCoord(Vector2 coord)
+    {
+        return regions.Where(r => r.area.Contains(coord)).Select(r => r.allow).FirstOrDefault();
     }
 }

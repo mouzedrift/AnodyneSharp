@@ -11,431 +11,430 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Enemy.Circus
+namespace AnodyneSharp.Entities.Enemy.Circus;
+
+[NamedEntity, Enemy, Collision(typeof(Player), typeof(Broom), MapCollision = true, KeepOnScreen = true)]
+public class Lion : Entity
 {
-    [NamedEntity, Enemy, Collision(typeof(Player), typeof(Broom), MapCollision = true, KeepOnScreen = true)]
-    public class Lion : Entity
+    private class PaceState : TimerState
     {
-        private class PaceState : TimerState
+        public PaceState()
         {
-            public PaceState()
-            {
-                AddTimer(0.8f, "PaceTimer");
-            }
+            AddTimer(0.8f, "PaceTimer");
         }
+    }
 
-        private class ShootWarningState : TimerState
+    private class ShootWarningState : TimerState
+    {
+        public ShootWarningState()
         {
-            public ShootWarningState()
-            {
-                AddTimer(0.8f, "WarningTimer");
-            }
+            AddTimer(0.8f, "WarningTimer");
         }
+    }
 
-        private class ShootState : TimerState
+    private class ShootState : TimerState
+    {
+        public ShootState()
         {
-            public ShootState()
-            {
-                AddTimer(0.165f, "ShootTimer");
-            }
+            AddTimer(0.165f, "ShootTimer");
         }
+    }
 
-        private class ChargeWalkState : TimerState
+    private class ChargeWalkState : TimerState
+    {
+        public ChargeWalkState()
         {
-            public ChargeWalkState()
-            {
-                AddTimer(1.4f, "WalkTimer");
-            }
+            AddTimer(1.4f, "WalkTimer");
         }
-        private class ChargeWarnState : TimerState
+    }
+    private class ChargeWarnState : TimerState
+    {
+        public ChargeWarnState()
         {
-            public ChargeWarnState()
-            {
-                AddTimer(0.6f, "WarnTimer");
-            }
+            AddTimer(0.6f, "WarnTimer");
         }
+    }
 
-        private const int MaxShots = 18;
+    private const int MaxShots = 18;
 
-        private EntityPool<Fireball> fireballs;
-        private Parabola_Thing _parabola;
+    private EntityPool<Fireball> fireballs;
+    private Parabola_Thing _parabola;
 
-        private int _health = 4;
-        private int _shotsFired = 0;
-        private IState _state;
+    private int _health = 4;
+    private int _shotsFired = 0;
+    private IState _state;
 
-        private Shadow _shadowV;
-        private Shadow _shadowH;
+    private Shadow _shadowV;
+    private Shadow _shadowH;
 
-        private Player _player;
+    private Player _player;
 
-        public const string DamageDealer = "Lion";
-        public const string FireDamageDealer = "Lion fireball";
+    public const string DamageDealer = "Lion";
+    public const string FireDamageDealer = "Lion fireball";
 
-        public static AnimatedSpriteRenderer GetSprite()
-        {
-            return new("lion", 32, 32,
-                new Anim("walk_r", new int[] { 0, 1 }, 5),
-                new Anim("walk_l", new int[] { 0, 1 }, 5),
-                new Anim("walk_d", new int[] { 10, 11 }, 5),
-                new Anim("walk_u", new int[] { 5, 6 }, 5),
+    public static AnimatedSpriteRenderer GetSprite()
+    {
+        return new("lion", 32, 32,
+            new Anim("walk_r", new int[] { 0, 1 }, 5),
+            new Anim("walk_l", new int[] { 0, 1 }, 5),
+            new Anim("walk_d", new int[] { 10, 11 }, 5),
+            new Anim("walk_u", new int[] { 5, 6 }, 5),
 
-                new Anim("warn_l", new int[] { 3 }, 5, true),
-                new Anim("warn_r", new int[] { 3 }, 5, true),
+            new Anim("warn_l", new int[] { 3 }, 5, true),
+            new Anim("warn_r", new int[] { 3 }, 5, true),
 
-                new Anim("shoot_l", new int[] { 2 }, 15, true),
-                new Anim("shoot_r", new int[] { 2 }, 15, true),
-                new Anim("shoot_d", new int[] { 12 }, 15, true),
-                new Anim("shoot_u", new int[] { 7 }, 15, true),
+            new Anim("shoot_l", new int[] { 2 }, 15, true),
+            new Anim("shoot_r", new int[] { 2 }, 15, true),
+            new Anim("shoot_d", new int[] { 12 }, 15, true),
+            new Anim("shoot_u", new int[] { 7 }, 15, true),
 
-                new Anim("pounce_r", new int[] { 4 },1),
-                new Anim("pounce_l", new int[] { 4 },1),
-                new Anim("pounce_u", new int[] { 9 },1),
-                new Anim("pounce_d", new int[] { 14 }, 1)
-             );
-        }
+            new Anim("pounce_r", new int[] { 4 },1),
+            new Anim("pounce_l", new int[] { 4 },1),
+            new Anim("pounce_u", new int[] { 9 },1),
+            new Anim("pounce_d", new int[] { 14 }, 1)
+         );
+    }
 
-        public Lion(EntityPreset preset, Player player)
-            : base(preset.Position, GetSprite(), DrawOrder.ENTITIES)
-        {
-            _player = player;
+    public Lion(EntityPreset preset, Player player)
+        : base(preset.Position, GetSprite(), DrawOrder.ENTITIES)
+    {
+        _player = player;
 
-            fireballs = new EntityPool<Fireball>(10, () => new Fireball());
-            _parabola = new Parabola_Thing(this, 12, 1);
+        fireballs = new EntityPool<Fireball>(10, () => new Fireball());
+        _parabola = new Parabola_Thing(this, 12, 1);
 
-            _shadowV = new Shadow(this, new Vector2(8, -6), ShadowType.BigVertical);
-            _shadowH = new Shadow(this, new Vector2(8, -6), ShadowType.Big);
+        _shadowV = new Shadow(this, new Vector2(8, -6), ShadowType.BigVertical);
+        _shadowH = new Shadow(this, new Vector2(8, -6), ShadowType.Big);
 
-            _state = new StateMachineBuilder()
-                .State<PaceState>("Pace")
-                    .Event("PaceTimer", (state) =>
+        _state = new StateMachineBuilder()
+            .State<PaceState>("Pace")
+                .Event("PaceTimer", (state) =>
+                {
+                    double r = GlobalState.RNG.NextDouble();
+
+                    if (r < 0.25)
                     {
-                        double r = GlobalState.RNG.NextDouble();
+                        _state.ChangeState("ShootWarning");
+                    }
+                    else if (r < 0.55)
+                    {
+                        _state.ChangeState("ChargeWalk");
+                    }
+                    else
+                    {
+                        double paceR = GlobalState.RNG.Next(0, 6);
 
-                        if (r < 0.25)
+                        if (paceR < 4)
                         {
-                            _state.ChangeState("ShootWarning");
-                        }
-                        else if (r < 0.55)
-                        {
-                            _state.ChangeState("ChargeWalk");
-                        }
-                        else
-                        {
-                            double paceR = GlobalState.RNG.Next(0, 6);
-
-                            if (paceR < 4)
+                            facing = paceR switch
                             {
-                                facing = paceR switch
-                                {
-                                    0 => Facing.RIGHT,
-                                    1 => Facing.DOWN,
-                                    2 => Facing.LEFT,
-                                    _ => Facing.UP,
-                                };
-
-                                PlayFacing("walk");
-
-                                velocity = FacingDirection(facing) * 43;
-                            }
-                        }
-                    })
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
-                .End()
-                .State<ShootWarningState>("ShootWarning")
-                    .Enter((state) =>
-                    {
-                        velocity = Vector2.Zero;
-
-                        facing = _player.Position.X > Position.X + 16 ? Facing.RIGHT : Facing.LEFT;
-
-                        PlayFacing("warn");
-                    })
-                    .Event("WarningTimer", (state) => _state.ChangeState("Shoot"))
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
-                .End()
-                .State<ShootState>("Shoot")
-                    .Update((state, time) =>
-                    {
-                        FaceTowards(_player.Position);
-
-                        PlayFacing("shoot");
-                    })
-                    .Event("ShootTimer", (state) =>
-                    {
-                        if (_shotsFired < MaxShots)
-                        {
-                            if (fireballs.Spawn(b => b.Spawn(this)))
-                            {
-                                _shotsFired++;
-                            }
-                        }
-                        else
-                        {
-                            _shotsFired = 0;
-                            _state.ChangeState("Pace");
-                        }
-                    })
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) =>
-                    {
-                        GetHit();
-                        _shotsFired = MaxShots;
-                    })
-                .End()
-                .State<ChargeWalkState>("ChargeWalk")
-                    .Enter((state) =>
-                    {
-                        velocity.X = 20;
-                        velocity.Y = 0;
-
-                        if (_player.Position.X > Position.X)
-                        {
-                            facing = Facing.RIGHT;
-
-                            velocity *= -1;
-                        }
-                        else
-                        {
-                            facing = Facing.LEFT;
-                        }
-
-                        PlayFacing("walk");
-                    })
-                    .Event("WalkTimer", (state) => _state.ChangeState("ChargeWarn"))
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
-                .End()
-                .State<ChargeWarnState>("ChargeWarn")
-                    .Enter((state) =>
-                    {
-                        velocity.X = 10;
-                        velocity.Y = 0;
-
-                        if (facing == Facing.LEFT)
-                        {
-                            velocity.X *= -1;
-                        }
-
-                        PlayFacing("warn");
-                    })
-                    .Event("WarnTimer", (state) => _state.ChangeState("Charge"))
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
-                .End()
-                .State<ChargeWarnState>("Charge")
-                    .Enter((state) =>
-                    {
-                        MoveTowards(_player.Position, 110);
-
-                        FaceTowards(_player.Position);
-
-                        shadow.visible = true;
-
-                        PlayFacing("pounce");
-                    })
-                    .Update((state, time) =>
-                    {
-                        if (_parabola.Tick() || (touching != Touching.NONE && offset.Y > 4))
-                        {
-                            offset.Y = 0;
-                            _parabola.ResetTime();
-
-                            _shadowH.visible = false;
+                                0 => Facing.RIGHT,
+                                1 => Facing.DOWN,
+                                2 => Facing.LEFT,
+                                _ => Facing.UP,
+                            };
 
                             PlayFacing("walk");
 
-                            _state.ChangeState("Pace");
+                            velocity = FacingDirection(facing) * 43;
                         }
-                    })
-                    .Exit((state) => velocity = Vector2.Zero)
-                    .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
-                    .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
-                .End()
-                .State<State>("Dying")
-                    .Update((state, time) =>
+                    }
+                })
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
+            .End()
+            .State<ShootWarningState>("ShootWarning")
+                .Enter((state) =>
+                {
+                    velocity = Vector2.Zero;
+
+                    facing = _player.Position.X > Position.X + 16 ? Facing.RIGHT : Facing.LEFT;
+
+                    PlayFacing("warn");
+                })
+                .Event("WarningTimer", (state) => _state.ChangeState("Shoot"))
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
+            .End()
+            .State<ShootState>("Shoot")
+                .Update((state, time) =>
+                {
+                    FaceTowards(_player.Position);
+
+                    PlayFacing("shoot");
+                })
+                .Event("ShootTimer", (state) =>
+                {
+                    if (_shotsFired < MaxShots)
                     {
-                        opacity -= 0.05f;
-
-                        if (opacity <= 0)
+                        if (fireballs.Spawn(b => b.Spawn(this)))
                         {
-                            GlobalState.SpawnEntity(new Explosion(this));
-
-                            exists = false;
+                            _shotsFired++;
                         }
-                    })
-                .End()
-            .Build();
+                    }
+                    else
+                    {
+                        _shotsFired = 0;
+                        _state.ChangeState("Pace");
+                    }
+                })
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) =>
+                {
+                    GetHit();
+                    _shotsFired = MaxShots;
+                })
+            .End()
+            .State<ChargeWalkState>("ChargeWalk")
+                .Enter((state) =>
+                {
+                    velocity.X = 20;
+                    velocity.Y = 0;
 
-            _state.ChangeState("Pace");
+                    if (_player.Position.X > Position.X)
+                    {
+                        facing = Facing.RIGHT;
+
+                        velocity *= -1;
+                    }
+                    else
+                    {
+                        facing = Facing.LEFT;
+                    }
+
+                    PlayFacing("walk");
+                })
+                .Event("WalkTimer", (state) => _state.ChangeState("ChargeWarn"))
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
+            .End()
+            .State<ChargeWarnState>("ChargeWarn")
+                .Enter((state) =>
+                {
+                    velocity.X = 10;
+                    velocity.Y = 0;
+
+                    if (facing == Facing.LEFT)
+                    {
+                        velocity.X *= -1;
+                    }
+
+                    PlayFacing("warn");
+                })
+                .Event("WarnTimer", (state) => _state.ChangeState("Charge"))
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
+            .End()
+            .State<ChargeWarnState>("Charge")
+                .Enter((state) =>
+                {
+                    MoveTowards(_player.Position, 110);
+
+                    FaceTowards(_player.Position);
+
+                    shadow.visible = true;
+
+                    PlayFacing("pounce");
+                })
+                .Update((state, time) =>
+                {
+                    if (_parabola.Tick() || (touching != Touching.NONE && offset.Y > 4))
+                    {
+                        offset.Y = 0;
+                        _parabola.ResetTime();
+
+                        _shadowH.visible = false;
+
+                        PlayFacing("walk");
+
+                        _state.ChangeState("Pace");
+                    }
+                })
+                .Exit((state) => velocity = Vector2.Zero)
+                .Event<CollisionEvent<Player>>("Player", (state, p) => p.entity.ReceiveDamage(1, DamageDealer))
+                .Event<CollisionEvent<Broom>>("Hit", (state, b) => GetHit())
+            .End()
+            .State<State>("Dying")
+                .Update((state, time) =>
+                {
+                    opacity -= 0.05f;
+
+                    if (opacity <= 0)
+                    {
+                        GlobalState.SpawnEntity(new Explosion(this));
+
+                        exists = false;
+                    }
+                })
+            .End()
+        .Build();
+
+        _state.ChangeState("Pace");
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        _state.Update(GameTimes.DeltaTime);
+    }
+
+    protected override void AnimationChanged(string name)
+    {
+        base.AnimationChanged(name);
+
+        if (name.EndsWith('l'))
+        {
+            _flip = SpriteEffects.FlipHorizontally;
+        }
+        else
+        {
+            _flip = SpriteEffects.None;
         }
 
-        public override void Update()
+        if (name.EndsWith('l') || name.EndsWith('r'))
         {
-            base.Update();
+            shadow = _shadowH;
 
-            _state.Update(GameTimes.DeltaTime);
+            width = 26;
+            height = 13;
+
+            offset = new Vector2(3, 11);
+        }
+        else
+        {
+            shadow = _shadowV;
+
+            width = 10;
+            height = 20;
+
+            offset = new Vector2(10, 4);
         }
 
-        protected override void AnimationChanged(string name)
+        shadow.visible = false;
+    }
+
+    public override void Collided(Entity other)
+    {
+        if (other is Player p)
         {
-            base.AnimationChanged(name);
+            _state.TriggerEvent("Player", new CollisionEvent<Player>() { entity = p });
+        }
+        else if (other is Broom b)
+        {
+            _state.TriggerEvent("Hit", new CollisionEvent<Broom>() { entity = b });
+        }
+    }
 
-            if (name.EndsWith('l'))
+    private void GetHit()
+    {
+        if (_flickering)
+        {
+            return;
+        }
+
+        SoundManager.PlaySoundEffect("broom_hit");
+
+        Flicker(1);
+
+        _health--;
+
+        if (_health <= 0)
+        {
+            _state.ChangeState("Dying");
+        }
+    }
+
+    public override IEnumerable<Entity> SubEntities()
+    {
+        return fireballs.Entities;
+    }
+
+
+    [Collision(typeof(Player), typeof(Broom), typeof(Dust), MapCollision = false)]
+    public class Fireball : Entity
+    {
+        public static AnimatedSpriteRenderer GetSprite(int framerate) => new("lion_fireballs", 16, 16, new Anim("shoot", new int[] { 0, 1 }, framerate), new Anim("poof", new int[] { 2, 3, 4, 5 }, framerate, false));
+
+        private const int MaxDistance = 80;
+        private const int ParentSize = 32;
+        private const float FirebalVelocity = 88f;
+
+        private Vector2 _startPos;
+
+        public Fireball() : base(Vector2.Zero, GetSprite(10), DrawOrder.FG_SPRITES)
+        {
+            width = height = 8;
+            CenterOffset();
+        }
+
+        public void Spawn(Entity parent)
+        {
+            SoundManager.PlaySoundEffect("fireball");
+
+            switch (parent.facing)
             {
-                _flip = SpriteEffects.FlipHorizontally;
+                case Facing.UP:
+                    Position = new Vector2(parent.Position.X + ParentSize / 4, parent.Position.Y - 2);
+
+                    velocity.X = GlobalState.RNG.Next(-16, 17);
+                    velocity.Y = -ParentSize;
+                    break;
+                case Facing.DOWN:
+                    Position = new Vector2(parent.Position.X + ParentSize / 4, parent.Position.Y + parent.height + 2);
+
+                    velocity.X = GlobalState.RNG.Next(-16, 17);
+                    velocity.Y = ParentSize;
+                    break;
+                case Facing.RIGHT:
+                    Position = new Vector2(parent.Position.X + ParentSize - 2, parent.Position.Y + 2);
+
+                    velocity.X = ParentSize;
+                    velocity.Y = GlobalState.RNG.Next(-26, 27);
+                    break;
+                case Facing.LEFT:
+                    Position = new Vector2(parent.Position.X, parent.Position.Y + 2);
+
+                    velocity.X = -ParentSize;
+                    velocity.Y = GlobalState.RNG.Next(-26, 27);
+                    break;
             }
-            else
-            {
-                _flip = SpriteEffects.None;
-            }
 
-            if (name.EndsWith('l') || name.EndsWith('r'))
-            {
-                shadow = _shadowH;
+            velocity.Normalize();
+            velocity *= FirebalVelocity;
 
-                width = 26;
-                height = 13;
+            _startPos = Position;
 
-                offset = new Vector2(3, 11);
-            }
-            else
-            {
-                shadow = _shadowV;
-
-                width = 10;
-                height = 20;
-
-                offset = new Vector2(10, 4);
-            }
-
-            shadow.visible = false;
+            Play("shoot");
         }
 
         public override void Collided(Entity other)
         {
-            if (other is Player p)
-            {
-                _state.TriggerEvent("Player", new CollisionEvent<Player>() { entity = p });
-            }
-            else if (other is Broom b)
-            {
-                _state.TriggerEvent("Hit", new CollisionEvent<Broom>() { entity = b });
-            }
-        }
-
-        private void GetHit()
-        {
-            if (_flickering)
+            if (CurAnimName == "poof")
             {
                 return;
             }
 
-            SoundManager.PlaySoundEffect("broom_hit");
-
-            Flicker(1);
-
-            _health--;
-
-            if (_health <= 0)
+            if (other is Player p)
             {
-                _state.ChangeState("Dying");
+                p.ReceiveDamage(1, FireDamageDealer);
             }
+
+            Play("poof");
         }
 
-        public override IEnumerable<Entity> SubEntities()
+        public override void Update()
         {
-            return fireballs.Entities;
-        }
-
-
-        [Collision(typeof(Player), typeof(Broom), typeof(Dust), MapCollision = false)]
-        public class Fireball : Entity
-        {
-            public static AnimatedSpriteRenderer GetSprite(int framerate) => new("lion_fireballs", 16, 16, new Anim("shoot", new int[] { 0, 1 }, framerate), new Anim("poof", new int[] { 2, 3, 4, 5 }, framerate, false));
-
-            private const int MaxDistance = 80;
-            private const int ParentSize = 32;
-            private const float FirebalVelocity = 88f;
-
-            private Vector2 _startPos;
-
-            public Fireball() : base(Vector2.Zero, GetSprite(10), DrawOrder.FG_SPRITES)
+            if (AnimFinished && CurAnimName == "poof")
             {
-                width = height = 8;
-                CenterOffset();
+                exists = false;
+
+                return;
             }
 
-            public void Spawn(Entity parent)
+            if (Math.Abs(_startPos.X - Position.X) > MaxDistance || Math.Abs(_startPos.Y - Position.Y) > MaxDistance)
             {
-                SoundManager.PlaySoundEffect("fireball");
-
-                switch (parent.facing)
-                {
-                    case Facing.UP:
-                        Position = new Vector2(parent.Position.X + ParentSize / 4, parent.Position.Y - 2);
-
-                        velocity.X = GlobalState.RNG.Next(-16, 17);
-                        velocity.Y = -ParentSize;
-                        break;
-                    case Facing.DOWN:
-                        Position = new Vector2(parent.Position.X + ParentSize / 4, parent.Position.Y + parent.height + 2);
-
-                        velocity.X = GlobalState.RNG.Next(-16, 17);
-                        velocity.Y = ParentSize;
-                        break;
-                    case Facing.RIGHT:
-                        Position = new Vector2(parent.Position.X + ParentSize - 2, parent.Position.Y + 2);
-
-                        velocity.X = ParentSize;
-                        velocity.Y = GlobalState.RNG.Next(-26, 27);
-                        break;
-                    case Facing.LEFT:
-                        Position = new Vector2(parent.Position.X, parent.Position.Y + 2);
-
-                        velocity.X = -ParentSize;
-                        velocity.Y = GlobalState.RNG.Next(-26, 27);
-                        break;
-                }
-
-                velocity.Normalize();
-                velocity *= FirebalVelocity;
-
-                _startPos = Position;
-
-                Play("shoot");
-            }
-
-            public override void Collided(Entity other)
-            {
-                if (CurAnimName == "poof")
-                {
-                    return;
-                }
-
-                if (other is Player p)
-                {
-                    p.ReceiveDamage(1, FireDamageDealer);
-                }
-
                 Play("poof");
-            }
-
-            public override void Update()
-            {
-                if (AnimFinished && CurAnimName == "poof")
-                {
-                    exists = false;
-
-                    return;
-                }
-
-                if (Math.Abs(_startPos.X - Position.X) > MaxDistance || Math.Abs(_startPos.Y - Position.Y) > MaxDistance)
-                {
-                    Play("poof");
-                }
             }
         }
     }

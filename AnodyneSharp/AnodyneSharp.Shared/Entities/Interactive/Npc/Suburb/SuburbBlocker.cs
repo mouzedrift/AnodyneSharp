@@ -7,78 +7,77 @@ using System.Collections.Generic;
 using System.Text;
 using static AnodyneSharp.States.CutsceneState;
 
-namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs
+namespace AnodyneSharp.Entities.Interactive.Npc.QuestNPCs;
+
+[NamedEntity("NPC", type: "generic", 0), Collision(typeof(Player))]
+public class SuburbBlocker : Entity, Interactable
 {
-    [NamedEntity("NPC", type: "generic", 0), Collision(typeof(Player))]
-    public class SuburbBlocker : Entity, Interactable
+    EntityPreset _preset;
+
+    bool dying;
+
+    public static AnimatedSpriteRenderer GetSprite() => new("suburb_walkers", 16, 16,
+        new Anim("walk_d", new int[] { 0, 1 }, 4),
+        new Anim("walk_r", new int[] { 2, 3 }, 4),
+        new Anim("walk_u", new int[] { 4, 5 }, 4),
+        new Anim("walk_l", new int[] { 6, 7 }, 4)
+        );
+
+    public SuburbBlocker(EntityPreset preset, Player p)
+        : base(preset.Position, GetSprite(), Drawing.DrawOrder.ENTITIES)
     {
-        EntityPreset _preset;
+        _preset = preset;
 
-        bool dying;
+        immovable = true;
+    }
 
-        public static AnimatedSpriteRenderer GetSprite() => new("suburb_walkers", 16, 16,
-            new Anim("walk_d", new int[] { 0, 1 }, 4),
-            new Anim("walk_r", new int[] { 2, 3 }, 4),
-            new Anim("walk_u", new int[] { 4, 5 }, 4),
-            new Anim("walk_l", new int[] { 6, 7 }, 4)
-            );
+    public override void Collided(Entity other)
+    {
+        base.Collided(other);
+        Separate(this, other);
+    }
 
-        public SuburbBlocker(EntityPreset preset, Player p)
-            : base(preset.Position, GetSprite(), Drawing.DrawOrder.ENTITIES)
+    public override void Update()
+    {
+        base.Update();
+
+        if (dying)
         {
-            _preset = preset;
-
-            immovable = true;
-        }
-
-        public override void Collided(Entity other)
-        {
-            base.Collided(other);
-            Separate(this, other);
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            if (dying)
+            if (MathUtilities.MoveTo(ref opacity, 0, 0.6f))
             {
-                if (MathUtilities.MoveTo(ref opacity, 0, 0.6f))
-                {
-                    exists = false;
-                }
+                exists = false;
             }
         }
+    }
 
-        public bool PlayerInteraction(Facing player_direction)
+    public bool PlayerInteraction(Facing player_direction)
+    {
+        if (!dying)
         {
-            if (!dying)
+            FaceTowards(Position - FacingDirection(player_direction));
+
+            PlayFacing("walk");
+            var dialog = GlobalState.Events.GetEvent("SuburbKilled") switch
             {
-                FaceTowards(Position - FacingDirection(player_direction));
+                < 6 => 0,
+                < 9 => 1,
+                < 10 => 2,
+                _ => 3,
+            };
 
-                PlayFacing("walk");
-                var dialog = GlobalState.Events.GetEvent("SuburbKilled") switch
-                {
-                    < 6 => 0,
-                    < 9 => 1,
-                    < 10 => 2,
-                    _ => 3,
-                };
+            GlobalState.Dialogue = DialogueManager.GetDialogue("suburb_blocker", "one", dialog);
 
-                GlobalState.Dialogue = DialogueManager.GetDialogue("suburb_blocker", "one", dialog);
+            if (dialog == 3)
+            {
+                Flicker(0.5f);
 
-                if (dialog == 3)
-                {
-                    Flicker(0.5f);
-
-                    dying = true;
-                    _preset.Alive = false;
-                }
-
-                return true;
+                dying = true;
+                _preset.Alive = false;
             }
 
-            return false;
+            return true;
         }
+
+        return false;
     }
 }

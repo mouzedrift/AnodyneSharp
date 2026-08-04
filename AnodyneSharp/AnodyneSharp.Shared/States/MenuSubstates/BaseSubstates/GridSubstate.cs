@@ -10,147 +10,146 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.States.MenuSubstates.BaseSubstates
+namespace AnodyneSharp.States.MenuSubstates.BaseSubstates;
+
+public class GridSubstate : DialogueSubstate
 {
-    public class GridSubstate : DialogueSubstate
+    private string _dialogueName;
+    private string _textureName;
+
+    private int _selectedID;
+    private UIEntity[] _items;
+    private bool[] _collectedStats;
+
+    public GridSubstate(string dialogueName, string textureName, bool[] collectedStats)
     {
-        private string _dialogueName;
-        private string _textureName;
+        _dialogueName = dialogueName;
+        _textureName = textureName;
 
-        private int _selectedID;
-        private UIEntity[] _items;
-        private bool[] _collectedStats;
+        _collectedStats = collectedStats;
+        _items = new UIEntity[collectedStats.Length];
+        SetItemGrid(collectedStats);
+    }
 
-        public GridSubstate(string dialogueName, string textureName, bool[] collectedStats)
+    public override void HandleInput()
+    {
+        if (InDialogueMode)
         {
-            _dialogueName = dialogueName;
-            _textureName = textureName;
-
-            _collectedStats = collectedStats;
-            _items = new UIEntity[collectedStats.Length];
-            SetItemGrid(collectedStats);
+            return;
         }
 
-        public override void HandleInput()
+        bool moved = false;
+
+
+        if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
         {
-            if (InDialogueMode)
+            if (_selectedID % 4 == 3)
+            {
+                return;
+            }
+            else if (_selectedID == _items.Length - 1)
             {
                 return;
             }
 
-            bool moved = false;
+            _selectedID++;
 
-
-            if (KeyInput.JustPressedRebindableKey(KeyFunctions.Right))
-            {
-                if (_selectedID % 4 == 3)
-                {
-                    return;
-                }
-                else if (_selectedID == _items.Length - 1)
-                {
-                    return;
-                }
-
-                _selectedID++;
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
-            {
-                if (_selectedID % 4 == 0)
-                {
-                    ExitSubState();
-                    return;
-                }
-                else
-                {
-                    _selectedID--;
-                }
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
-            {
-                if (_selectedID < 4)
-                {
-                    return;
-                }
-
-                _selectedID -= 4;
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
-            {
-
-                if (_selectedID > _items.Length - 5)
-                {
-                    _selectedID = _items.Length - 1;
-                }
-                else
-                {
-                    _selectedID += 4;
-                }
-
-                moved = true;
-            }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Left))
+        {
+            if (_selectedID % 4 == 0)
             {
                 ExitSubState();
+                return;
             }
-            else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
+            else
             {
-                if (_collectedStats[_selectedID])
-                {
-                    SetDialogue(DialogueManager.GetDialogue("misc", "any", _dialogueName, _selectedID));
-                }
-
+                _selectedID--;
             }
 
-            if (moved)
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Up))
+        {
+            if (_selectedID < 4)
             {
-                SoundManager.PlaySoundEffect("menu_move");
+                return;
             }
 
-            SetCursor();
+            _selectedID -= 4;
+
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Down))
+        {
+
+            if (_selectedID > _items.Length - 5)
+            {
+                _selectedID = _items.Length - 1;
+            }
+            else
+            {
+                _selectedID += 4;
+            }
+
+            moved = true;
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Cancel))
+        {
+            ExitSubState();
+        }
+        else if (KeyInput.JustPressedRebindableKey(KeyFunctions.Accept))
+        {
+            if (_collectedStats[_selectedID])
+            {
+                SetDialogue(DialogueManager.GetDialogue("misc", "any", _dialogueName, _selectedID));
+            }
+
         }
 
-        public override void GetControl()
+        if (moved)
         {
-            base.GetControl();
-
-            _selectedID = 0;
-            SetCursor();
+            SoundManager.PlaySoundEffect("menu_move");
         }
 
-        public override void DrawUI()
-        {
-            base.DrawUI();
+        SetCursor();
+    }
 
-            foreach (var item in _items)
-            {
-                item.Draw();
-            }
+    public override void GetControl()
+    {
+        base.GetControl();
+
+        _selectedID = 0;
+        SetCursor();
+    }
+
+    public override void DrawUI()
+    {
+        base.DrawUI();
+
+        foreach (var item in _items)
+        {
+            item.Draw();
         }
+    }
 
-        private void SetCursor()
+    private void SetCursor()
+    {
+        Vector2 pos = _items[_selectedID].Position + new Vector2(-8, 5);
+
+        selector.Position = pos;
+    }
+
+    private void SetItemGrid(bool[] collectedStats)
+    {
+        Vector2 startPos = new Vector2(68, 28);
+        Vector2 itemSize = new Vector2(16 + 6);
+
+        for (int i = 0; i < collectedStats.Length; i++)
         {
-            Vector2 pos = _items[_selectedID].Position + new Vector2(-8, 5);
-
-            selector.Position = pos;
-        }
-
-        private void SetItemGrid(bool[] collectedStats)
-        {
-            Vector2 startPos = new Vector2(68, 28);
-            Vector2 itemSize = new Vector2(16 + 6);
-
-            for (int i = 0; i < collectedStats.Length; i++)
-            {
-                int frame = collectedStats[i] ? i : collectedStats.Length;
-                _items[i] = new UIEntity(startPos + new Vector2(i % 4, i / 4) * itemSize, _textureName, frame, 16, 16, DrawOrder.EQUIPMENT_ICON);
-            }
+            int frame = collectedStats[i] ? i : collectedStats.Length;
+            _items[i] = new UIEntity(startPos + new Vector2(i % 4, i / 4) * itemSize, _textureName, frame, 16, 16, DrawOrder.EQUIPMENT_ICON);
         }
     }
 }

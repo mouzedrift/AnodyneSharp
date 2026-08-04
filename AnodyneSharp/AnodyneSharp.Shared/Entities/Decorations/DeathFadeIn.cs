@@ -8,45 +8,44 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Decorations
+namespace AnodyneSharp.Entities.Decorations;
+
+public class DeathFadeIn
 {
-    public class DeathFadeIn
+    public float Opacity
     {
-        public float Opacity
+        get
         {
-            get
-            {
-                return _opacity;
-            }
-            private set
-            {
-                _opacity = value;
-            }
+            return _opacity;
         }
-
-        Texture2D fadeIn;
-        Color color;
-
-        float _opacity;
-
-        public DeathFadeIn(Color color)
+        private set
         {
-            fadeIn = ResourceManager.GetTexture("deathFadeIn");
-            this.color = color;
-            Opacity = 0;
+            _opacity = value;
         }
+    }
 
-        public void Update()
-        {
-            if (Opacity < 1)
-            {
-                MathUtilities.MoveTo(ref _opacity, 1, 0.9f);
-            }
-        }
+    Texture2D fadeIn;
+    Color color;
 
-        public void Draw()
+    float _opacity;
+
+    public DeathFadeIn(Color color)
+    {
+        fadeIn = ResourceManager.GetTexture("deathFadeIn");
+        this.color = color;
+        Opacity = 0;
+    }
+
+    public void Update()
+    {
+        if (Opacity < 1)
         {
-            SpriteDrawer.DrawSprite(fadeIn, Vector2.Zero, new Rectangle(0,0, GameConstants.SCREEN_WIDTH_IN_PIXELS, GameConstants.SCREEN_HEIGHT_IN_PIXELS + GameConstants.HEADER_HEIGHT), Z: DrawingUtilities.GetDrawingZ( DrawOrder.DEATH_FADEIN), color: color * Opacity);
+            MathUtilities.MoveTo(ref _opacity, 1, 0.9f);
         }
+    }
+
+    public void Draw()
+    {
+        SpriteDrawer.DrawSprite(fadeIn, Vector2.Zero, new Rectangle(0,0, GameConstants.SCREEN_WIDTH_IN_PIXELS, GameConstants.SCREEN_HEIGHT_IN_PIXELS + GameConstants.HEADER_HEIGHT), Z: DrawingUtilities.GetDrawingZ( DrawOrder.DEATH_FADEIN), color: color * Opacity);
     }
 }

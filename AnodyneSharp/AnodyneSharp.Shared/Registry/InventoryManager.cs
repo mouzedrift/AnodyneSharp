@@ -3,168 +3,167 @@ using AnodyneSharp.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AnodyneSharp.Registry
+namespace AnodyneSharp.Registry;
+
+public class InventoryManager
 {
-    public class InventoryManager
+    //Inventory stuff
+
+    public bool HasAnyBroom
     {
-        //Inventory stuff
-
-        public bool HasAnyBroom
+        get
         {
-            get
-            {
-                return HasBroom || HasLengthen || HasWiden || HasTransformer;
-            }
+            return HasBroom || HasLengthen || HasWiden || HasTransformer;
         }
+    }
 
-        public bool HasEveryBroom
+    public bool HasEveryBroom
+    {
+        get
         {
-            get
-            {
-                return HasBroom && HasLengthen && HasWiden && HasTransformer;
-            }
+            return HasBroom && HasLengthen && HasWiden && HasTransformer;
         }
+    }
 
-        public bool HasBroomType(BroomType type)
+    public bool HasBroomType(BroomType type)
+    {
+        return type switch
         {
-            return type switch
-            {
-                BroomType.Normal => HasBroom,
-                BroomType.Long => HasLengthen,
-                BroomType.Wide => HasWiden,
-                BroomType.Transformer => HasTransformer,
-                _ => false,
-            };
-        }
-
-        public BroomType EquippedBroom
-        {
-            get
-            {
-                if (!GlobalState.CanChangeBroom && _equippedBroom != BroomType.Transformer && _equippedBroom != BroomType.NONE)
-                    return BroomType.Normal;
-
-                return _equippedBroom;
-            }
-            set
-            {
-                if (HasBroomType(value))
-                {
-                    BroomType old_val = _equippedBroom;
-                    if (!GlobalState.CanChangeBroom && value != BroomType.Transformer)
-                    {
-                        _equippedBroom = BroomType.Normal;
-                    }
-                    else
-                    {
-                        _equippedBroom = value;
-                    }
-                    EquippedBroomChanged = _equippedBroom != old_val;
-                }
-            }
-        }
-
-        public int CardCount
-        {
-            get
-            {
-                return CardStatus.Count(c => c);
-            }
-        }
-
-        public bool UnlockedSecretz
-        {
-            get
-            {
-                return SecretStatus.Any(s => s);
-            }
-        }
-
-        public bool UnlockedAllSecretz
-        {
-            get
-            {
-                return SecretStatus.All(s => s);
-            }
-        }
-
-        public bool EquippedBroomChanged = false;
-
-        public bool HasBroom = false;
-        public bool HasLengthen = false;
-        public bool HasWiden = false;
-        public bool HasTransformer = false;
-
-        public bool CanJump = false;
-
-        public enum TradeState
-        {
-            NONE,
-            SHOES,
-            BOX
+            BroomType.Normal => HasBroom,
+            BroomType.Long => HasLengthen,
+            BroomType.Wide => HasWiden,
+            BroomType.Transformer => HasTransformer,
+            _ => false,
         };
+    }
 
-        public TradeState tradeState = TradeState.NONE;
-
-        public bool[] CardStatus = Enumerable.Repeat(false, 49).ToArray();
-        public bool[] SecretStatus = Enumerable.Repeat(false, 14).ToArray();
-        public bool[] BigKeyStatus = Enumerable.Repeat(false, 3).ToArray();
-
-        public Dictionary<string, int> _mapKeys = new();
-        public BroomType _equippedBroom = BroomType.NONE;
-
-        public int GetCurrentMapKeys()
+    public BroomType EquippedBroom
+    {
+        get
         {
-            return GetMapKeys(GlobalState.CurrentMapName);
+            if (!GlobalState.CanChangeBroom && _equippedBroom != BroomType.Transformer && _equippedBroom != BroomType.NONE)
+                return BroomType.Normal;
+
+            return _equippedBroom;
         }
-
-        public int GetMapKeys(string mapName)
+        set
         {
-            if (!_mapKeys.ContainsKey(mapName))
+            if (HasBroomType(value))
             {
-                return 0;
+                BroomType old_val = _equippedBroom;
+                if (!GlobalState.CanChangeBroom && value != BroomType.Transformer)
+                {
+                    _equippedBroom = BroomType.Normal;
+                }
+                else
+                {
+                    _equippedBroom = value;
+                }
+                EquippedBroomChanged = _equippedBroom != old_val;
             }
-
-            return _mapKeys[mapName];
         }
+    }
 
-        public bool SetMapKeys(string mapName, int count)
+    public int CardCount
+    {
+        get
         {
-            if (!_mapKeys.ContainsKey(mapName))
-            {
-                return false;
-            }
-
-            _mapKeys[mapName] = count;
-            return true;
+            return CardStatus.Count(c => c);
         }
+    }
 
-        public int AddCurrentMapKey()
+    public bool UnlockedSecretz
+    {
+        get
         {
-            return AddMapKey(GlobalState.CurrentMapName, 1);
+            return SecretStatus.Any(s => s);
         }
+    }
 
-        public int RemoveCurrentMapKey()
+    public bool UnlockedAllSecretz
+    {
+        get
         {
-            return AddMapKey(GlobalState.CurrentMapName, -1);
+            return SecretStatus.All(s => s);
         }
+    }
 
-        public int AddMapKey(string mapName, int addition)
+    public bool EquippedBroomChanged = false;
+
+    public bool HasBroom = false;
+    public bool HasLengthen = false;
+    public bool HasWiden = false;
+    public bool HasTransformer = false;
+
+    public bool CanJump = false;
+
+    public enum TradeState
+    {
+        NONE,
+        SHOES,
+        BOX
+    };
+
+    public TradeState tradeState = TradeState.NONE;
+
+    public bool[] CardStatus = Enumerable.Repeat(false, 49).ToArray();
+    public bool[] SecretStatus = Enumerable.Repeat(false, 14).ToArray();
+    public bool[] BigKeyStatus = Enumerable.Repeat(false, 3).ToArray();
+
+    public Dictionary<string, int> _mapKeys = new();
+    public BroomType _equippedBroom = BroomType.NONE;
+
+    public int GetCurrentMapKeys()
+    {
+        return GetMapKeys(GlobalState.CurrentMapName);
+    }
+
+    public int GetMapKeys(string mapName)
+    {
+        if (!_mapKeys.ContainsKey(mapName))
         {
-            GlobalState.RefreshKeyCount = true;
-
-            if (!_mapKeys.ContainsKey(mapName))
-            {
-                _mapKeys.Add(mapName, addition);
-            }
-            else
-            {
-                _mapKeys[mapName] += addition;
-            }
-
-            DebugLogger.AddInfo($"Set key count of {mapName} to {_mapKeys[mapName]}");
-
-            return _mapKeys[mapName];
+            return 0;
         }
+
+        return _mapKeys[mapName];
+    }
+
+    public bool SetMapKeys(string mapName, int count)
+    {
+        if (!_mapKeys.ContainsKey(mapName))
+        {
+            return false;
+        }
+
+        _mapKeys[mapName] = count;
+        return true;
+    }
+
+    public int AddCurrentMapKey()
+    {
+        return AddMapKey(GlobalState.CurrentMapName, 1);
+    }
+
+    public int RemoveCurrentMapKey()
+    {
+        return AddMapKey(GlobalState.CurrentMapName, -1);
+    }
+
+    public int AddMapKey(string mapName, int addition)
+    {
+        GlobalState.RefreshKeyCount = true;
+
+        if (!_mapKeys.ContainsKey(mapName))
+        {
+            _mapKeys.Add(mapName, addition);
+        }
+        else
+        {
+            _mapKeys[mapName] += addition;
+        }
+
+        DebugLogger.AddInfo($"Set key count of {mapName} to {_mapKeys[mapName]}");
+
+        return _mapKeys[mapName];
     }
 }

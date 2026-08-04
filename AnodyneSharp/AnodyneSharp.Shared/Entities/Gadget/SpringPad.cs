@@ -6,87 +6,86 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Gadget
+namespace AnodyneSharp.Entities.Gadget;
+
+[NamedEntity("Jump_Trigger", "1"), Collision(typeof(Player))]
+public class SpringPad : Entity
 {
-    [NamedEntity("Jump_Trigger", "1"), Collision(typeof(Player))]
-    public class SpringPad : Entity
+    private int distance;
+    private float time;
+
+    private bool playerCollision;
+    private bool activated;
+
+    public static AnimatedSpriteRenderer GetSprite() => new("spring_pad", 16, 16,
+        new Anim("still", new int[] { 0 }, 1),
+        new Anim("pressed", new int[] { 1 }, 1),
+        new Anim("wobble", new int[] { 0, 2, 0, 1, 0, 2, 0, 1, 0, 0 }, 10, false)
+        );
+
+    public SpringPad(EntityPreset preset, Player p)
+        : base(preset.Position, GetSprite(), DrawOrder.BG_ENTITIES)
     {
-        private int distance;
-        private float time;
-
-        private bool playerCollision;
-        private bool activated;
-
-        public static AnimatedSpriteRenderer GetSprite() => new("spring_pad", 16, 16,
-            new Anim("still", new int[] { 0 }, 1),
-            new Anim("pressed", new int[] { 1 }, 1),
-            new Anim("wobble", new int[] { 0, 2, 0, 1, 0, 2, 0, 1, 0, 0 }, 10, false)
-            );
-
-        public SpringPad(EntityPreset preset, Player p)
-            : base(preset.Position, GetSprite(), DrawOrder.BG_ENTITIES)
+        switch (preset.Frame)
         {
-            switch (preset.Frame)
-            {
-                case 1:
-                    distance = 48;
-                    time = 0.5f;
-                    break;
-                case 2:
-                    distance = 64;
-                    time = 0.7f;
-                    break;
-                default:
-                    distance = 32;
-                    time = 0.3f;
-                    break;
-            }
+            case 1:
+                distance = 48;
+                time = 0.5f;
+                break;
+            case 2:
+                distance = 64;
+                time = 0.7f;
+                break;
+            default:
+                distance = 32;
+                time = 0.3f;
+                break;
         }
+    }
 
-        public override void Collided(Entity other)
+    public override void Collided(Entity other)
+    {
+        base.Collided(other);
+
+        if (other is Player p)
         {
-            base.Collided(other);
+            playerCollision = true;
 
-            if (other is Player p)
+            if (p.JustLanded)
             {
-                playerCollision = true;
+                activated = true;
+                SoundManager.PlaySoundEffect("spring_bounce");
 
-                if (p.JustLanded)
+                Play("wobble");
+
+                p.facing = Facing.DOWN;
+
+                p.AutoJump(time, p.Position + new Vector2(0, distance), 10);
+            }
+            else
+            {
+                if (!activated && p.state == PlayerState.GROUND)
                 {
-                    activated = true;
-                    SoundManager.PlaySoundEffect("spring_bounce");
-
-                    Play("wobble");
-
-                    p.facing = Facing.DOWN;
-
-                    p.AutoJump(time, p.Position + new Vector2(0, distance), 10);
+                    Play("pressed");
                 }
-                else
+                else if (p.state == PlayerState.AIR)
                 {
-                    if (!activated && p.state == PlayerState.GROUND)
-                    {
-                        Play("pressed");
-                    }
-                    else if (p.state == PlayerState.AIR)
-                    {
-                        Play("still");
-                    }
+                    Play("still");
                 }
             }
         }
+    }
 
-        public override void Update()
+    public override void Update()
+    {
+        base.Update();
+
+        if ((activated && AnimFinished) || !playerCollision)
         {
-            base.Update();
-
-            if ((activated && AnimFinished) || !playerCollision)
-            {
-                activated = false;
-                Play("still");
-            }
-
-            playerCollision = false;
+            activated = false;
+            Play("still");
         }
+
+        playerCollision = false;
     }
 }

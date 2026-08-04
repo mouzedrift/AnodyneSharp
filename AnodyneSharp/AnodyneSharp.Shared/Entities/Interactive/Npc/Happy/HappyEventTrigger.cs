@@ -7,58 +7,57 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Interactive.Npc.Happy
+namespace AnodyneSharp.Entities.Interactive.Npc.Happy;
+
+[NamedEntity("NPC","generic",1)]
+public class HappyEventTrigger : Entity
 {
-    [NamedEntity("NPC","generic",1)]
-    public class HappyEventTrigger : Entity
+    Player _p;
+    IEnumerator<string> _state;
+    VolumeEvent volume;
+
+    public HappyEventTrigger(EntityPreset preset, Player p) : base(preset.Position)
     {
-        Player _p;
-        IEnumerator<string> _state;
-        VolumeEvent volume;
-
-        public HappyEventTrigger(EntityPreset preset, Player p) : base(preset.Position)
+        visible = false;
+        if(GlobalState.Events.GetEvent("HappyStarted") != 0)
         {
-            visible = false;
-            if(GlobalState.Events.GetEvent("HappyStarted") != 0)
-            {
-                exists = false;
-            }
-            _p = p;
-            _state = StateLogic();
-            volume = new(0, 0.9f);
+            exists = false;
         }
+        _p = p;
+        _state = StateLogic();
+        volume = new(0, 0.9f);
+    }
 
-        public override void Update()
+    public override void Update()
+    {
+        base.Update();
+        _state.MoveNext();
+    }
+
+    IEnumerator<string> StateLogic()
+    {
+        while(MapUtilities.GetInGridPosition(_p.Position).X > 80)
         {
-            base.Update();
-            _state.MoveNext();
+            volume.Update();
+            yield return "Waiting";
         }
-
-        IEnumerator<string> StateLogic()
+        Sounds.SoundManager.StopSong();
+        var sound = Sounds.SoundManager.PlaySoundEffect("red_cave_rise");
+        GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("happy_npc", "briar");
+        while(!GlobalState.LastDialogueFinished || sound.State == Microsoft.Xna.Framework.Audio.SoundState.Playing)
         {
-            while(MapUtilities.GetInGridPosition(_p.Position).X > 80)
-            {
-                volume.Update();
-                yield return "Waiting";
-            }
-            Sounds.SoundManager.StopSong();
-            var sound = Sounds.SoundManager.PlaySoundEffect("red_cave_rise");
-            GlobalState.Dialogue = Dialogue.DialogueManager.GetDialogue("happy_npc", "briar");
-            while(!GlobalState.LastDialogueFinished || sound.State == Microsoft.Xna.Framework.Audio.SoundState.Playing)
-            {
-                GlobalState.ScreenShake.Shake(0.02f, 0.1f);
-                _p.dontMove = true;
-                yield return "Dialogue";
-            }
-            _p.dontMove = false;
-            GlobalState.Events.IncEvent("HappyStarted");
-
-            GlobalState.Flash.Flash(1f, Color.Red, () => {
-                ((Map)GlobalState.Map).ReloadSettings(_p.Position);
-                GlobalState.Darkness.ForceAlpha(1);
-            });
-
-            yield break;
+            GlobalState.ScreenShake.Shake(0.02f, 0.1f);
+            _p.dontMove = true;
+            yield return "Dialogue";
         }
+        _p.dontMove = false;
+        GlobalState.Events.IncEvent("HappyStarted");
+
+        GlobalState.Flash.Flash(1f, Color.Red, () => {
+            ((Map)GlobalState.Map).ReloadSettings(_p.Position);
+            GlobalState.Darkness.ForceAlpha(1);
+        });
+
+        yield break;
     }
 }

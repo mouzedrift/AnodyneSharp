@@ -4,50 +4,49 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace AnodyneSharp.MapData
+namespace AnodyneSharp.MapData;
+
+public static class MapLoader
 {
-    public static class MapLoader
+    private enum Layer
     {
-        private enum Layer
-        {
-            BG = 1,
-            BG2,
-            FG
-        }
+        BG = 1,
+        BG2,
+        FG
+    }
 
-        private static TileMap LoadMap(string path, string defaultCSV, bool crit = true)
-        {
-            string CSV = defaultCSV;
+    private static TileMap LoadMap(string path, string defaultCSV, bool crit = true)
+    {
+        string CSV = defaultCSV;
 
-            using (Stream stream = AssemblyReaderUtil.GetStream(path))
+        using (Stream stream = AssemblyReaderUtil.GetStream(path))
+        {
+            if (stream == null)
             {
-                if (stream == null)
+                if (crit)
                 {
-                    if (crit)
-                    {
-                        DebugLogger.AddCritical($"Unable to find map at {path}");
-                    }
-                    return new TileMap(CSV);
+                    DebugLogger.AddCritical($"Unable to find map at {path}");
                 }
-                using StreamReader reader = new StreamReader(stream);
-                CSV = reader.ReadToEnd();
+                return new TileMap(CSV);
             }
-
-            return new TileMap(CSV);
+            using StreamReader reader = new StreamReader(stream);
+            CSV = reader.ReadToEnd();
         }
 
-        public static TileMap GetMinimap(string mapName)
-        {
-            string path = $"Content.MiniMaps.Minimap_{mapName}.csv";
+        return new TileMap(CSV);
+    }
 
-            return LoadMap(path,"",false);
-        }
+    public static TileMap GetMinimap(string mapName)
+    {
+        string path = $"Content.MiniMaps.Minimap_{mapName}.csv";
 
-        public static TileMap GetMapLayer(string mapName, int layer = 1)
-        {
-            string path = $"Content.Maps.{mapName}.{(Layer)layer}.csv";
+        return LoadMap(path,"",false);
+    }
 
-            return LoadMap(path,"0,0",layer == 1);
-        }
+    public static TileMap GetMapLayer(string mapName, int layer = 1)
+    {
+        string path = $"Content.Maps.{mapName}.{(Layer)layer}.csv";
+
+        return LoadMap(path,"0,0",layer == 1);
     }
 }

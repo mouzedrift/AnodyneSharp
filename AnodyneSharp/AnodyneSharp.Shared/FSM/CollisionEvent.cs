@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.FSM
+namespace AnodyneSharp.FSM;
+
+public class CollisionEvent<E> : EventArgs
 {
-    public class CollisionEvent<E> : EventArgs
-    {
-        public E entity;
-    }
+    public E entity;
 }

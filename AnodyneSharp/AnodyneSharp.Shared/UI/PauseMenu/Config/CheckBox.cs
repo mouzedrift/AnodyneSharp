@@ -6,61 +6,60 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.UI.PauseMenu.Config
+namespace AnodyneSharp.UI.PauseMenu.Config;
+
+public class CheckBox : UIOption
 {
-    public class CheckBox : UIOption
+    public delegate void ValueChanged(bool newValue);
+
+    public ValueChanged ValueChangedEvent;
+
+    private Spritesheet _box;
+
+    private Vector2 _pos;
+    private bool _turnedOn;
+    private MenuStyle _style;
+
+    private DrawOrder _layer;
+
+    public CheckBox(Vector2 position, bool current, MenuStyle style, DrawOrder layer = DrawOrder.AUDIO_SLIDER)
     {
-        public delegate void ValueChanged(bool newValue);
+        _box = new Spritesheet(ResourceManager.GetTexHandle("checkbox", true), 11, 11);
 
-        public ValueChanged ValueChangedEvent;
+        _pos = position;
 
-        private Spritesheet _box;
+        _turnedOn = current;
 
-        private Vector2 _pos;
-        private bool _turnedOn;
-        private MenuStyle _style;
+        _layer = layer;
 
-        private DrawOrder _layer;
+        _style = style;
+    }
 
-        public CheckBox(Vector2 position, bool current, MenuStyle style, DrawOrder layer = DrawOrder.AUDIO_SLIDER)
-        {
-            _box = new Spritesheet(ResourceManager.GetTexHandle("checkbox", true), 11, 11);
+    public void Toggle()
+    {
+        _turnedOn = !_turnedOn;
+        ValueChangedEvent?.Invoke(_turnedOn);
+    }
 
-            _pos = position;
+    public override void Update()
+    {
+    }
 
-            _turnedOn = current;
+    public override void Draw()
+    {
+        SpriteDrawer.DrawSprite(_box.Tex, _pos,
+            _box.GetRect((_turnedOn ? 1 : 0) + ((int)_style * 2)), 
+            Z: DrawingUtilities.GetDrawingZ(_layer));
 
-            _layer = layer;
+    }
 
-            _style = style;
-        }
+    public override void GetControl()
+    {
+        Toggle();
+        Exit = true;
+    }
 
-        public void Toggle()
-        {
-            _turnedOn = !_turnedOn;
-            ValueChangedEvent?.Invoke(_turnedOn);
-        }
-
-        public override void Update()
-        {
-        }
-
-        public override void Draw()
-        {
-            SpriteDrawer.DrawSprite(_box.Tex, _pos,
-                _box.GetRect((_turnedOn ? 1 : 0) + ((int)_style * 2)), 
-                Z: DrawingUtilities.GetDrawingZ(_layer));
-
-        }
-
-        public override void GetControl()
-        {
-            Toggle();
-            Exit = true;
-        }
-
-        public override void LoseControl()
-        {
-        }
+    public override void LoseControl()
+    {
     }
 }

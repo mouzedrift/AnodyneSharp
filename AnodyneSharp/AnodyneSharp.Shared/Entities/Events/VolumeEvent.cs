@@ -6,41 +6,40 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AnodyneSharp.Entities.Events
+namespace AnodyneSharp.Entities.Events;
+
+[NamedEntity("Event",null,1)]
+public class VolumeEvent : Entity
 {
-    [NamedEntity("Event",null,1)]
-    public class VolumeEvent : Entity
+    float target;
+    public float speed;
+    public VolumeEvent(EntityPreset preset, Player p) : this(float.Parse(preset.TypeValue))
     {
-        float target;
-        public float speed;
-        public VolumeEvent(EntityPreset preset, Player p) : this(float.Parse(preset.TypeValue))
-        {
-        }
+    }
 
-        public VolumeEvent(float target, float speed = 0.4f) : base(Vector2.Zero)
-        {
-            SetTarget(target);
-            this.speed = speed;
-            visible = false;
-        }
+    public VolumeEvent(float target, float speed = 0.4f) : base(Vector2.Zero)
+    {
+        SetTarget(target);
+        this.speed = speed;
+        visible = false;
+    }
 
-        public void SetTarget(float t)
-        {
-            target = t;
-            ReachedTarget = false;
-        }
+    public void SetTarget(float t)
+    {
+        target = t;
+        ReachedTarget = false;
+    }
 
-        public bool ReachedTarget { get; private set; } = false;
+    public bool ReachedTarget { get; private set; } = false;
 
-        public override void Update()
+    public override void Update()
+    {
+        if (!ReachedTarget)
         {
-            if (!ReachedTarget)
-            {
-                //VolumeEvent only changes bgm volume
-                float current = SoundManager.GetVolume();
-                ReachedTarget = MathUtilities.MoveTo(ref current, target, speed);
-                SoundManager.SetSongVolume(current);
-            }
+            //VolumeEvent only changes bgm volume
+            float current = SoundManager.GetVolume();
+            ReachedTarget = MathUtilities.MoveTo(ref current, target, speed);
+            SoundManager.SetSongVolume(current);
         }
     }
 }
